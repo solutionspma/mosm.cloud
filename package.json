@@ -1,0 +1,20 @@
+{
+  "name": "mosm-cloud",
+  "version": "1.0.0",
+  "description": "mOSm.Cloud - Cloud control plane for digital menu systems",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Build complete'",
+    "test": "echo 'No tests yet'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
