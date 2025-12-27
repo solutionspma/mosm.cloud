@@ -805,25 +805,42 @@
     
     // Initialize
     async function init() {
+      console.log('Admin init starting...');
+      
       // Check auth
       const sessionStr = localStorage.getItem('mosm_session');
       if (!sessionStr) {
+        console.log('No session, redirecting to login');
         window.location.href = '/login.html';
         return;
       }
-      currentSession = JSON.parse(sessionStr);
+      
+      try {
+        currentSession = JSON.parse(sessionStr);
+        console.log('Session loaded');
+      } catch (e) {
+        console.error('Failed to parse session:', e);
+        window.location.href = '/login.html';
+        return;
+      }
       
       const userStr = localStorage.getItem('mosm_user');
       if (userStr) {
-        currentUser = JSON.parse(userStr);
-        updateUserInfo();
+        try {
+          currentUser = JSON.parse(userStr);
+          updateUserInfo();
+          console.log('User loaded:', currentUser.email);
+        } catch (e) {
+          console.error('Failed to parse user:', e);
+        }
       }
       
-      // Load initial data
-      await loadOrganization();
+      // Load initial data (non-blocking)
+      loadOrganization().catch(e => console.error('Org load error:', e));
       
-      // Setup routing
+      // Setup routing immediately - don't wait for org
       window.addEventListener('hashchange', loadAdminView);
+      console.log('Loading view...');
       loadAdminView();
     }
     
@@ -934,6 +951,7 @@
     // MENUS VIEW
     // ==========================================
     async function loadMenusView() {
+      console.log('Loading menus view...');
       document.getElementById('pageTitle').textContent = 'Menus';
       document.getElementById('topBarActions').innerHTML = `
         <a href="/menus.html" class="btn btn-secondary">
@@ -956,7 +974,9 @@
       content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
       
       try {
+        console.log('Fetching menus from API...');
         const data = await apiRequest('/menus');
+        console.log('Menus response:', data);
         menus = data.menus || [];
         
         if (menus.length === 0) {
