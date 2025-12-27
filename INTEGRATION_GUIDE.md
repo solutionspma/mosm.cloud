@@ -75,6 +75,11 @@ mOSm.cloud/
 | **Production Site** | https://mosm-cloud.netlify.app |
 | **Login Page** | https://mosm-cloud.netlify.app/login.html |
 | **Dashboard** | https://mosm-cloud.netlify.app/dashboard.html |
+| **Menus List** | https://mosm-cloud.netlify.app/menus.html |
+| **Menu Editor** | https://mosm-cloud.netlify.app/admin.html |
+| **Devices** | https://mosm-cloud.netlify.app/devices.html |
+| **Device Player** | https://mosm-cloud.netlify.app/player.html |
+| **Onboarding** | https://mosm-cloud.netlify.app/onboarding.html |
 | **GitHub Repo** | https://github.com/solutionspma/mosm.cloud |
 | **Netlify Project** | mosm-cloud (ID: 48e5af30-9596-4fa1-9766-7fee16f03396) |
 
@@ -114,6 +119,8 @@ DELETE /api/layouts/:id       - Delete layout
 ```
 GET  /api/devices              - List devices for organization
 POST /api/devices              - Register new device
+POST /api/devices/register-self - Device self-registration (returns pairing code)
+POST /api/devices/claim        - Claim device by pairing code
 POST /api/devices/heartbeat    - Device heartbeat (every 15s)
 PUT  /api/devices/:id          - Update device settings
 DELETE /api/devices/:id        - Remove device
@@ -135,7 +142,42 @@ POST /api/publish              - Publish menu to assigned screens
   - Updates status to "published"
   - Records in publish_history
   - Flags devices for update
+
+GET  /api/publish/device/:id   - Get published content for device (used by player)
 ```
+
+---
+
+## 📱 Application Pages
+
+### Menu Editor (`/admin.html`)
+Full multi-screen layout editor with:
+- **Resolution Profiles**: 720p through 8K, portrait/landscape variants
+- **Multi-Screen Support**: Manage multiple screens per layout
+- **Element Palette**: Text, Image, Video, Zone elements
+- **Properties Panel**: Edit selected element properties
+- **Safe Zone Overlay**: Visualize TV overscan/kiosk bezels
+- **Publish Button**: One-click publish to devices
+
+### Device Player (`/player.html`)
+Kiosk/display runtime with:
+- **Self-Registration**: Automatically registers with cloud on first load
+- **Pairing Code Display**: Shows 6-character code until claimed
+- **Heartbeat**: Sends status every 15 seconds
+- **Auto-Refresh**: Polls for published content updates
+- **CSS Transform Scaling**: Fits any resolution to screen
+
+### Device Management (`/devices.html`)
+Admin page for device pairing:
+- **Pairing Code Entry**: Enter code displayed on kiosk to claim it
+- **Device List**: View all claimed devices with online/offline status
+- **Menu Assignment**: Assign menus to device screens
+
+### Menus List (`/menus.html`)
+Menu management page:
+- **Grid View**: Visual cards for all organization menus
+- **Quick Actions**: Create, Edit, Delete menus
+- **Status Indicators**: Draft, Published, Archived
 
 ---
 
@@ -331,27 +373,87 @@ setInterval(async () => {
 - [x] Session tokens being issued
 - [x] RLS policies in place
 - [x] Trigger for auto user profile creation
+- [x] Organization onboarding flow
+- [x] Multi-screen layout editor (admin.html)
+- [x] Device self-registration with pairing codes
+- [x] Device player with heartbeat and content rendering
+- [x] Device claiming by pairing code
+- [x] Menu publishing to devices
+- [x] Menus list page with CRUD operations
 
 ## ⚠️ Known Issues / TODOs
 
-1. **Email Confirmation Redirect**: Was pointing to localhost:3000. Fixed by updating Supabase URL Configuration to `https://mosm-cloud.netlify.app`
+1. ~~**Email Confirmation Redirect**: Was pointing to localhost:3000.~~ ✅ Fixed
 
-2. **Service Role Key**: Needs to be updated in Netlify if it was regenerated along with anon key
+2. ~~**Service Role Key**: Needs to be updated in Netlify.~~ ✅ Fixed
 
 3. **CORS**: Currently allows all origins (`*`). May need to restrict to specific domains in production.
 
-4. **Organization Creation**: New users don't have an organization yet. Need onboarding flow to create one.
+4. ~~**Organization Creation**: New users don't have an organization yet.~~ ✅ Fixed - Onboarding flow creates organization
 
 ---
 
 ## 🚀 Next Steps for Integration
 
-1. **Update MODOSmenus Cloud button** to point to mOSm.Cloud login/dashboard
-2. **Add API client** to MODOSmenus for menu save/load operations
+1. ~~**Update MODOSmenus Cloud button**~~ ✅ mOSm.Cloud has its own full UI now
+2. **Connect MODOSmenus Menu Builder** to mOSm.Cloud API for save/load
 3. **Implement shared auth** - single login works across all apps
-4. **Build device registration flow** for kiosks
-5. **Create publish workflow** in Menu Builder
+4. ~~**Build device registration flow**~~ ✅ Complete with pairing codes
+5. ~~**Create publish workflow**~~ ✅ Available in Menu Editor
 6. **Add real-time updates** via Supabase subscriptions (optional)
+7. **Media asset management** - Image/video upload and library
+
+---
+
+## 🔄 Device Pairing Flow
+
+### How It Works
+
+1. **Kiosk loads player.html**
+   - Calls `POST /api/devices/register-self`
+   - Receives `deviceId` and 6-character `pairingCode`
+   - Displays pairing code on screen
+
+2. **Admin opens devices.html**
+   - Clicks "Add Device"
+   - Enters the pairing code shown on kiosk
+   - Calls `POST /api/devices/claim` with code + orgId
+
+3. **Device is claimed**
+   - Device now belongs to organization
+   - Admin can assign menus to device
+   - Kiosk starts displaying published content
+
+### Code Example (Player Side)
+```javascript
+// Self-register device
+const response = await fetch('/api/devices/register-self', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Kiosk',
+    resolution: '1920x1080'
+  })
+});
+const { deviceId, pairingCode } = await response.json();
+// Display pairingCode on screen until claimed
+```
+
+### Code Example (Admin Side)
+```javascript
+// Claim device by pairing code
+const response = await fetch('/api/devices/claim', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${session.access_token}`
+  },
+  body: JSON.stringify({
+    pairingCode: 'ABC123',
+    organizationId: user.organization_id
+  })
+});
+```
 
 ---
 
@@ -365,3 +467,4 @@ setInterval(async () => {
 
 *Document created: December 27, 2025*
 *Last updated: December 27, 2025*
+*Phases 1-6 completed: December 27, 2025*
