@@ -1673,29 +1673,51 @@
     
     // Initialize
     async function init() {
+      console.log('Editor init starting...');
+      
       // Check auth
       const sessionStr = localStorage.getItem('mosm_session');
       if (!sessionStr) {
+        console.log('No session found, redirecting to login');
         window.location.href = '/login.html';
         return;
       }
-      currentSession = JSON.parse(sessionStr);
+      
+      try {
+        currentSession = JSON.parse(sessionStr);
+        console.log('Session loaded successfully');
+      } catch (e) {
+        console.error('Failed to parse session:', e);
+        window.location.href = '/login.html';
+        return;
+      }
       
       // Get menu ID from URL hash
       const hash = window.location.hash;
+      console.log('Hash:', hash);
       const menuIdMatch = hash.match(/menus\/([a-f0-9-]+)/);
       
       if (!menuIdMatch) {
+        console.error('No menu ID in hash');
         alert('No menu ID provided');
-        window.location.href = '/dashboard.html';
+        window.location.href = '/admin.html';
         return;
       }
       
       const menuId = menuIdMatch[1];
+      console.log('Menu ID:', menuId);
       
       // Load menu and layouts
-      await loadMenu(menuId);
-      await loadLayouts(menuId);
+      try {
+        console.log('Loading menu...');
+        await loadMenu(menuId);
+        console.log('Menu loaded, loading layouts...');
+        await loadLayouts(menuId);
+        console.log('Layouts loaded');
+      } catch (error) {
+        console.error('Error loading data:', error);
+        document.getElementById('menuName').textContent = 'Error loading menu';
+      }
       
       // Populate resolution dropdowns
       populateResolutionSelect();
@@ -1703,42 +1725,61 @@
       
       // Setup canvas interactions
       setupCanvasInteractions();
+      console.log('Editor init complete');
     }
     
     // API helper
     async function apiRequest(endpoint, options = {}) {
+      console.log('apiRequest:', endpoint);
       const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentSession.access_token}`,
         ...options.headers
       };
       
-      const response = await fetch(`${API_BASE}${endpoint}`, {
-        ...options,
-        headers
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Request failed');
+      try {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+          ...options,
+          headers
+        });
+        
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Request failed');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('apiRequest error:', error);
+        throw error;
       }
-      
-      return data;
     }
     
     // Load menu
     async function loadMenu(menuId) {
+      console.log('loadMenu called with:', menuId);
       try {
+        const url = `${API_BASE}/menus/${menuId}`;
+        console.log('Fetching:', url);
         const data = await apiRequest(`/menus/${menuId}`);
+        console.log('Menu data received:', data);
         currentMenu = data.menu;
         
-        document.getElementById('menuName').textContent = currentMenu.name;
-        document.getElementById('menuStatus').textContent = currentMenu.status;
-        document.getElementById('menuStatus').className = `menu-status ${currentMenu.status}`;
+        if (currentMenu) {
+          document.getElementById('menuName').textContent = currentMenu.name;
+          document.getElementById('menuStatus').textContent = currentMenu.status;
+          document.getElementById('menuStatus').className = `menu-status ${currentMenu.status}`;
+          console.log('Menu UI updated:', currentMenu.name);
+        } else {
+          console.error('No menu in response');
+          document.getElementById('menuName').textContent = 'Menu not found';
+        }
       } catch (error) {
         console.error('Error loading menu:', error);
-        alert('Error loading menu: ' + error.message);
+        document.getElementById('menuName').textContent = 'Error: ' + error.message;
       }
     }
     
