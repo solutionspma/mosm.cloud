@@ -467,6 +467,366 @@
     .tool-btn span {
       font-size: 9px;
     }
+
+    /* Menu Components Section */
+    .tool-section-divider {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 12px 0 8px 0;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .menu-tool-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .menu-tool-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .menu-tool-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-secondary);
+      color: var(--accent-secondary);
+    }
+
+    .menu-tool-btn .icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .menu-tool-btn .label {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Menu Element Styles on Canvas */
+    .menu-item-element {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .menu-item-element .item-image {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 6px;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .menu-item-element .item-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .menu-item-element .item-name {
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .menu-item-element .item-description {
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .menu-item-element .item-price {
+      font-size: 22px;
+      font-weight: 700;
+      color: #00d4ff;
+    }
+
+    .menu-section-element {
+      padding: 16px;
+    }
+
+    .menu-section-element .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .menu-section-element .section-divider {
+      height: 3px;
+      background: linear-gradient(90deg, #00d4ff 0%, transparent 100%);
+      border-radius: 2px;
+    }
+
+    .price-list-element {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .price-list-element .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dotted rgba(255,255,255,0.2);
+    }
+
+    .price-list-element .price-row:last-child {
+      border-bottom: none;
+    }
+
+    .price-list-element .price-name {
+      font-size: 18px;
+      color: #fff;
+    }
+
+    .price-list-element .price-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #00d4ff;
+    }
+
+    .combo-element {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(0, 212, 255, 0.2) 100%);
+      border: 2px solid rgba(124, 58, 237, 0.5);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+    }
+
+    .combo-element .combo-badge {
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .combo-element .combo-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .combo-element .combo-items {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 12px;
+    }
+
+    .combo-element .combo-price {
+      font-size: 32px;
+      font-weight: 800;
+      color: #00d4ff;
+    }
+
+    .category-header-element {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .category-header-element .category-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+
+    .category-header-element .category-title {
+      font-size: 42px;
+      font-weight: 800;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .category-header-element .category-subtitle {
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 8px;
+    }
+
+    .ticker-element {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 12px 20px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker-element .ticker-content {
+      display: inline-block;
+      animation: ticker-scroll 20s linear infinite;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    @keyframes ticker-scroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Contextual Properties Panels */
+    .menu-item-props, .menu-section-props, .price-list-props, .combo-props, .category-props, .ticker-props {
+      display: none;
+    }
+
+    .property-textarea {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .property-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toggle-switch {
+      width: 40px;
+      height: 22px;
+      background: var(--bg-card);
+      border-radius: 11px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: var(--accent);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(18px);
+    }
+
+    /* Template Modal */
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .template-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .template-card:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+    }
+
+    .template-card.selected {
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.1);
+    }
+
+    .template-preview {
+      background: #000;
+      border-radius: 6px;
+      aspect-ratio: 16/9;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .template-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .template-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Auto-layout toolbar */
+    .layout-toolbar {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .layout-btn {
+      flex: 1;
+      padding: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .layout-btn:hover {
+      background: var(--bg-hover);
+      color: var(--accent);
+    }
     
     /* Layers */
     .layers-panel {
@@ -738,7 +1098,7 @@
     <!-- Right Panel: Tools & Properties -->
     <div class="properties-panel">
       <div class="toolbar">
-        <div class="toolbar-title">Add Elements</div>
+        <div class="toolbar-title">Basic Shapes</div>
         <div class="tool-grid">
           <button class="tool-btn" onclick="addElement('text')" title="Add Text">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -767,6 +1127,43 @@
             <span>Circle</span>
           </button>
         </div>
+
+        <div class="tool-section-divider">Menu Components</div>
+        <div class="menu-tool-grid">
+          <button class="menu-tool-btn" onclick="addMenuElement('menu_item')" title="Add Menu Item">
+            <span class="icon">🍔</span>
+            <span class="label">Menu Item</span>
+          </button>
+          <button class="menu-tool-btn" onclick="addMenuElement('menu_section')" title="Add Section Header">
+            <span class="icon">📋</span>
+            <span class="label">Section</span>
+          </button>
+          <button class="menu-tool-btn" onclick="addMenuElement('price_list')" title="Add Price List">
+            <span class="icon">💰</span>
+            <span class="label">Price List</span>
+          </button>
+          <button class="menu-tool-btn" onclick="addMenuElement('combo')" title="Add Combo/Special">
+            <span class="icon">⭐</span>
+            <span class="label">Combo</span>
+          </button>
+          <button class="menu-tool-btn" onclick="addMenuElement('category_header')" title="Add Category Header">
+            <span class="icon">🏷️</span>
+            <span class="label">Category</span>
+          </button>
+          <button class="menu-tool-btn" onclick="addMenuElement('ticker')" title="Add Ticker/Scroller">
+            <span class="icon">📜</span>
+            <span class="label">Ticker</span>
+          </button>
+        </div>
+
+        <div class="tool-section-divider">Templates</div>
+        <button class="btn btn-secondary" onclick="showTemplateModal()" style="width: 100%; justify-content: center;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          Insert Template
+        </button>
       </div>
       
       <div class="property-section" id="screenProperties">
@@ -834,6 +1231,175 @@
           </button>
         </div>
       </div>
+
+      <!-- Menu Item Properties -->
+      <div class="property-section menu-item-props" id="menuItemProps" style="display: none;">
+        <div class="property-section-title">🍔 Menu Item</div>
+        <div class="property-row">
+          <span class="property-label">Name</span>
+          <input type="text" class="property-input" id="menuItemName" placeholder="Item name" onchange="updateMenuItemData()">
+        </div>
+        <div class="property-row" style="flex-direction: column; align-items: stretch;">
+          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Description</span>
+          <textarea class="property-textarea" id="menuItemDesc" placeholder="Item description" onchange="updateMenuItemData()"></textarea>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Price</span>
+          <input type="text" class="property-input" id="menuItemPrice" placeholder="$0.00" onchange="updateMenuItemData()">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Image</span>
+          <input type="text" class="property-input" id="menuItemImage" placeholder="Image URL" onchange="updateMenuItemData()">
+        </div>
+        <div class="property-row toggle-row">
+          <span class="property-label">Show Image</span>
+          <div class="toggle-switch" id="menuItemShowImage" onclick="toggleMenuItemImage()"></div>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Font Size</span>
+          <input type="number" class="property-input" id="menuItemFontSize" value="24" onchange="updateMenuItemData()" style="width: 80px;">
+        </div>
+        <div class="layout-toolbar">
+          <button class="layout-btn" onclick="alignElement('left')" title="Align Left">⬅</button>
+          <button class="layout-btn" onclick="alignElement('center')" title="Align Center">↔</button>
+          <button class="layout-btn" onclick="alignElement('right')" title="Align Right">➡</button>
+        </div>
+        <div class="property-row" style="margin-top: 12px;">
+          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
+            Delete Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Menu Section Properties -->
+      <div class="property-section menu-section-props" id="menuSectionProps" style="display: none;">
+        <div class="property-section-title">📋 Menu Section</div>
+        <div class="property-row">
+          <span class="property-label">Title</span>
+          <input type="text" class="property-input" id="sectionTitle" placeholder="Section title" onchange="updateSectionData()">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Font Size</span>
+          <input type="number" class="property-input" id="sectionFontSize" value="36" onchange="updateSectionData()" style="width: 80px;">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Color</span>
+          <input type="color" class="property-input" id="sectionColor" value="#ffffff" onchange="updateSectionData()" style="width: 60px; padding: 2px;">
+        </div>
+        <div class="property-row toggle-row">
+          <span class="property-label">Show Divider</span>
+          <div class="toggle-switch active" id="sectionShowDivider" onclick="toggleSectionDivider()"></div>
+        </div>
+        <div class="property-row">
+          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
+            Delete Section
+          </button>
+        </div>
+      </div>
+
+      <!-- Price List Properties -->
+      <div class="property-section price-list-props" id="priceListProps" style="display: none;">
+        <div class="property-section-title">💰 Price List</div>
+        <div class="property-row" style="flex-direction: column; align-items: stretch;">
+          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Items (one per line: Name | Price)</span>
+          <textarea class="property-textarea" id="priceListItems" placeholder="Espresso | $3.50&#10;Latte | $4.50&#10;Cappuccino | $4.00" onchange="updatePriceListData()" style="min-height: 120px;"></textarea>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Font Size</span>
+          <input type="number" class="property-input" id="priceListFontSize" value="18" onchange="updatePriceListData()" style="width: 80px;">
+        </div>
+        <div class="property-row">
+          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
+            Delete List
+          </button>
+        </div>
+      </div>
+
+      <!-- Combo/Special Properties -->
+      <div class="property-section combo-props" id="comboProps" style="display: none;">
+        <div class="property-section-title">⭐ Combo / Special</div>
+        <div class="property-row">
+          <span class="property-label">Title</span>
+          <input type="text" class="property-input" id="comboTitle" placeholder="Combo name" onchange="updateComboData()">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Badge</span>
+          <input type="text" class="property-input" id="comboBadge" placeholder="SPECIAL" onchange="updateComboData()">
+        </div>
+        <div class="property-row" style="flex-direction: column; align-items: stretch;">
+          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Items Included</span>
+          <textarea class="property-textarea" id="comboItems" placeholder="Burger + Fries + Drink" onchange="updateComboData()"></textarea>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Price</span>
+          <input type="text" class="property-input" id="comboPrice" placeholder="$9.99" onchange="updateComboData()">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Background</span>
+          <input type="color" class="property-input" id="comboBgColor" value="#7c3aed" onchange="updateComboData()" style="width: 60px; padding: 2px;">
+        </div>
+        <div class="property-row">
+          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
+            Delete Combo
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Header Properties -->
+      <div class="property-section category-props" id="categoryProps" style="display: none;">
+        <div class="property-section-title">🏷️ Category Header</div>
+        <div class="property-row">
+          <span class="property-label">Title</span>
+          <input type="text" class="property-input" id="categoryTitle" placeholder="APPETIZERS" onchange="updateCategoryData()">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Subtitle</span>
+          <input type="text" class="property-input" id="categorySubtitle" placeholder="Start your meal right" onchange="updateCategoryData()">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Icon</span>
+          <input type="text" class="property-input" id="categoryIcon" placeholder="🍽️" onchange="updateCategoryData()" style="width: 60px;">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Font Size</span>
+          <input type="number" class="property-input" id="categoryFontSize" value="42" onchange="updateCategoryData()" style="width: 80px;">
+        </div>
+        <div class="property-row">
+          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
+            Delete Header
+          </button>
+        </div>
+      </div>
+
+      <!-- Ticker Properties -->
+      <div class="property-section ticker-props" id="tickerProps" style="display: none;">
+        <div class="property-section-title">📜 Ticker / Scroller</div>
+        <div class="property-row" style="flex-direction: column; align-items: stretch;">
+          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Messages (one per line)</span>
+          <textarea class="property-textarea" id="tickerMessages" placeholder="Welcome to our restaurant!&#10;Try our daily special!&#10;Happy Hour 4-6pm" onchange="updateTickerData()" style="min-height: 100px;"></textarea>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Speed</span>
+          <select class="property-input" id="tickerSpeed" onchange="updateTickerData()">
+            <option value="30">Slow</option>
+            <option value="20" selected>Normal</option>
+            <option value="10">Fast</option>
+          </select>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Background</span>
+          <input type="color" class="property-input" id="tickerBgColor" value="#000000" onchange="updateTickerData()" style="width: 60px; padding: 2px;">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Text Color</span>
+          <input type="color" class="property-input" id="tickerTextColor" value="#ffffff" onchange="updateTickerData()" style="width: 60px; padding: 2px;">
+        </div>
+        <div class="property-row">
+          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
+            Delete Ticker
+          </button>
+        </div>
+      </div>
       
       <div class="toolbar">
         <div class="toolbar-title">Layers</div>
@@ -868,6 +1434,54 @@
     </div>
   </div>
 
+  <!-- Template Modal -->
+  <div class="modal-overlay" id="templateModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Insert Template</h3>
+        <button class="modal-close" onclick="hideTemplateModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="template-grid" id="templateGrid">
+          <div class="template-card" data-template="two_column" onclick="selectTemplate('two_column')">
+            <div class="template-preview">📊</div>
+            <div class="template-name">2-Column Menu</div>
+            <div class="template-desc">Classic split layout with header</div>
+          </div>
+          <div class="template-card" data-template="three_column" onclick="selectTemplate('three_column')">
+            <div class="template-preview">📋</div>
+            <div class="template-name">3-Column Menu</div>
+            <div class="template-desc">Wide format with categories</div>
+          </div>
+          <div class="template-card" data-template="specials" onclick="selectTemplate('specials')">
+            <div class="template-preview">⭐</div>
+            <div class="template-name">Specials Board</div>
+            <div class="template-desc">Featured items with badges</div>
+          </div>
+          <div class="template-card" data-template="drinks" onclick="selectTemplate('drinks')">
+            <div class="template-preview">🍺</div>
+            <div class="template-name">Drinks Board</div>
+            <div class="template-desc">Beverages with price lists</div>
+          </div>
+          <div class="template-card" data-template="price_board" onclick="selectTemplate('price_board')">
+            <div class="template-preview">💰</div>
+            <div class="template-name">Price Board</div>
+            <div class="template-desc">Clean price list layout</div>
+          </div>
+          <div class="template-card" data-template="combo_deal" onclick="selectTemplate('combo_deal')">
+            <div class="template-preview">🎉</div>
+            <div class="template-name">Combo Deals</div>
+            <div class="template-desc">Promotions and bundles</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="hideTemplateModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="insertTemplate()">Insert Template</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const API_BASE = '/api';
     
@@ -893,6 +1507,158 @@
       tv_4k: 120,
       kiosk: 40
     };
+
+    // Menu element type definitions
+    const MENU_ELEMENT_DEFAULTS = {
+      menu_item: {
+        width: 500,
+        height: 120,
+        data: {
+          name: 'New Item',
+          description: 'Delicious item description',
+          price: '$9.99',
+          image: '',
+          showImage: true
+        },
+        style: {
+          fontSize: 24,
+          bgColor: 'rgba(0,0,0,0.6)'
+        }
+      },
+      menu_section: {
+        width: 400,
+        height: 80,
+        data: {
+          title: 'SECTION TITLE',
+          showDivider: true
+        },
+        style: {
+          fontSize: 36,
+          color: '#ffffff'
+        }
+      },
+      price_list: {
+        width: 400,
+        height: 200,
+        data: {
+          items: [
+            { name: 'Item One', price: '$5.99' },
+            { name: 'Item Two', price: '$6.99' },
+            { name: 'Item Three', price: '$7.99' }
+          ]
+        },
+        style: {
+          fontSize: 18,
+          bgColor: 'rgba(0,0,0,0.5)'
+        }
+      },
+      combo: {
+        width: 400,
+        height: 180,
+        data: {
+          title: 'Combo Deal',
+          badge: 'SPECIAL',
+          items: 'Main + Side + Drink',
+          price: '$12.99'
+        },
+        style: {
+          bgColor: '#7c3aed'
+        }
+      },
+      category_header: {
+        width: 500,
+        height: 150,
+        data: {
+          title: 'APPETIZERS',
+          subtitle: 'Start your meal right',
+          icon: '🍽️'
+        },
+        style: {
+          fontSize: 42
+        }
+      },
+      ticker: {
+        width: 800,
+        height: 50,
+        data: {
+          messages: ['Welcome!', 'Try our daily special!', 'Happy Hour 4-6pm'],
+          speed: 20
+        },
+        style: {
+          bgColor: '#000000',
+          textColor: '#ffffff'
+        }
+      }
+    };
+
+    // Menu template definitions
+    const TEMPLATES = {
+      two_column: {
+        name: '2-Column Menu',
+        elements: [
+          { type: 'category_header', x: 160, y: 60, width: 600, height: 120, data: { title: 'OUR MENU', subtitle: 'Fresh & Delicious', icon: '🍽️' }, style: { fontSize: 48 } },
+          { type: 'menu_section', x: 100, y: 200, width: 350, height: 60, data: { title: 'MAINS', showDivider: true }, style: { fontSize: 28, color: '#ffffff' } },
+          { type: 'menu_item', x: 100, y: 280, width: 350, height: 100, data: { name: 'Classic Burger', description: 'Angus beef, lettuce, tomato', price: '$12.99', showImage: false }, style: { fontSize: 20 } },
+          { type: 'menu_item', x: 100, y: 400, width: 350, height: 100, data: { name: 'Grilled Chicken', description: 'Herb-marinated, seasonal veggies', price: '$14.99', showImage: false }, style: { fontSize: 20 } },
+          { type: 'menu_section', x: 500, y: 200, width: 350, height: 60, data: { title: 'SIDES', showDivider: true }, style: { fontSize: 28, color: '#ffffff' } },
+          { type: 'menu_item', x: 500, y: 280, width: 350, height: 100, data: { name: 'French Fries', description: 'Crispy golden fries', price: '$4.99', showImage: false }, style: { fontSize: 20 } },
+          { type: 'menu_item', x: 500, y: 400, width: 350, height: 100, data: { name: 'Onion Rings', description: 'Beer-battered, served hot', price: '$5.99', showImage: false }, style: { fontSize: 20 } }
+        ]
+      },
+      three_column: {
+        name: '3-Column Menu',
+        elements: [
+          { type: 'text', x: 60, y: 40, width: 800, height: 60, content: 'RESTAURANT NAME', fontSize: 48, color: '#ffffff' },
+          { type: 'menu_section', x: 60, y: 120, width: 280, height: 50, data: { title: 'STARTERS', showDivider: true }, style: { fontSize: 24, color: '#00d4ff' } },
+          { type: 'price_list', x: 60, y: 180, width: 280, height: 200, data: { items: [{ name: 'Soup of Day', price: '$6' }, { name: 'Garden Salad', price: '$8' }, { name: 'Wings', price: '$10' }] }, style: { fontSize: 16 } },
+          { type: 'menu_section', x: 360, y: 120, width: 280, height: 50, data: { title: 'MAINS', showDivider: true }, style: { fontSize: 24, color: '#00d4ff' } },
+          { type: 'price_list', x: 360, y: 180, width: 280, height: 200, data: { items: [{ name: 'Steak', price: '$24' }, { name: 'Salmon', price: '$22' }, { name: 'Pasta', price: '$18' }] }, style: { fontSize: 16 } },
+          { type: 'menu_section', x: 660, y: 120, width: 280, height: 50, data: { title: 'DESSERTS', showDivider: true }, style: { fontSize: 24, color: '#00d4ff' } },
+          { type: 'price_list', x: 660, y: 180, width: 280, height: 200, data: { items: [{ name: 'Cheesecake', price: '$8' }, { name: 'Ice Cream', price: '$6' }, { name: 'Brownie', price: '$7' }] }, style: { fontSize: 16 } }
+        ]
+      },
+      specials: {
+        name: 'Specials Board',
+        elements: [
+          { type: 'category_header', x: 160, y: 40, width: 600, height: 100, data: { title: "TODAY'S SPECIALS", subtitle: 'Limited Time Only!', icon: '⭐' }, style: { fontSize: 42 } },
+          { type: 'combo', x: 100, y: 180, width: 380, height: 200, data: { title: 'Lunch Special', badge: 'BEST VALUE', items: 'Sandwich + Soup + Drink', price: '$11.99' }, style: { bgColor: '#059669' } },
+          { type: 'combo', x: 520, y: 180, width: 380, height: 200, data: { title: 'Family Feast', badge: 'FEEDS 4', items: '2 Mains + 2 Sides + Drinks', price: '$39.99' }, style: { bgColor: '#7c3aed' } },
+          { type: 'combo', x: 100, y: 420, width: 380, height: 200, data: { title: 'Date Night', badge: 'FOR TWO', items: '2 Entrees + Dessert + Wine', price: '$49.99' }, style: { bgColor: '#dc2626' } },
+          { type: 'ticker', x: 60, y: 650, width: 880, height: 50, data: { messages: ['Ask about our loyalty program!', 'Free delivery on orders over $30'], speed: 20 }, style: { bgColor: '#000', textColor: '#fff' } }
+        ]
+      },
+      drinks: {
+        name: 'Drinks Board',
+        elements: [
+          { type: 'category_header', x: 160, y: 40, width: 600, height: 100, data: { title: 'BEVERAGES', subtitle: 'Refreshing Drinks', icon: '🍺' }, style: { fontSize: 42 } },
+          { type: 'menu_section', x: 80, y: 160, width: 350, height: 50, data: { title: 'COFFEE', showDivider: true }, style: { fontSize: 24, color: '#f59e0b' } },
+          { type: 'price_list', x: 80, y: 220, width: 350, height: 180, data: { items: [{ name: 'Espresso', price: '$3.00' }, { name: 'Americano', price: '$3.50' }, { name: 'Latte', price: '$4.50' }, { name: 'Cappuccino', price: '$4.50' }] }, style: { fontSize: 16 } },
+          { type: 'menu_section', x: 500, y: 160, width: 350, height: 50, data: { title: 'COLD DRINKS', showDivider: true }, style: { fontSize: 24, color: '#00d4ff' } },
+          { type: 'price_list', x: 500, y: 220, width: 350, height: 180, data: { items: [{ name: 'Iced Tea', price: '$3.00' }, { name: 'Lemonade', price: '$3.50' }, { name: 'Smoothie', price: '$5.50' }, { name: 'Milkshake', price: '$5.50' }] }, style: { fontSize: 16 } },
+          { type: 'menu_section', x: 80, y: 430, width: 350, height: 50, data: { title: 'BEER', showDivider: true }, style: { fontSize: 24, color: '#f59e0b' } },
+          { type: 'price_list', x: 80, y: 490, width: 350, height: 140, data: { items: [{ name: 'Draft Beer', price: '$5.00' }, { name: 'Craft IPA', price: '$7.00' }, { name: 'Import', price: '$6.00' }] }, style: { fontSize: 16 } }
+        ]
+      },
+      price_board: {
+        name: 'Price Board',
+        elements: [
+          { type: 'text', x: 60, y: 40, width: 800, height: 50, content: 'MENU', fontSize: 42, color: '#ffffff' },
+          { type: 'price_list', x: 60, y: 120, width: 400, height: 250, data: { items: [{ name: 'Item 1', price: '$8.99' }, { name: 'Item 2', price: '$9.99' }, { name: 'Item 3', price: '$10.99' }, { name: 'Item 4', price: '$11.99' }, { name: 'Item 5', price: '$12.99' }] }, style: { fontSize: 20 } },
+          { type: 'price_list', x: 500, y: 120, width: 400, height: 250, data: { items: [{ name: 'Item 6', price: '$13.99' }, { name: 'Item 7', price: '$14.99' }, { name: 'Item 8', price: '$15.99' }, { name: 'Item 9', price: '$16.99' }, { name: 'Item 10', price: '$17.99' }] }, style: { fontSize: 20 } },
+          { type: 'rectangle', x: 60, y: 400, width: 840, height: 3, color: '#00d4ff' }
+        ]
+      },
+      combo_deal: {
+        name: 'Combo Deals',
+        elements: [
+          { type: 'category_header', x: 160, y: 30, width: 600, height: 100, data: { title: 'COMBO DEALS', subtitle: 'Save More!', icon: '🎉' }, style: { fontSize: 42 } },
+          { type: 'combo', x: 60, y: 150, width: 420, height: 180, data: { title: 'Combo #1', badge: 'POPULAR', items: 'Burger + Fries + Drink', price: '$9.99' }, style: { bgColor: '#dc2626' } },
+          { type: 'combo', x: 520, y: 150, width: 420, height: 180, data: { title: 'Combo #2', badge: 'VALUE', items: 'Chicken + Salad + Drink', price: '$10.99' }, style: { bgColor: '#059669' } },
+          { type: 'combo', x: 60, y: 360, width: 420, height: 180, data: { title: 'Combo #3', badge: 'DELUXE', items: 'Steak + Sides + Dessert', price: '$18.99' }, style: { bgColor: '#7c3aed' } },
+          { type: 'combo', x: 520, y: 360, width: 420, height: 180, data: { title: 'Family Pack', badge: 'FEEDS 4', items: '4 Mains + 4 Sides + 4 Drinks', price: '$34.99' }, style: { bgColor: '#0891b2' } }
+        ]
+      }
+    };
     
     // State
     let currentSession = null;
@@ -903,6 +1669,7 @@
     let zoom = 1;
     let isDragging = false;
     let dragOffset = { x: 0, y: 0 };
+    let selectedTemplate = null;
     
     // Initialize
     async function init() {
@@ -1121,6 +1888,153 @@
                  onmousedown="startDrag(event, ${index})">
             </div>
           `;
+        
+        // Menu-aware components
+        case 'menu_item':
+          return renderMenuItemElement(element, index, style, selectedClass);
+        case 'menu_section':
+          return renderMenuSectionElement(element, index, style, selectedClass);
+        case 'price_list':
+          return renderPriceListElement(element, index, style, selectedClass);
+        case 'combo':
+          return renderComboElement(element, index, style, selectedClass);
+        case 'category_header':
+          return renderCategoryHeaderElement(element, index, style, selectedClass);
+        case 'ticker':
+          return renderTickerElement(element, index, style, selectedClass);
+        
+        default:
+          return '';
+      }
+    }
+
+    // Menu Item Renderer
+    function renderMenuItemElement(element, index, style, selectedClass) {
+      const data = element.data || {};
+      const elStyle = element.style || {};
+      return `
+        <div class="canvas-element menu-item-element ${selectedClass}" 
+             data-index="${index}" 
+             style="${style}; background: ${elStyle.bgColor || 'rgba(0,0,0,0.6)'};"
+             onmousedown="startDrag(event, ${index})">
+          ${data.showImage && data.image ? `<img class="item-image" src="${data.image}" alt="">` : (data.showImage ? '<div class="item-image"></div>' : '')}
+          <div class="item-content">
+            <div class="item-name" style="font-size: ${elStyle.fontSize || 24}px;">${data.name || 'Item Name'}</div>
+            <div class="item-description">${data.description || 'Description'}</div>
+            <div class="item-price">${data.price || '$0.00'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Menu Section Renderer
+    function renderMenuSectionElement(element, index, style, selectedClass) {
+      const data = element.data || {};
+      const elStyle = element.style || {};
+      return `
+        <div class="canvas-element menu-section-element ${selectedClass}" 
+             data-index="${index}" 
+             style="${style}"
+             onmousedown="startDrag(event, ${index})">
+          <div class="section-title" style="font-size: ${elStyle.fontSize || 36}px; color: ${elStyle.color || '#fff'};">${data.title || 'SECTION'}</div>
+          ${data.showDivider !== false ? '<div class="section-divider"></div>' : ''}
+        </div>
+      `;
+    }
+
+    // Price List Renderer
+    function renderPriceListElement(element, index, style, selectedClass) {
+      const data = element.data || {};
+      const elStyle = element.style || {};
+      const items = data.items || [];
+      return `
+        <div class="canvas-element price-list-element ${selectedClass}" 
+             data-index="${index}" 
+             style="${style}; background: ${elStyle.bgColor || 'rgba(0,0,0,0.5)'};"
+             onmousedown="startDrag(event, ${index})">
+          ${items.map(item => `
+            <div class="price-row" style="font-size: ${elStyle.fontSize || 18}px;">
+              <span class="price-name">${item.name}</span>
+              <span class="price-value">${item.price}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Combo/Special Renderer
+    function renderComboElement(element, index, style, selectedClass) {
+      const data = element.data || {};
+      const elStyle = element.style || {};
+      return `
+        <div class="canvas-element combo-element ${selectedClass}" 
+             data-index="${index}" 
+             style="${style}; background: linear-gradient(135deg, ${elStyle.bgColor || '#7c3aed'}40 0%, ${elStyle.bgColor || '#7c3aed'}20 100%); border-color: ${elStyle.bgColor || '#7c3aed'}80;"
+             onmousedown="startDrag(event, ${index})">
+          ${data.badge ? `<div class="combo-badge">${data.badge}</div>` : ''}
+          <div class="combo-title">${data.title || 'Combo Deal'}</div>
+          <div class="combo-items">${data.items || 'Items included'}</div>
+          <div class="combo-price">${data.price || '$0.00'}</div>
+        </div>
+      `;
+    }
+
+    // Category Header Renderer
+    function renderCategoryHeaderElement(element, index, style, selectedClass) {
+      const data = element.data || {};
+      const elStyle = element.style || {};
+      return `
+        <div class="canvas-element category-header-element ${selectedClass}" 
+             data-index="${index}" 
+             style="${style}"
+             onmousedown="startDrag(event, ${index})">
+          ${data.icon ? `<div class="category-icon">${data.icon}</div>` : ''}
+          <div class="category-title" style="font-size: ${elStyle.fontSize || 42}px;">${data.title || 'CATEGORY'}</div>
+          ${data.subtitle ? `<div class="category-subtitle">${data.subtitle}</div>` : ''}
+        </div>
+      `;
+    }
+
+    // Ticker Renderer
+    function renderTickerElement(element, index, style, selectedClass) {
+      const data = element.data || {};
+      const elStyle = element.style || {};
+      const messages = data.messages || ['Message'];
+      const speed = data.speed || 20;
+      return `
+        <div class="canvas-element ticker-element ${selectedClass}" 
+             data-index="${index}" 
+             style="${style}; background: ${elStyle.bgColor || '#000'};"
+             onmousedown="startDrag(event, ${index})">
+          <div class="ticker-content" style="color: ${elStyle.textColor || '#fff'}; animation-duration: ${speed}s;">
+            ${messages.join(' • ')}
+          </div>
+        </div>
+      `;
+    }
+            <div class="canvas-element element-image ${selectedClass}" 
+                 data-index="${index}" 
+                 style="${style}"
+                 onmousedown="startDrag(event, ${index})">
+              <img src="${element.src || 'https://via.placeholder.com/200'}" alt="">
+            </div>
+          `;
+        case 'rectangle':
+          return `
+            <div class="canvas-element element-shape ${selectedClass}" 
+                 data-index="${index}" 
+                 style="${style}; background: ${element.color || '#333'}; border-radius: ${element.borderRadius || 0}px;"
+                 onmousedown="startDrag(event, ${index})">
+            </div>
+          `;
+        case 'circle':
+          return `
+            <div class="canvas-element element-shape ${selectedClass}" 
+                 data-index="${index}" 
+                 style="${style}; background: ${element.color || '#333'}; border-radius: 50%;"
+                 onmousedown="startDrag(event, ${index})">
+            </div>
+          `;
         default:
           return '';
       }
@@ -1169,6 +2083,12 @@
         case 'image': return '🖼';
         case 'rectangle': return '▢';
         case 'circle': return '○';
+        case 'menu_item': return '🍔';
+        case 'menu_section': return '📋';
+        case 'price_list': return '💰';
+        case 'combo': return '⭐';
+        case 'category_header': return '🏷️';
+        case 'ticker': return '📜';
         default: return '?';
       }
     }
@@ -1225,6 +2145,45 @@
       // Select new element
       selectElement(layout.elements.length - 1);
     }
+
+    // Add menu-aware element
+    function addMenuElement(type) {
+      if (!activeLayoutId) {
+        alert('Please select or create a screen first');
+        return;
+      }
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
+      const defaults = MENU_ELEMENT_DEFAULTS[type];
+      
+      if (!defaults) {
+        console.error('Unknown menu element type:', type);
+        return;
+      }
+      
+      const newElement = {
+        type,
+        x: res.w / 2 - defaults.width / 2,
+        y: res.h / 2 - defaults.height / 2,
+        width: defaults.width,
+        height: defaults.height,
+        name: type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        data: JSON.parse(JSON.stringify(defaults.data)),
+        style: JSON.parse(JSON.stringify(defaults.style))
+      };
+      
+      if (!layout.elements) layout.elements = [];
+      layout.elements.push(newElement);
+      
+      renderCanvas(layout);
+      renderLayers(layout);
+      
+      // Select new element
+      selectElement(layout.elements.length - 1);
+    }
     
     // Select element
     function selectElement(index) {
@@ -1235,32 +2194,323 @@
       
       const element = layout.elements[index];
       
-      // Update element properties panel
-      document.getElementById('screenProperties').style.display = 'none';
-      document.getElementById('elementProperties').style.display = 'block';
+      // Hide all property panels first
+      hideAllPropertyPanels();
       
-      document.getElementById('elemX').value = Math.round(element.x);
-      document.getElementById('elemY').value = Math.round(element.y);
-      document.getElementById('elemW').value = Math.round(element.width);
-      document.getElementById('elemH').value = Math.round(element.height);
+      // Show appropriate panel based on element type
+      const menuTypes = ['menu_item', 'menu_section', 'price_list', 'combo', 'category_header', 'ticker'];
       
-      // Show type-specific properties
-      const textRow = document.getElementById('textContentRow');
-      const fontRow = document.getElementById('fontSizeRow');
-      const colorRow = document.getElementById('colorRow');
-      
-      if (element.type === 'text') {
-        textRow.style.display = 'flex';
-        fontRow.style.display = 'flex';
-        document.getElementById('elemText').value = element.content || '';
-        document.getElementById('elemFontSize').value = element.fontSize || 24;
+      if (menuTypes.includes(element.type)) {
+        showMenuElementProperties(element);
       } else {
-        textRow.style.display = 'none';
-        fontRow.style.display = 'none';
+        // Show standard element properties
+        document.getElementById('elementProperties').style.display = 'block';
+        
+        document.getElementById('elemX').value = Math.round(element.x);
+        document.getElementById('elemY').value = Math.round(element.y);
+        document.getElementById('elemW').value = Math.round(element.width);
+        document.getElementById('elemH').value = Math.round(element.height);
+        
+        // Show type-specific properties
+        const textRow = document.getElementById('textContentRow');
+        const fontRow = document.getElementById('fontSizeRow');
+        
+        if (element.type === 'text') {
+          textRow.style.display = 'flex';
+          fontRow.style.display = 'flex';
+          document.getElementById('elemText').value = element.content || '';
+          document.getElementById('elemFontSize').value = element.fontSize || 24;
+        } else {
+          textRow.style.display = 'none';
+          fontRow.style.display = 'none';
+        }
+        
+        document.getElementById('elemColor').value = element.color || '#ffffff';
       }
       
-      document.getElementById('elemColor').value = element.color || '#ffffff';
+      renderCanvas(layout);
+      renderLayers(layout);
+    }
+
+    // Hide all property panels
+    function hideAllPropertyPanels() {
+      document.getElementById('screenProperties').style.display = 'none';
+      document.getElementById('elementProperties').style.display = 'none';
+      document.getElementById('menuItemProps').style.display = 'none';
+      document.getElementById('menuSectionProps').style.display = 'none';
+      document.getElementById('priceListProps').style.display = 'none';
+      document.getElementById('comboProps').style.display = 'none';
+      document.getElementById('categoryProps').style.display = 'none';
+      document.getElementById('tickerProps').style.display = 'none';
+    }
+
+    // Show menu element properties
+    function showMenuElementProperties(element) {
+      const data = element.data || {};
+      const style = element.style || {};
       
+      switch (element.type) {
+        case 'menu_item':
+          document.getElementById('menuItemProps').style.display = 'block';
+          document.getElementById('menuItemName').value = data.name || '';
+          document.getElementById('menuItemDesc').value = data.description || '';
+          document.getElementById('menuItemPrice').value = data.price || '';
+          document.getElementById('menuItemImage').value = data.image || '';
+          document.getElementById('menuItemFontSize').value = style.fontSize || 24;
+          const showImageToggle = document.getElementById('menuItemShowImage');
+          showImageToggle.classList.toggle('active', data.showImage !== false);
+          break;
+          
+        case 'menu_section':
+          document.getElementById('menuSectionProps').style.display = 'block';
+          document.getElementById('sectionTitle').value = data.title || '';
+          document.getElementById('sectionFontSize').value = style.fontSize || 36;
+          document.getElementById('sectionColor').value = style.color || '#ffffff';
+          const dividerToggle = document.getElementById('sectionShowDivider');
+          dividerToggle.classList.toggle('active', data.showDivider !== false);
+          break;
+          
+        case 'price_list':
+          document.getElementById('priceListProps').style.display = 'block';
+          const items = data.items || [];
+          document.getElementById('priceListItems').value = items.map(i => `${i.name} | ${i.price}`).join('\n');
+          document.getElementById('priceListFontSize').value = style.fontSize || 18;
+          break;
+          
+        case 'combo':
+          document.getElementById('comboProps').style.display = 'block';
+          document.getElementById('comboTitle').value = data.title || '';
+          document.getElementById('comboBadge').value = data.badge || '';
+          document.getElementById('comboItems').value = data.items || '';
+          document.getElementById('comboPrice').value = data.price || '';
+          document.getElementById('comboBgColor').value = style.bgColor || '#7c3aed';
+          break;
+          
+        case 'category_header':
+          document.getElementById('categoryProps').style.display = 'block';
+          document.getElementById('categoryTitle').value = data.title || '';
+          document.getElementById('categorySubtitle').value = data.subtitle || '';
+          document.getElementById('categoryIcon').value = data.icon || '';
+          document.getElementById('categoryFontSize').value = style.fontSize || 42;
+          break;
+          
+        case 'ticker':
+          document.getElementById('tickerProps').style.display = 'block';
+          const messages = data.messages || [];
+          document.getElementById('tickerMessages').value = messages.join('\n');
+          document.getElementById('tickerSpeed').value = data.speed || 20;
+          document.getElementById('tickerBgColor').value = style.bgColor || '#000000';
+          document.getElementById('tickerTextColor').value = style.textColor || '#ffffff';
+          break;
+      }
+    }
+
+    // Update functions for menu elements
+    function updateMenuItemData() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.data) element.data = {};
+      if (!element.style) element.style = {};
+      
+      element.data.name = document.getElementById('menuItemName').value;
+      element.data.description = document.getElementById('menuItemDesc').value;
+      element.data.price = document.getElementById('menuItemPrice').value;
+      element.data.image = document.getElementById('menuItemImage').value;
+      element.style.fontSize = parseInt(document.getElementById('menuItemFontSize').value) || 24;
+      
+      renderCanvas(layout);
+    }
+
+    function toggleMenuItemImage() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.data) element.data = {};
+      
+      element.data.showImage = !element.data.showImage;
+      document.getElementById('menuItemShowImage').classList.toggle('active', element.data.showImage);
+      
+      renderCanvas(layout);
+    }
+
+    function updateSectionData() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.data) element.data = {};
+      if (!element.style) element.style = {};
+      
+      element.data.title = document.getElementById('sectionTitle').value;
+      element.style.fontSize = parseInt(document.getElementById('sectionFontSize').value) || 36;
+      element.style.color = document.getElementById('sectionColor').value;
+      
+      renderCanvas(layout);
+    }
+
+    function toggleSectionDivider() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.data) element.data = {};
+      
+      element.data.showDivider = !element.data.showDivider;
+      document.getElementById('sectionShowDivider').classList.toggle('active', element.data.showDivider);
+      
+      renderCanvas(layout);
+    }
+
+    function updatePriceListData() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.data) element.data = {};
+      if (!element.style) element.style = {};
+      
+      const text = document.getElementById('priceListItems').value;
+      element.data.items = text.split('\n').filter(line => line.trim()).map(line => {
+        const parts = line.split('|').map(s => s.trim());
+        return { name: parts[0] || '', price: parts[1] || '' };
+      });
+      element.style.fontSize = parseInt(document.getElementById('priceListFontSize').value) || 18;
+      
+      renderCanvas(layout);
+    }
+
+    function updateComboData() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.data) element.data = {};
+      if (!element.style) element.style = {};
+      
+      element.data.title = document.getElementById('comboTitle').value;
+      element.data.badge = document.getElementById('comboBadge').value;
+      element.data.items = document.getElementById('comboItems').value;
+      element.data.price = document.getElementById('comboPrice').value;
+      element.style.bgColor = document.getElementById('comboBgColor').value;
+      
+      renderCanvas(layout);
+    }
+
+    function updateCategoryData() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.data) element.data = {};
+      if (!element.style) element.style = {};
+      
+      element.data.title = document.getElementById('categoryTitle').value;
+      element.data.subtitle = document.getElementById('categorySubtitle').value;
+      element.data.icon = document.getElementById('categoryIcon').value;
+      element.style.fontSize = parseInt(document.getElementById('categoryFontSize').value) || 42;
+      
+      renderCanvas(layout);
+    }
+
+    function updateTickerData() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.data) element.data = {};
+      if (!element.style) element.style = {};
+      
+      const text = document.getElementById('tickerMessages').value;
+      element.data.messages = text.split('\n').filter(line => line.trim());
+      element.data.speed = parseInt(document.getElementById('tickerSpeed').value) || 20;
+      element.style.bgColor = document.getElementById('tickerBgColor').value;
+      element.style.textColor = document.getElementById('tickerTextColor').value;
+      
+      renderCanvas(layout);
+    }
+
+    // Auto-layout alignment helper
+    function alignElement(alignment) {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
+      const element = layout.elements[selectedElement];
+      const safeZone = SAFE_ZONES[layout.safe_zone || 'standard'] || 48;
+      
+      switch (alignment) {
+        case 'left':
+          element.x = safeZone;
+          break;
+        case 'center':
+          element.x = (res.w - element.width) / 2;
+          break;
+        case 'right':
+          element.x = res.w - element.width - safeZone;
+          break;
+      }
+      
+      renderCanvas(layout);
+    }
+
+    // Template functions
+    function showTemplateModal() {
+      if (!activeLayoutId) {
+        alert('Please select or create a screen first');
+        return;
+      }
+      document.getElementById('templateModal').classList.add('show');
+      selectedTemplate = null;
+      document.querySelectorAll('.template-card').forEach(el => el.classList.remove('selected'));
+    }
+
+    function hideTemplateModal() {
+      document.getElementById('templateModal').classList.remove('show');
+    }
+
+    function selectTemplate(templateKey) {
+      selectedTemplate = templateKey;
+      document.querySelectorAll('.template-card').forEach(el => {
+        el.classList.toggle('selected', el.dataset.template === templateKey);
+      });
+    }
+
+    function insertTemplate() {
+      if (!selectedTemplate || !activeLayoutId) return;
+      
+      const template = TEMPLATES[selectedTemplate];
+      if (!template) return;
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      // Confirm if layout has existing elements
+      if (layout.elements && layout.elements.length > 0) {
+        if (!confirm('This will add template elements to your existing layout. Continue?')) {
+          return;
+        }
+      }
+      
+      if (!layout.elements) layout.elements = [];
+      
+      // Add template elements with deep copy
+      template.elements.forEach(el => {
+        layout.elements.push(JSON.parse(JSON.stringify(el)));
+      });
+      
+      hideTemplateModal();
       renderCanvas(layout);
       renderLayers(layout);
     }
@@ -1568,7 +2818,7 @@
       canvasArea.addEventListener('click', (e) => {
         if (e.target === canvasArea || e.target.id === 'canvasWrapper' || e.target.id === 'canvasContainer') {
           selectedElement = null;
-          document.getElementById('elementProperties').style.display = 'none';
+          hideAllPropertyPanels();
           document.getElementById('screenProperties').style.display = 'block';
           
           const layout = layouts.find(l => l.id === activeLayoutId);
