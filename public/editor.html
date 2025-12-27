@@ -2062,33 +2062,6 @@
         </div>
       `;
     }
-            <div class="canvas-element element-image ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}"
-                 onmousedown="startDrag(event, ${index})">
-              <img src="${element.src || 'https://via.placeholder.com/200'}" alt="">
-            </div>
-          `;
-        case 'rectangle':
-          return `
-            <div class="canvas-element element-shape ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}; background: ${element.color || '#333'}; border-radius: ${element.borderRadius || 0}px;"
-                 onmousedown="startDrag(event, ${index})">
-            </div>
-          `;
-        case 'circle':
-          return `
-            <div class="canvas-element element-shape ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}; background: ${element.color || '#333'}; border-radius: 50%;"
-                 onmousedown="startDrag(event, ${index})">
-            </div>
-          `;
-        default:
-          return '';
-      }
-    }
     
     // Update property panel for layout
     function updatePropertyPanel(layout) {
