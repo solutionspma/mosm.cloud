@@ -891,7 +891,15 @@
     
     // Router
     function loadAdminView() {
-      const route = window.location.hash.replace('#', '') || 'menus';
+      const hash = window.location.hash.replace('#', '') || 'menus';
+      
+      // Redirect menu edit routes to editor.html
+      if (hash.startsWith('menus/')) {
+        window.location.href = `/editor.html#${hash}`;
+        return;
+      }
+      
+      const route = hash;
       
       // Update nav active state
       document.querySelectorAll('.nav-item').forEach(item => {
