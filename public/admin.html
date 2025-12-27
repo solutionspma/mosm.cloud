@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu Editor - mOSm.Cloud</title>
+  <title>Admin Console - mOSm.Cloud</title>
   <style>
     * {
       margin: 0;
@@ -31,120 +31,223 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
       background: var(--bg-dark);
       color: var(--text-primary);
-      height: 100vh;
+      min-height: 100vh;
+    }
+    
+    /* Layout */
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+    
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    
+    .sidebar-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    .sidebar-logo-text {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+    }
+    
+    .nav-section {
+      margin-bottom: 24px;
+    }
+    
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    
+    .nav-item.active {
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--accent);
+    }
+    
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    
+    .nav-item-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: var(--bg-dark);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    .user-info:hover {
+      background: var(--bg-hover);
+    }
+    
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-secondary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .user-details {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .user-name {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .user-org {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      min-height: 100vh;
     }
     
     /* Top Bar */
     .top-bar {
-      height: 50px;
+      height: 64px;
       background: var(--bg-panel);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
     
-    .top-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    
-    .back-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 14px;
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-    
-    .back-btn:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
-    }
-    
-    .menu-name {
-      font-size: 16px;
+    .page-title {
+      font-size: 20px;
       font-weight: 600;
     }
     
-    .menu-status {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 12px;
-      background: rgba(255, 193, 7, 0.2);
-      color: #ffc107;
-    }
-    
-    .menu-status.published {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--success);
-    }
-    
-    .top-bar-center {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .zoom-controls {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: var(--bg-card);
-      padding: 4px;
-      border-radius: 6px;
-    }
-    
-    .zoom-btn {
-      width: 28px;
-      height: 28px;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-    
-    .zoom-btn:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
-    }
-    
-    .zoom-value {
-      font-size: 12px;
-      color: var(--text-secondary);
-      min-width: 40px;
-      text-align: center;
-    }
-    
-    .top-bar-right {
+    .top-bar-actions {
       display: flex;
       align-items: center;
       gap: 12px;
     }
     
+    /* Buttons */
     .btn {
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
       border: none;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
     }
     
     .btn-secondary {
@@ -157,722 +260,270 @@
       background: var(--bg-hover);
     }
     
-    .btn-primary {
-      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    .btn-danger {
+      background: var(--danger);
       color: #fff;
     }
     
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
     }
     
-    .btn-success {
-      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
-      color: #fff;
+    /* Content Area */
+    .content-area {
+      padding: 24px;
     }
     
-    /* Main Layout */
-    .editor-layout {
-      display: flex;
-      height: calc(100vh - 50px);
-    }
-    
-    /* Left Panel - Screens List */
-    .screens-panel {
-      width: 240px;
+    /* Cards */
+    .card {
       background: var(--bg-panel);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
     
-    .panel-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border);
+    .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-bottom: 16px;
     }
     
-    .panel-title {
-      font-size: 13px;
+    .card-title {
+      font-size: 16px;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
     }
     
-    .add-screen-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: 1px dashed var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
     }
     
-    .add-screen-btn:hover {
-      background: var(--bg-hover);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    
-    .screens-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-    }
-    
-    .screen-card {
-      background: var(--bg-card);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: all 0.2s;
-    }
-    
-    .screen-card:hover {
-      background: var(--bg-hover);
-    }
-    
-    .screen-card.active {
-      border-color: var(--accent);
-      background: rgba(0, 212, 255, 0.1);
-    }
-    
-    .screen-preview {
-      background: #000;
-      border-radius: 4px;
-      aspect-ratio: 16/9;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: var(--text-muted);
-      overflow: hidden;
-      position: relative;
-    }
-    
-    .screen-preview.portrait {
-      aspect-ratio: 9/16;
-      max-height: 120px;
-    }
-    
-    .screen-name {
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-    
-    .screen-resolution {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    
-    /* Canvas Area */
-    .canvas-area {
-      flex: 1;
-      background: var(--bg-dark);
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .canvas-wrapper {
-      position: relative;
-      transition: transform 0.1s ease-out;
-    }
-    
-    .canvas-container {
-      background: #000;
-      box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .safe-zone-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      border: 2px dashed rgba(255, 193, 7, 0.3);
-      z-index: 100;
-    }
-    
-    .canvas-content {
+    table {
       width: 100%;
-      height: 100%;
-      position: relative;
+      border-collapse: collapse;
     }
     
-    /* Element on canvas */
-    .canvas-element {
-      position: absolute;
-      cursor: move;
-      user-select: none;
-    }
-    
-    .canvas-element.selected {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-    
-    .element-text {
-      color: #fff;
-      padding: 8px;
-    }
-    
-    .element-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .element-shape {
-      width: 100%;
-      height: 100%;
-    }
-    
-    /* Right Panel - Properties */
-    .properties-panel {
-      width: 280px;
-      background: var(--bg-panel);
-      border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .property-section {
-      padding: 16px;
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
       border-bottom: 1px solid var(--border);
     }
     
-    .property-section-title {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-    
-    .property-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    
-    .property-label {
+    th {
       font-size: 12px;
-      color: var(--text-secondary);
-      width: 70px;
-      flex-shrink: 0;
-    }
-    
-    .property-input {
-      flex: 1;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 10px;
-      color: var(--text-primary);
-      font-size: 13px;
-    }
-    
-    .property-input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-    
-    .property-input-small {
-      width: 60px;
-    }
-    
-    .property-input-group {
-      display: flex;
-      gap: 8px;
-      flex: 1;
-    }
-    
-    .property-input-group input {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    select.property-input {
-      cursor: pointer;
-    }
-    
-    /* Toolbar */
-    .toolbar {
-      padding: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    
-    .toolbar-title {
-      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-muted);
-      margin-bottom: 12px;
+      background: var(--bg-card);
     }
     
-    .tool-grid {
+    td {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    tr:hover td {
+      background: var(--bg-card);
+    }
+    
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-online {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+    
+    .status-offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+    
+    .status-draft {
+      background: rgba(255, 193, 7, 0.2);
+      color: var(--warning);
+    }
+    
+    .status-published {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+    
+    /* Dot indicator */
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    .status-dot.online {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+    
+    .status-dot.offline {
+      background: var(--danger);
+    }
+    
+    /* Grid layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    
+    .grid-4 {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      gap: 20px;
     }
     
-    .tool-btn {
-      aspect-ratio: 1;
+    @media (max-width: 1200px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    @media (max-width: 768px) {
+      .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    }
+    
+    /* Stat cards */
+    .stat-card {
+      background: var(--bg-panel);
       border: 1px solid var(--border);
-      background: var(--bg-card);
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-      padding: 8px;
-    }
-    
-    .tool-btn:hover {
-      background: var(--bg-hover);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    
-    .tool-btn svg {
-      width: 20px;
-      height: 20px;
-    }
-    
-    .tool-btn span {
-      font-size: 9px;
-    }
-
-    /* Menu Components Section */
-    .tool-section-divider {
-      font-size: 10px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 12px 0 8px 0;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    .menu-tool-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-    }
-
-    .menu-tool-btn {
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-      padding: 10px;
-      text-align: left;
-    }
-
-    .menu-tool-btn:hover {
-      background: var(--bg-hover);
-      border-color: var(--accent-secondary);
-      color: var(--accent-secondary);
-    }
-
-    .menu-tool-btn .icon {
-      font-size: 16px;
-      width: 20px;
-      text-align: center;
-    }
-
-    .menu-tool-btn .label {
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    /* Menu Element Styles on Canvas */
-    .menu-item-element {
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 8px;
-      padding: 12px;
-      display: flex;
-      gap: 12px;
-    }
-
-    .menu-item-element .item-image {
-      width: 80px;
-      height: 80px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 6px;
-      flex-shrink: 0;
-      object-fit: cover;
-    }
-
-    .menu-item-element .item-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .menu-item-element .item-name {
-      font-size: 24px;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-
-    .menu-item-element .item-description {
-      font-size: 14px;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .menu-item-element .item-price {
-      font-size: 22px;
-      font-weight: 700;
-      color: #00d4ff;
-    }
-
-    .menu-section-element {
-      padding: 16px;
-    }
-
-    .menu-section-element .section-title {
-      font-size: 36px;
-      font-weight: 700;
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-    }
-
-    .menu-section-element .section-divider {
-      height: 3px;
-      background: linear-gradient(90deg, #00d4ff 0%, transparent 100%);
-      border-radius: 2px;
-    }
-
-    .price-list-element {
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 8px;
-      padding: 16px;
-    }
-
-    .price-list-element .price-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px dotted rgba(255,255,255,0.2);
-    }
-
-    .price-list-element .price-row:last-child {
-      border-bottom: none;
-    }
-
-    .price-list-element .price-name {
-      font-size: 18px;
-      color: #fff;
-    }
-
-    .price-list-element .price-value {
-      font-size: 18px;
-      font-weight: 600;
-      color: #00d4ff;
-    }
-
-    .combo-element {
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(0, 212, 255, 0.2) 100%);
-      border: 2px solid rgba(124, 58, 237, 0.5);
       border-radius: 12px;
-      padding: 16px;
-      position: relative;
-    }
-
-    .combo-element .combo-badge {
-      position: absolute;
-      top: -10px;
-      right: 16px;
-      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 12px;
-      text-transform: uppercase;
-    }
-
-    .combo-element .combo-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 8px;
-    }
-
-    .combo-element .combo-items {
-      font-size: 14px;
-      color: rgba(255,255,255,0.8);
-      margin-bottom: 12px;
-    }
-
-    .combo-element .combo-price {
-      font-size: 32px;
-      font-weight: 800;
-      color: #00d4ff;
-    }
-
-    .category-header-element {
-      text-align: center;
       padding: 20px;
     }
-
-    .category-header-element .category-icon {
-      font-size: 48px;
+    
+    .stat-card-label {
+      font-size: 13px;
+      color: var(--text-muted);
       margin-bottom: 8px;
     }
-
-    .category-header-element .category-title {
-      font-size: 42px;
-      font-weight: 800;
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 3px;
+    
+    .stat-card-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
     }
-
-    .category-header-element .category-subtitle {
-      font-size: 16px;
-      color: rgba(255,255,255,0.6);
+    
+    .stat-card-change {
+      font-size: 12px;
       margin-top: 8px;
     }
-
-    .ticker-element {
-      background: rgba(0, 0, 0, 0.8);
-      padding: 12px 20px;
-      overflow: hidden;
-      white-space: nowrap;
+    
+    .stat-card-change.positive {
+      color: var(--success);
     }
-
-    .ticker-element .ticker-content {
-      display: inline-block;
-      animation: ticker-scroll 20s linear infinite;
-      font-size: 18px;
-      color: #fff;
-    }
-
-    @keyframes ticker-scroll {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* Contextual Properties Panels */
-    .menu-item-props, .menu-section-props, .price-list-props, .combo-props, .category-props, .ticker-props {
-      display: none;
-    }
-
-    .property-textarea {
-      width: 100%;
+    
+    /* Device/Layout cards */
+    .item-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 10px;
-      color: var(--text-primary);
-      font-size: 13px;
-      font-family: inherit;
-      resize: vertical;
-      min-height: 60px;
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.2s;
+      cursor: pointer;
     }
-
-    .property-textarea:focus {
+    
+    .item-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    
+    .item-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    
+    .item-card-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--bg-hover);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    
+    .item-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .item-card-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    
+    .item-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+    
+    .form-input:focus {
       outline: none;
       border-color: var(--accent);
     }
-
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .toggle-switch {
-      width: 40px;
-      height: 22px;
-      background: var(--bg-card);
-      border-radius: 11px;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .toggle-switch.active {
-      background: var(--accent);
-    }
-
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 18px;
-      height: 18px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.2s;
-    }
-
-    .toggle-switch.active::after {
-      transform: translateX(18px);
-    }
-
-    /* Template Modal */
-    .template-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .template-card {
-      background: var(--bg-card);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .template-card:hover {
-      background: var(--bg-hover);
-      border-color: var(--accent);
-    }
-
-    .template-card.selected {
-      border-color: var(--accent);
-      background: rgba(0, 212, 255, 0.1);
-    }
-
-    .template-preview {
-      background: #000;
-      border-radius: 6px;
-      aspect-ratio: 16/9;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-    }
-
-    .template-name {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .template-desc {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    /* Auto-layout toolbar */
-    .layout-toolbar {
-      display: flex;
-      gap: 4px;
-      margin-top: 8px;
-    }
-
-    .layout-btn {
-      flex: 1;
-      padding: 6px;
+    
+    .form-select {
+      width: 100%;
+      padding: 10px 14px;
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--text-secondary);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
       cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .layout-btn:hover {
-      background: var(--bg-hover);
-      color: var(--accent);
-    }
-    
-    /* Layers */
-    .layers-panel {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-    }
-    
-    .layer-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      background: var(--bg-card);
-      border-radius: 6px;
-      margin-bottom: 4px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    
-    .layer-item:hover {
-      background: var(--bg-hover);
-    }
-    
-    .layer-item.selected {
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid var(--accent);
-    }
-    
-    .layer-icon {
-      width: 16px;
-      height: 16px;
-      color: var(--text-muted);
-    }
-    
-    .layer-name {
-      flex: 1;
-    }
-    
-    .layer-visibility {
-      opacity: 0.5;
-      cursor: pointer;
-    }
-    
-    .layer-visibility:hover {
-      opacity: 1;
     }
     
     /* Modal */
@@ -883,11 +534,10 @@
       right: 0;
       bottom: 0;
       background: rgba(0, 0, 0, 0.8);
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      display: none;
     }
     
     .modal-overlay.show {
@@ -896,7 +546,7 @@
     
     .modal {
       background: var(--bg-panel);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 24px;
       width: 100%;
       max-width: 500px;
@@ -921,6 +571,7 @@
       color: var(--text-muted);
       cursor: pointer;
       font-size: 24px;
+      line-height: 1;
     }
     
     .modal-body {
@@ -933,551 +584,209 @@
       gap: 12px;
     }
     
-    .resolution-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    
-    .resolution-option {
-      padding: 12px;
-      background: var(--bg-card);
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .resolution-option:hover {
-      background: var(--bg-hover);
-      border-color: var(--accent);
-    }
-    
-    .resolution-option.selected {
-      border-color: var(--accent);
-      background: rgba(0, 212, 255, 0.1);
-    }
-    
-    .resolution-option-name {
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-    
-    .resolution-option-size {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    
-    /* No screens state */
-    .no-screens {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-muted);
+    /* Empty state */
+    .empty-state {
       text-align: center;
-      padding: 40px;
+      padding: 60px 20px;
+      color: var(--text-muted);
     }
     
-    .no-screens svg {
-      width: 48px;
-      height: 48px;
+    .empty-state-icon {
+      font-size: 48px;
       margin-bottom: 16px;
       opacity: 0.5;
     }
     
-    .no-screens p {
-      margin-bottom: 16px;
-    }
-
-    /* Canvas resolution info */
-    .canvas-info {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 12px;
+    .empty-state-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
       color: var(--text-secondary);
     }
-
-    /* Loading state */
+    
+    .empty-state-text {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    /* Loading */
     .loading {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100%;
+      padding: 60px;
       color: var(--text-muted);
+    }
+    
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <a href="/dashboard.html" class="back-btn">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
-        Dashboard
-      </a>
-      <span class="menu-name" id="menuName">Loading...</span>
-      <span class="menu-status" id="menuStatus">draft</span>
-    </div>
-    
-    <div class="top-bar-center">
-      <div class="zoom-controls">
-        <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
-        <span class="zoom-value" id="zoomValue">100%</span>
-        <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
-        <button class="zoom-btn" onclick="zoomFit()" title="Fit to View">⊡</button>
-      </div>
-    </div>
-    
-    <div class="top-bar-right">
-      <button class="btn btn-secondary" onclick="saveLayout()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-          <polyline points="17 21 17 13 7 13 7 21"/>
-          <polyline points="7 3 7 8 15 8"/>
-        </svg>
-        Save
-      </button>
-      <button class="btn btn-success" onclick="publishMenu()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-        </svg>
-        Publish
-      </button>
-    </div>
-  </div>
-  
-  <!-- Main Editor Layout -->
-  <div class="editor-layout">
-    <!-- Left Panel: Screens/Layouts -->
-    <div class="screens-panel">
-      <div class="panel-header">
-        <span class="panel-title">Screens</span>
-        <button class="add-screen-btn" onclick="showAddScreenModal()" title="Add Screen">+</button>
-      </div>
-      <div class="screens-list" id="screensList">
-        <!-- Screens rendered here -->
-      </div>
-    </div>
-    
-    <!-- Canvas Area -->
-    <div class="canvas-area" id="canvasArea">
-      <div class="no-screens" id="noScreensMessage">
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/>
-        </svg>
-        <p>No screens in this menu yet</p>
-        <button class="btn btn-primary" onclick="showAddScreenModal()">Add First Screen</button>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/dashboard.html" class="sidebar-logo">
+          <div class="sidebar-logo-icon">m</div>
+          <span class="sidebar-logo-text">mOSm.Cloud</span>
+        </a>
       </div>
       
-      <div class="canvas-wrapper" id="canvasWrapper" style="display: none;">
-        <div class="canvas-container" id="canvasContainer">
-          <div class="safe-zone-overlay" id="safeZoneOverlay"></div>
-          <div class="canvas-content" id="canvasContent">
-            <!-- Elements rendered here -->
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a class="nav-item" data-route="menus" onclick="navigateTo('menus')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            Menus
+          </a>
+          <a class="nav-item" data-route="layouts" onclick="navigateTo('layouts')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            Layouts
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Devices</div>
+          <a class="nav-item" data-route="devices" onclick="navigateTo('devices')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            Devices
+            <span class="nav-item-badge" id="onlineDeviceCount">0</span>
+          </a>
+          <a class="nav-item" data-route="screens" onclick="navigateTo('screens')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <path d="M8 21h8M12 17v4"/>
+            </svg>
+            Screens
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Organization</div>
+          <a class="nav-item" data-route="users" onclick="navigateTo('users')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Users
+          </a>
+          <a class="nav-item" data-route="settings" onclick="navigateTo('settings')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Settings
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-org" id="userOrg">Loading...</div>
           </div>
-        </div>
-      </div>
-      
-      <div class="canvas-info" id="canvasInfo" style="display: none;">
-        <span id="resolutionInfo">1920 × 1080</span> • <span id="safeZoneInfo">Standard Safe Zone</span>
-      </div>
-    </div>
-    
-    <!-- Right Panel: Tools & Properties -->
-    <div class="properties-panel">
-      <div class="toolbar">
-        <div class="toolbar-title">Basic Shapes</div>
-        <div class="tool-grid">
-          <button class="tool-btn" onclick="addElement('text')" title="Add Text">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M4 7V4h16v3M9 20h6M12 4v16"/>
-            </svg>
-            <span>Text</span>
-          </button>
-          <button class="tool-btn" onclick="addElement('image')" title="Add Image">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/>
-            </svg>
-            <span>Image</span>
-          </button>
-          <button class="tool-btn" onclick="addElement('rectangle')" title="Add Rectangle">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-            </svg>
-            <span>Box</span>
-          </button>
-          <button class="tool-btn" onclick="addElement('circle')" title="Add Circle">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10"/>
-            </svg>
-            <span>Circle</span>
-          </button>
-        </div>
-
-        <div class="tool-section-divider">Menu Components</div>
-        <div class="menu-tool-grid">
-          <button class="menu-tool-btn" onclick="addMenuElement('menu_item')" title="Add Menu Item">
-            <span class="icon">🍔</span>
-            <span class="label">Menu Item</span>
-          </button>
-          <button class="menu-tool-btn" onclick="addMenuElement('menu_section')" title="Add Section Header">
-            <span class="icon">📋</span>
-            <span class="label">Section</span>
-          </button>
-          <button class="menu-tool-btn" onclick="addMenuElement('price_list')" title="Add Price List">
-            <span class="icon">💰</span>
-            <span class="label">Price List</span>
-          </button>
-          <button class="menu-tool-btn" onclick="addMenuElement('combo')" title="Add Combo/Special">
-            <span class="icon">⭐</span>
-            <span class="label">Combo</span>
-          </button>
-          <button class="menu-tool-btn" onclick="addMenuElement('category_header')" title="Add Category Header">
-            <span class="icon">🏷️</span>
-            <span class="label">Category</span>
-          </button>
-          <button class="menu-tool-btn" onclick="addMenuElement('ticker')" title="Add Ticker/Scroller">
-            <span class="icon">📜</span>
-            <span class="label">Ticker</span>
-          </button>
-        </div>
-
-        <div class="tool-section-divider">Templates</div>
-        <button class="btn btn-secondary" onclick="showTemplateModal()" style="width: 100%; justify-content: center;">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            <path d="M6 9l6 6 6-6"/>
           </svg>
-          Insert Template
-        </button>
+        </div>
       </div>
-      
-      <div class="property-section" id="screenProperties">
-        <div class="property-section-title">Screen Settings</div>
-        <div class="property-row">
-          <span class="property-label">Name</span>
-          <input type="text" class="property-input" id="screenNameInput" placeholder="Screen name" onchange="updateScreenName()">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Resolution</span>
-          <select class="property-input" id="resolutionSelect" onchange="updateResolution()">
-            <!-- Options added dynamically -->
-          </select>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Safe Zone</span>
-          <select class="property-input" id="safeZoneSelect" onchange="updateSafeZone()">
-            <option value="none">None</option>
-            <option value="minimal">Minimal (20px)</option>
-            <option value="standard" selected>Standard (48px)</option>
-            <option value="generous">Generous (80px)</option>
-            <option value="tv_1080p">TV 1080p (60px)</option>
-            <option value="tv_4k">TV 4K (120px)</option>
-            <option value="kiosk">Kiosk (40px)</option>
-          </select>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Background</span>
-          <input type="color" class="property-input" id="bgColorInput" value="#000000" onchange="updateBackground()" style="width: 60px; padding: 2px;">
-          <input type="text" class="property-input" id="bgImageInput" placeholder="Image URL" style="margin-left: 8px;" onchange="updateBackground()">
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="top-bar">
+        <h1 class="page-title" id="pageTitle">Dashboard</h1>
+        <div class="top-bar-actions" id="topBarActions">
+          <!-- Actions rendered per view -->
         </div>
       </div>
       
-      <div class="property-section" id="elementProperties" style="display: none;">
-        <div class="property-section-title">Element Properties</div>
-        <div class="property-row">
-          <span class="property-label">Position</span>
-          <div class="property-input-group">
-            <input type="number" class="property-input property-input-small" id="elemX" placeholder="X" onchange="updateElementPosition()">
-            <input type="number" class="property-input property-input-small" id="elemY" placeholder="Y" onchange="updateElementPosition()">
-          </div>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Size</span>
-          <div class="property-input-group">
-            <input type="number" class="property-input property-input-small" id="elemW" placeholder="W" onchange="updateElementSize()">
-            <input type="number" class="property-input property-input-small" id="elemH" placeholder="H" onchange="updateElementSize()">
-          </div>
-        </div>
-        <div class="property-row" id="textContentRow" style="display: none;">
-          <span class="property-label">Text</span>
-          <input type="text" class="property-input" id="elemText" placeholder="Enter text" onchange="updateElementContent()">
-        </div>
-        <div class="property-row" id="fontSizeRow" style="display: none;">
-          <span class="property-label">Font Size</span>
-          <input type="number" class="property-input" id="elemFontSize" placeholder="24" onchange="updateElementStyle()" style="width: 80px;">
-        </div>
-        <div class="property-row" id="colorRow">
-          <span class="property-label">Color</span>
-          <input type="color" class="property-input" id="elemColor" value="#ffffff" onchange="updateElementStyle()" style="width: 60px; padding: 2px;">
-        </div>
-        <div class="property-row">
-          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
-            Delete Element
-          </button>
+      <div class="content-area" id="adminContent">
+        <div class="loading">
+          <div class="spinner"></div>
         </div>
       </div>
-
-      <!-- Menu Item Properties -->
-      <div class="property-section menu-item-props" id="menuItemProps" style="display: none;">
-        <div class="property-section-title">🍔 Menu Item</div>
-        <div class="property-row">
-          <span class="property-label">Name</span>
-          <input type="text" class="property-input" id="menuItemName" placeholder="Item name" onchange="updateMenuItemData()">
-        </div>
-        <div class="property-row" style="flex-direction: column; align-items: stretch;">
-          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Description</span>
-          <textarea class="property-textarea" id="menuItemDesc" placeholder="Item description" onchange="updateMenuItemData()"></textarea>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Price</span>
-          <input type="text" class="property-input" id="menuItemPrice" placeholder="$0.00" onchange="updateMenuItemData()">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Image</span>
-          <input type="text" class="property-input" id="menuItemImage" placeholder="Image URL" onchange="updateMenuItemData()">
-        </div>
-        <div class="property-row toggle-row">
-          <span class="property-label">Show Image</span>
-          <div class="toggle-switch" id="menuItemShowImage" onclick="toggleMenuItemImage()"></div>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Font Size</span>
-          <input type="number" class="property-input" id="menuItemFontSize" value="24" onchange="updateMenuItemData()" style="width: 80px;">
-        </div>
-        <div class="layout-toolbar">
-          <button class="layout-btn" onclick="alignElement('left')" title="Align Left">⬅</button>
-          <button class="layout-btn" onclick="alignElement('center')" title="Align Center">↔</button>
-          <button class="layout-btn" onclick="alignElement('right')" title="Align Right">➡</button>
-        </div>
-        <div class="property-row" style="margin-top: 12px;">
-          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
-            Delete Item
-          </button>
-        </div>
-      </div>
-
-      <!-- Menu Section Properties -->
-      <div class="property-section menu-section-props" id="menuSectionProps" style="display: none;">
-        <div class="property-section-title">📋 Menu Section</div>
-        <div class="property-row">
-          <span class="property-label">Title</span>
-          <input type="text" class="property-input" id="sectionTitle" placeholder="Section title" onchange="updateSectionData()">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Font Size</span>
-          <input type="number" class="property-input" id="sectionFontSize" value="36" onchange="updateSectionData()" style="width: 80px;">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Color</span>
-          <input type="color" class="property-input" id="sectionColor" value="#ffffff" onchange="updateSectionData()" style="width: 60px; padding: 2px;">
-        </div>
-        <div class="property-row toggle-row">
-          <span class="property-label">Show Divider</span>
-          <div class="toggle-switch active" id="sectionShowDivider" onclick="toggleSectionDivider()"></div>
-        </div>
-        <div class="property-row">
-          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
-            Delete Section
-          </button>
-        </div>
-      </div>
-
-      <!-- Price List Properties -->
-      <div class="property-section price-list-props" id="priceListProps" style="display: none;">
-        <div class="property-section-title">💰 Price List</div>
-        <div class="property-row" style="flex-direction: column; align-items: stretch;">
-          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Items (one per line: Name | Price)</span>
-          <textarea class="property-textarea" id="priceListItems" placeholder="Espresso | $3.50&#10;Latte | $4.50&#10;Cappuccino | $4.00" onchange="updatePriceListData()" style="min-height: 120px;"></textarea>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Font Size</span>
-          <input type="number" class="property-input" id="priceListFontSize" value="18" onchange="updatePriceListData()" style="width: 80px;">
-        </div>
-        <div class="property-row">
-          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
-            Delete List
-          </button>
-        </div>
-      </div>
-
-      <!-- Combo/Special Properties -->
-      <div class="property-section combo-props" id="comboProps" style="display: none;">
-        <div class="property-section-title">⭐ Combo / Special</div>
-        <div class="property-row">
-          <span class="property-label">Title</span>
-          <input type="text" class="property-input" id="comboTitle" placeholder="Combo name" onchange="updateComboData()">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Badge</span>
-          <input type="text" class="property-input" id="comboBadge" placeholder="SPECIAL" onchange="updateComboData()">
-        </div>
-        <div class="property-row" style="flex-direction: column; align-items: stretch;">
-          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Items Included</span>
-          <textarea class="property-textarea" id="comboItems" placeholder="Burger + Fries + Drink" onchange="updateComboData()"></textarea>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Price</span>
-          <input type="text" class="property-input" id="comboPrice" placeholder="$9.99" onchange="updateComboData()">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Background</span>
-          <input type="color" class="property-input" id="comboBgColor" value="#7c3aed" onchange="updateComboData()" style="width: 60px; padding: 2px;">
-        </div>
-        <div class="property-row">
-          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
-            Delete Combo
-          </button>
-        </div>
-      </div>
-
-      <!-- Category Header Properties -->
-      <div class="property-section category-props" id="categoryProps" style="display: none;">
-        <div class="property-section-title">🏷️ Category Header</div>
-        <div class="property-row">
-          <span class="property-label">Title</span>
-          <input type="text" class="property-input" id="categoryTitle" placeholder="APPETIZERS" onchange="updateCategoryData()">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Subtitle</span>
-          <input type="text" class="property-input" id="categorySubtitle" placeholder="Start your meal right" onchange="updateCategoryData()">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Icon</span>
-          <input type="text" class="property-input" id="categoryIcon" placeholder="🍽️" onchange="updateCategoryData()" style="width: 60px;">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Font Size</span>
-          <input type="number" class="property-input" id="categoryFontSize" value="42" onchange="updateCategoryData()" style="width: 80px;">
-        </div>
-        <div class="property-row">
-          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
-            Delete Header
-          </button>
-        </div>
-      </div>
-
-      <!-- Ticker Properties -->
-      <div class="property-section ticker-props" id="tickerProps" style="display: none;">
-        <div class="property-section-title">📜 Ticker / Scroller</div>
-        <div class="property-row" style="flex-direction: column; align-items: stretch;">
-          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Messages (one per line)</span>
-          <textarea class="property-textarea" id="tickerMessages" placeholder="Welcome to our restaurant!&#10;Try our daily special!&#10;Happy Hour 4-6pm" onchange="updateTickerData()" style="min-height: 100px;"></textarea>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Speed</span>
-          <select class="property-input" id="tickerSpeed" onchange="updateTickerData()">
-            <option value="30">Slow</option>
-            <option value="20" selected>Normal</option>
-            <option value="10">Fast</option>
-          </select>
-        </div>
-        <div class="property-row">
-          <span class="property-label">Background</span>
-          <input type="color" class="property-input" id="tickerBgColor" value="#000000" onchange="updateTickerData()" style="width: 60px; padding: 2px;">
-        </div>
-        <div class="property-row">
-          <span class="property-label">Text Color</span>
-          <input type="color" class="property-input" id="tickerTextColor" value="#ffffff" onchange="updateTickerData()" style="width: 60px; padding: 2px;">
-        </div>
-        <div class="property-row">
-          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
-            Delete Ticker
-          </button>
-        </div>
-      </div>
-      
-      <div class="toolbar">
-        <div class="toolbar-title">Layers</div>
-      </div>
-      <div class="layers-panel" id="layersList">
-        <!-- Layers rendered here -->
-      </div>
-    </div>
+    </main>
   </div>
   
-  <!-- Add Screen Modal -->
-  <div class="modal-overlay" id="addScreenModal">
+  <!-- Claim Device Modal -->
+  <div class="modal-overlay" id="claimDeviceModal">
     <div class="modal">
       <div class="modal-header">
-        <h3 class="modal-title">Add New Screen</h3>
-        <button class="modal-close" onclick="hideAddScreenModal()">×</button>
+        <h3 class="modal-title">Claim Device</h3>
+        <button class="modal-close" onclick="hideModal('claimDeviceModal')">×</button>
       </div>
       <div class="modal-body">
-        <div class="property-row" style="margin-bottom: 16px;">
-          <span class="property-label" style="width: 100px;">Screen Name</span>
-          <input type="text" class="property-input" id="newScreenName" placeholder="e.g., Main Display">
-        </div>
-        <div class="property-section-title" style="margin-bottom: 12px;">Select Resolution</div>
-        <div class="resolution-grid" id="resolutionGrid">
-          <!-- Resolution options added dynamically -->
+        <p style="margin-bottom: 16px; color: var(--text-secondary);">Enter the 6-character pairing code displayed on the device screen.</p>
+        <div class="form-group">
+          <label class="form-label">Pairing Code</label>
+          <input type="text" class="form-input" id="pairingCodeInput" placeholder="ABC123" maxlength="6" style="text-transform: uppercase; font-size: 24px; text-align: center; letter-spacing: 8px;">
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="hideAddScreenModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="createScreen()">Add Screen</button>
+        <button class="btn btn-secondary" onclick="hideModal('claimDeviceModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="claimDevice()">Claim Device</button>
       </div>
     </div>
   </div>
-
-  <!-- Template Modal -->
-  <div class="modal-overlay" id="templateModal">
-    <div class="modal" style="max-width: 600px;">
+  
+  <!-- Invite User Modal -->
+  <div class="modal-overlay" id="inviteUserModal">
+    <div class="modal">
       <div class="modal-header">
-        <h3 class="modal-title">Insert Template</h3>
-        <button class="modal-close" onclick="hideTemplateModal()">×</button>
+        <h3 class="modal-title">Invite Team Member</h3>
+        <button class="modal-close" onclick="hideModal('inviteUserModal')">×</button>
       </div>
       <div class="modal-body">
-        <div class="template-grid" id="templateGrid">
-          <div class="template-card" data-template="two_column" onclick="selectTemplate('two_column')">
-            <div class="template-preview">📊</div>
-            <div class="template-name">2-Column Menu</div>
-            <div class="template-desc">Classic split layout with header</div>
-          </div>
-          <div class="template-card" data-template="three_column" onclick="selectTemplate('three_column')">
-            <div class="template-preview">📋</div>
-            <div class="template-name">3-Column Menu</div>
-            <div class="template-desc">Wide format with categories</div>
-          </div>
-          <div class="template-card" data-template="specials" onclick="selectTemplate('specials')">
-            <div class="template-preview">⭐</div>
-            <div class="template-name">Specials Board</div>
-            <div class="template-desc">Featured items with badges</div>
-          </div>
-          <div class="template-card" data-template="drinks" onclick="selectTemplate('drinks')">
-            <div class="template-preview">🍺</div>
-            <div class="template-name">Drinks Board</div>
-            <div class="template-desc">Beverages with price lists</div>
-          </div>
-          <div class="template-card" data-template="price_board" onclick="selectTemplate('price_board')">
-            <div class="template-preview">💰</div>
-            <div class="template-name">Price Board</div>
-            <div class="template-desc">Clean price list layout</div>
-          </div>
-          <div class="template-card" data-template="combo_deal" onclick="selectTemplate('combo_deal')">
-            <div class="template-preview">🎉</div>
-            <div class="template-name">Combo Deals</div>
-            <div class="template-desc">Promotions and bundles</div>
-          </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="inviteEmailInput" placeholder="colleague@company.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select class="form-select" id="inviteRoleSelect">
+            <option value="editor">Editor - Can edit menus</option>
+            <option value="admin">Admin - Full access</option>
+          </select>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="hideTemplateModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="insertTemplate()">Insert Template</button>
+        <button class="btn btn-secondary" onclick="hideModal('inviteUserModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="sendInvite()">Send Invite</button>
       </div>
     </div>
   </div>
@@ -1485,191 +794,14 @@
   <script>
     const API_BASE = '/api';
     
-    // Resolution profiles (matching backend)
-    const RESOLUTIONS = {
-      '720p': { w: 1280, h: 720, label: 'HD 720p' },
-      '1080p': { w: 1920, h: 1080, label: 'Full HD 1080p' },
-      '4k': { w: 3840, h: 2160, label: '4K UHD' },
-      '1080p_portrait': { w: 1080, h: 1920, label: '1080p Portrait' },
-      '4k_portrait': { w: 2160, h: 3840, label: '4K Portrait' },
-      'kiosk_portrait': { w: 1080, h: 1920, label: 'Kiosk Portrait' },
-      'kiosk_landscape': { w: 1920, h: 1080, label: 'Kiosk Landscape' },
-      'ultrawide': { w: 2560, h: 1080, label: 'Ultra-wide 21:9' },
-      'square_1080': { w: 1080, h: 1080, label: 'Square 1080' }
-    };
-    
-    const SAFE_ZONES = {
-      none: 0,
-      minimal: 20,
-      standard: 48,
-      generous: 80,
-      tv_1080p: 60,
-      tv_4k: 120,
-      kiosk: 40
-    };
-
-    // Menu element type definitions
-    const MENU_ELEMENT_DEFAULTS = {
-      menu_item: {
-        width: 500,
-        height: 120,
-        data: {
-          name: 'New Item',
-          description: 'Delicious item description',
-          price: '$9.99',
-          image: '',
-          showImage: true
-        },
-        style: {
-          fontSize: 24,
-          bgColor: 'rgba(0,0,0,0.6)'
-        }
-      },
-      menu_section: {
-        width: 400,
-        height: 80,
-        data: {
-          title: 'SECTION TITLE',
-          showDivider: true
-        },
-        style: {
-          fontSize: 36,
-          color: '#ffffff'
-        }
-      },
-      price_list: {
-        width: 400,
-        height: 200,
-        data: {
-          items: [
-            { name: 'Item One', price: '$5.99' },
-            { name: 'Item Two', price: '$6.99' },
-            { name: 'Item Three', price: '$7.99' }
-          ]
-        },
-        style: {
-          fontSize: 18,
-          bgColor: 'rgba(0,0,0,0.5)'
-        }
-      },
-      combo: {
-        width: 400,
-        height: 180,
-        data: {
-          title: 'Combo Deal',
-          badge: 'SPECIAL',
-          items: 'Main + Side + Drink',
-          price: '$12.99'
-        },
-        style: {
-          bgColor: '#7c3aed'
-        }
-      },
-      category_header: {
-        width: 500,
-        height: 150,
-        data: {
-          title: 'APPETIZERS',
-          subtitle: 'Start your meal right',
-          icon: '🍽️'
-        },
-        style: {
-          fontSize: 42
-        }
-      },
-      ticker: {
-        width: 800,
-        height: 50,
-        data: {
-          messages: ['Welcome!', 'Try our daily special!', 'Happy Hour 4-6pm'],
-          speed: 20
-        },
-        style: {
-          bgColor: '#000000',
-          textColor: '#ffffff'
-        }
-      }
-    };
-
-    // Menu template definitions
-    const TEMPLATES = {
-      two_column: {
-        name: '2-Column Menu',
-        elements: [
-          { type: 'category_header', x: 160, y: 60, width: 600, height: 120, data: { title: 'OUR MENU', subtitle: 'Fresh & Delicious', icon: '🍽️' }, style: { fontSize: 48 } },
-          { type: 'menu_section', x: 100, y: 200, width: 350, height: 60, data: { title: 'MAINS', showDivider: true }, style: { fontSize: 28, color: '#ffffff' } },
-          { type: 'menu_item', x: 100, y: 280, width: 350, height: 100, data: { name: 'Classic Burger', description: 'Angus beef, lettuce, tomato', price: '$12.99', showImage: false }, style: { fontSize: 20 } },
-          { type: 'menu_item', x: 100, y: 400, width: 350, height: 100, data: { name: 'Grilled Chicken', description: 'Herb-marinated, seasonal veggies', price: '$14.99', showImage: false }, style: { fontSize: 20 } },
-          { type: 'menu_section', x: 500, y: 200, width: 350, height: 60, data: { title: 'SIDES', showDivider: true }, style: { fontSize: 28, color: '#ffffff' } },
-          { type: 'menu_item', x: 500, y: 280, width: 350, height: 100, data: { name: 'French Fries', description: 'Crispy golden fries', price: '$4.99', showImage: false }, style: { fontSize: 20 } },
-          { type: 'menu_item', x: 500, y: 400, width: 350, height: 100, data: { name: 'Onion Rings', description: 'Beer-battered, served hot', price: '$5.99', showImage: false }, style: { fontSize: 20 } }
-        ]
-      },
-      three_column: {
-        name: '3-Column Menu',
-        elements: [
-          { type: 'text', x: 60, y: 40, width: 800, height: 60, content: 'RESTAURANT NAME', fontSize: 48, color: '#ffffff' },
-          { type: 'menu_section', x: 60, y: 120, width: 280, height: 50, data: { title: 'STARTERS', showDivider: true }, style: { fontSize: 24, color: '#00d4ff' } },
-          { type: 'price_list', x: 60, y: 180, width: 280, height: 200, data: { items: [{ name: 'Soup of Day', price: '$6' }, { name: 'Garden Salad', price: '$8' }, { name: 'Wings', price: '$10' }] }, style: { fontSize: 16 } },
-          { type: 'menu_section', x: 360, y: 120, width: 280, height: 50, data: { title: 'MAINS', showDivider: true }, style: { fontSize: 24, color: '#00d4ff' } },
-          { type: 'price_list', x: 360, y: 180, width: 280, height: 200, data: { items: [{ name: 'Steak', price: '$24' }, { name: 'Salmon', price: '$22' }, { name: 'Pasta', price: '$18' }] }, style: { fontSize: 16 } },
-          { type: 'menu_section', x: 660, y: 120, width: 280, height: 50, data: { title: 'DESSERTS', showDivider: true }, style: { fontSize: 24, color: '#00d4ff' } },
-          { type: 'price_list', x: 660, y: 180, width: 280, height: 200, data: { items: [{ name: 'Cheesecake', price: '$8' }, { name: 'Ice Cream', price: '$6' }, { name: 'Brownie', price: '$7' }] }, style: { fontSize: 16 } }
-        ]
-      },
-      specials: {
-        name: 'Specials Board',
-        elements: [
-          { type: 'category_header', x: 160, y: 40, width: 600, height: 100, data: { title: "TODAY'S SPECIALS", subtitle: 'Limited Time Only!', icon: '⭐' }, style: { fontSize: 42 } },
-          { type: 'combo', x: 100, y: 180, width: 380, height: 200, data: { title: 'Lunch Special', badge: 'BEST VALUE', items: 'Sandwich + Soup + Drink', price: '$11.99' }, style: { bgColor: '#059669' } },
-          { type: 'combo', x: 520, y: 180, width: 380, height: 200, data: { title: 'Family Feast', badge: 'FEEDS 4', items: '2 Mains + 2 Sides + Drinks', price: '$39.99' }, style: { bgColor: '#7c3aed' } },
-          { type: 'combo', x: 100, y: 420, width: 380, height: 200, data: { title: 'Date Night', badge: 'FOR TWO', items: '2 Entrees + Dessert + Wine', price: '$49.99' }, style: { bgColor: '#dc2626' } },
-          { type: 'ticker', x: 60, y: 650, width: 880, height: 50, data: { messages: ['Ask about our loyalty program!', 'Free delivery on orders over $30'], speed: 20 }, style: { bgColor: '#000', textColor: '#fff' } }
-        ]
-      },
-      drinks: {
-        name: 'Drinks Board',
-        elements: [
-          { type: 'category_header', x: 160, y: 40, width: 600, height: 100, data: { title: 'BEVERAGES', subtitle: 'Refreshing Drinks', icon: '🍺' }, style: { fontSize: 42 } },
-          { type: 'menu_section', x: 80, y: 160, width: 350, height: 50, data: { title: 'COFFEE', showDivider: true }, style: { fontSize: 24, color: '#f59e0b' } },
-          { type: 'price_list', x: 80, y: 220, width: 350, height: 180, data: { items: [{ name: 'Espresso', price: '$3.00' }, { name: 'Americano', price: '$3.50' }, { name: 'Latte', price: '$4.50' }, { name: 'Cappuccino', price: '$4.50' }] }, style: { fontSize: 16 } },
-          { type: 'menu_section', x: 500, y: 160, width: 350, height: 50, data: { title: 'COLD DRINKS', showDivider: true }, style: { fontSize: 24, color: '#00d4ff' } },
-          { type: 'price_list', x: 500, y: 220, width: 350, height: 180, data: { items: [{ name: 'Iced Tea', price: '$3.00' }, { name: 'Lemonade', price: '$3.50' }, { name: 'Smoothie', price: '$5.50' }, { name: 'Milkshake', price: '$5.50' }] }, style: { fontSize: 16 } },
-          { type: 'menu_section', x: 80, y: 430, width: 350, height: 50, data: { title: 'BEER', showDivider: true }, style: { fontSize: 24, color: '#f59e0b' } },
-          { type: 'price_list', x: 80, y: 490, width: 350, height: 140, data: { items: [{ name: 'Draft Beer', price: '$5.00' }, { name: 'Craft IPA', price: '$7.00' }, { name: 'Import', price: '$6.00' }] }, style: { fontSize: 16 } }
-        ]
-      },
-      price_board: {
-        name: 'Price Board',
-        elements: [
-          { type: 'text', x: 60, y: 40, width: 800, height: 50, content: 'MENU', fontSize: 42, color: '#ffffff' },
-          { type: 'price_list', x: 60, y: 120, width: 400, height: 250, data: { items: [{ name: 'Item 1', price: '$8.99' }, { name: 'Item 2', price: '$9.99' }, { name: 'Item 3', price: '$10.99' }, { name: 'Item 4', price: '$11.99' }, { name: 'Item 5', price: '$12.99' }] }, style: { fontSize: 20 } },
-          { type: 'price_list', x: 500, y: 120, width: 400, height: 250, data: { items: [{ name: 'Item 6', price: '$13.99' }, { name: 'Item 7', price: '$14.99' }, { name: 'Item 8', price: '$15.99' }, { name: 'Item 9', price: '$16.99' }, { name: 'Item 10', price: '$17.99' }] }, style: { fontSize: 20 } },
-          { type: 'rectangle', x: 60, y: 400, width: 840, height: 3, color: '#00d4ff' }
-        ]
-      },
-      combo_deal: {
-        name: 'Combo Deals',
-        elements: [
-          { type: 'category_header', x: 160, y: 30, width: 600, height: 100, data: { title: 'COMBO DEALS', subtitle: 'Save More!', icon: '🎉' }, style: { fontSize: 42 } },
-          { type: 'combo', x: 60, y: 150, width: 420, height: 180, data: { title: 'Combo #1', badge: 'POPULAR', items: 'Burger + Fries + Drink', price: '$9.99' }, style: { bgColor: '#dc2626' } },
-          { type: 'combo', x: 520, y: 150, width: 420, height: 180, data: { title: 'Combo #2', badge: 'VALUE', items: 'Chicken + Salad + Drink', price: '$10.99' }, style: { bgColor: '#059669' } },
-          { type: 'combo', x: 60, y: 360, width: 420, height: 180, data: { title: 'Combo #3', badge: 'DELUXE', items: 'Steak + Sides + Dessert', price: '$18.99' }, style: { bgColor: '#7c3aed' } },
-          { type: 'combo', x: 520, y: 360, width: 420, height: 180, data: { title: 'Family Pack', badge: 'FEEDS 4', items: '4 Mains + 4 Sides + 4 Drinks', price: '$34.99' }, style: { bgColor: '#0891b2' } }
-        ]
-      }
-    };
-    
     // State
     let currentSession = null;
-    let currentMenu = null;
+    let currentUser = null;
+    let currentOrg = null;
+    let devices = [];
     let layouts = [];
-    let activeLayoutId = null;
-    let selectedElement = null;
-    let zoom = 1;
-    let isDragging = false;
-    let dragOffset = { x: 0, y: 0 };
-    let selectedTemplate = null;
+    let menus = [];
+    let users = [];
     
     // Initialize
     async function init() {
@@ -1681,28 +813,18 @@
       }
       currentSession = JSON.parse(sessionStr);
       
-      // Get menu ID from URL hash
-      const hash = window.location.hash;
-      const menuIdMatch = hash.match(/menus\/([a-f0-9-]+)/);
-      
-      if (!menuIdMatch) {
-        alert('No menu ID provided');
-        window.location.href = '/dashboard.html';
-        return;
+      const userStr = localStorage.getItem('mosm_user');
+      if (userStr) {
+        currentUser = JSON.parse(userStr);
+        updateUserInfo();
       }
       
-      const menuId = menuIdMatch[1];
+      // Load initial data
+      await loadOrganization();
       
-      // Load menu and layouts
-      await loadMenu(menuId);
-      await loadLayouts(menuId);
-      
-      // Populate resolution dropdowns
-      populateResolutionSelect();
-      populateResolutionGrid();
-      
-      // Setup canvas interactions
-      setupCanvasInteractions();
+      // Setup routing
+      window.addEventListener('hashchange', loadAdminView);
+      loadAdminView();
     }
     
     // API helper
@@ -1727,1124 +849,707 @@
       return data;
     }
     
-    // Load menu
-    async function loadMenu(menuId) {
+    // Update user info in sidebar
+    function updateUserInfo() {
+      if (currentUser) {
+        document.getElementById('userName').textContent = currentUser.email?.split('@')[0] || 'User';
+        document.getElementById('userAvatar').textContent = (currentUser.email?.[0] || 'U').toUpperCase();
+      }
+    }
+    
+    // Load organization
+    async function loadOrganization() {
       try {
-        const data = await apiRequest(`/menus/${menuId}`);
-        currentMenu = data.menu;
-        
-        document.getElementById('menuName').textContent = currentMenu.name;
-        document.getElementById('menuStatus').textContent = currentMenu.status;
-        document.getElementById('menuStatus').className = `menu-status ${currentMenu.status}`;
-      } catch (error) {
-        console.error('Error loading menu:', error);
-        alert('Error loading menu: ' + error.message);
-      }
-    }
-    
-    // Load layouts (screens)
-    async function loadLayouts(menuId) {
-      try {
-        const data = await apiRequest(`/layouts?menuId=${menuId}`);
-        layouts = data.layouts || [];
-        
-        renderScreensList();
-        
-        if (layouts.length > 0) {
-          selectLayout(layouts[0].id);
-        } else {
-          showNoScreensMessage();
-        }
-      } catch (error) {
-        console.error('Error loading layouts:', error);
-      }
-    }
-    
-    // Render screens list
-    function renderScreensList() {
-      const list = document.getElementById('screensList');
-      
-      if (layouts.length === 0) {
-        list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px;">No screens yet</p>';
-        return;
-      }
-      
-      list.innerHTML = layouts.map(layout => {
-        const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
-        const isPortrait = res.h > res.w;
-        
-        return `
-          <div class="screen-card ${layout.id === activeLayoutId ? 'active' : ''}" onclick="selectLayout('${layout.id}')">
-            <div class="screen-preview ${isPortrait ? 'portrait' : ''}" style="background: ${layout.background_color || '#000'}">
-              ${layout.background_image ? `<img src="${layout.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : `${res.w}×${res.h}`}
-            </div>
-            <div class="screen-name">${layout.name || 'Untitled Screen'}</div>
-            <div class="screen-resolution">${res.w} × ${res.h}</div>
-          </div>
-        `;
-      }).join('');
-    }
-    
-    // Select layout
-    function selectLayout(layoutId) {
-      activeLayoutId = layoutId;
-      selectedElement = null;
-      
-      const layout = layouts.find(l => l.id === layoutId);
-      if (!layout) return;
-      
-      // Update UI
-      renderScreensList();
-      renderCanvas(layout);
-      updatePropertyPanel(layout);
-      renderLayers(layout);
-      
-      // Show canvas
-      document.getElementById('noScreensMessage').style.display = 'none';
-      document.getElementById('canvasWrapper').style.display = 'block';
-      document.getElementById('canvasInfo').style.display = 'block';
-    }
-    
-    // Render canvas
-    function renderCanvas(layout) {
-      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
-      const safeZoneMargin = SAFE_ZONES[layout.safe_zone || 'standard'] || 48;
-      
-      const container = document.getElementById('canvasContainer');
-      const content = document.getElementById('canvasContent');
-      const safeZone = document.getElementById('safeZoneOverlay');
-      
-      // Set canvas size
-      container.style.width = res.w + 'px';
-      container.style.height = res.h + 'px';
-      container.style.background = layout.background_color || '#000';
-      
-      if (layout.background_image) {
-        container.style.backgroundImage = `url(${layout.background_image})`;
-        container.style.backgroundSize = 'cover';
-        container.style.backgroundPosition = 'center';
-      } else {
-        container.style.backgroundImage = 'none';
-      }
-      
-      // Set safe zone
-      safeZone.style.margin = safeZoneMargin + 'px';
-      
-      // Update info
-      document.getElementById('resolutionInfo').textContent = `${res.w} × ${res.h}`;
-      document.getElementById('safeZoneInfo').textContent = layout.safe_zone ? `${layout.safe_zone} (${safeZoneMargin}px)` : 'Standard';
-      
-      // Render elements
-      const elements = layout.elements || [];
-      content.innerHTML = elements.map((el, idx) => renderElement(el, idx)).join('');
-      
-      // Fit to view
-      zoomFit();
-    }
-    
-    // Render single element
-    function renderElement(element, index) {
-      const style = `
-        left: ${element.x}px;
-        top: ${element.y}px;
-        width: ${element.width}px;
-        height: ${element.height}px;
-      `;
-      
-      const selectedClass = selectedElement === index ? 'selected' : '';
-      
-      switch (element.type) {
-        case 'text':
-          return `
-            <div class="canvas-element element-text ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}; font-size: ${element.fontSize || 24}px; color: ${element.color || '#fff'};"
-                 onmousedown="startDrag(event, ${index})">
-              ${element.content || 'Text'}
-            </div>
-          `;
-        case 'image':
-          return `
-            <div class="canvas-element element-image ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}"
-                 onmousedown="startDrag(event, ${index})">
-              <img src="${element.src || 'https://via.placeholder.com/200'}" alt="">
-            </div>
-          `;
-        case 'rectangle':
-          return `
-            <div class="canvas-element element-shape ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}; background: ${element.color || '#333'}; border-radius: ${element.borderRadius || 0}px;"
-                 onmousedown="startDrag(event, ${index})">
-            </div>
-          `;
-        case 'circle':
-          return `
-            <div class="canvas-element element-shape ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}; background: ${element.color || '#333'}; border-radius: 50%;"
-                 onmousedown="startDrag(event, ${index})">
-            </div>
-          `;
-        
-        // Menu-aware components
-        case 'menu_item':
-          return renderMenuItemElement(element, index, style, selectedClass);
-        case 'menu_section':
-          return renderMenuSectionElement(element, index, style, selectedClass);
-        case 'price_list':
-          return renderPriceListElement(element, index, style, selectedClass);
-        case 'combo':
-          return renderComboElement(element, index, style, selectedClass);
-        case 'category_header':
-          return renderCategoryHeaderElement(element, index, style, selectedClass);
-        case 'ticker':
-          return renderTickerElement(element, index, style, selectedClass);
-        
-        default:
-          return '';
-      }
-    }
-
-    // Menu Item Renderer
-    function renderMenuItemElement(element, index, style, selectedClass) {
-      const data = element.data || {};
-      const elStyle = element.style || {};
-      return `
-        <div class="canvas-element menu-item-element ${selectedClass}" 
-             data-index="${index}" 
-             style="${style}; background: ${elStyle.bgColor || 'rgba(0,0,0,0.6)'};"
-             onmousedown="startDrag(event, ${index})">
-          ${data.showImage && data.image ? `<img class="item-image" src="${data.image}" alt="">` : (data.showImage ? '<div class="item-image"></div>' : '')}
-          <div class="item-content">
-            <div class="item-name" style="font-size: ${elStyle.fontSize || 24}px;">${data.name || 'Item Name'}</div>
-            <div class="item-description">${data.description || 'Description'}</div>
-            <div class="item-price">${data.price || '$0.00'}</div>
-          </div>
-        </div>
-      `;
-    }
-
-    // Menu Section Renderer
-    function renderMenuSectionElement(element, index, style, selectedClass) {
-      const data = element.data || {};
-      const elStyle = element.style || {};
-      return `
-        <div class="canvas-element menu-section-element ${selectedClass}" 
-             data-index="${index}" 
-             style="${style}"
-             onmousedown="startDrag(event, ${index})">
-          <div class="section-title" style="font-size: ${elStyle.fontSize || 36}px; color: ${elStyle.color || '#fff'};">${data.title || 'SECTION'}</div>
-          ${data.showDivider !== false ? '<div class="section-divider"></div>' : ''}
-        </div>
-      `;
-    }
-
-    // Price List Renderer
-    function renderPriceListElement(element, index, style, selectedClass) {
-      const data = element.data || {};
-      const elStyle = element.style || {};
-      const items = data.items || [];
-      return `
-        <div class="canvas-element price-list-element ${selectedClass}" 
-             data-index="${index}" 
-             style="${style}; background: ${elStyle.bgColor || 'rgba(0,0,0,0.5)'};"
-             onmousedown="startDrag(event, ${index})">
-          ${items.map(item => `
-            <div class="price-row" style="font-size: ${elStyle.fontSize || 18}px;">
-              <span class="price-name">${item.name}</span>
-              <span class="price-value">${item.price}</span>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    // Combo/Special Renderer
-    function renderComboElement(element, index, style, selectedClass) {
-      const data = element.data || {};
-      const elStyle = element.style || {};
-      return `
-        <div class="canvas-element combo-element ${selectedClass}" 
-             data-index="${index}" 
-             style="${style}; background: linear-gradient(135deg, ${elStyle.bgColor || '#7c3aed'}40 0%, ${elStyle.bgColor || '#7c3aed'}20 100%); border-color: ${elStyle.bgColor || '#7c3aed'}80;"
-             onmousedown="startDrag(event, ${index})">
-          ${data.badge ? `<div class="combo-badge">${data.badge}</div>` : ''}
-          <div class="combo-title">${data.title || 'Combo Deal'}</div>
-          <div class="combo-items">${data.items || 'Items included'}</div>
-          <div class="combo-price">${data.price || '$0.00'}</div>
-        </div>
-      `;
-    }
-
-    // Category Header Renderer
-    function renderCategoryHeaderElement(element, index, style, selectedClass) {
-      const data = element.data || {};
-      const elStyle = element.style || {};
-      return `
-        <div class="canvas-element category-header-element ${selectedClass}" 
-             data-index="${index}" 
-             style="${style}"
-             onmousedown="startDrag(event, ${index})">
-          ${data.icon ? `<div class="category-icon">${data.icon}</div>` : ''}
-          <div class="category-title" style="font-size: ${elStyle.fontSize || 42}px;">${data.title || 'CATEGORY'}</div>
-          ${data.subtitle ? `<div class="category-subtitle">${data.subtitle}</div>` : ''}
-        </div>
-      `;
-    }
-
-    // Ticker Renderer
-    function renderTickerElement(element, index, style, selectedClass) {
-      const data = element.data || {};
-      const elStyle = element.style || {};
-      const messages = data.messages || ['Message'];
-      const speed = data.speed || 20;
-      return `
-        <div class="canvas-element ticker-element ${selectedClass}" 
-             data-index="${index}" 
-             style="${style}; background: ${elStyle.bgColor || '#000'};"
-             onmousedown="startDrag(event, ${index})">
-          <div class="ticker-content" style="color: ${elStyle.textColor || '#fff'}; animation-duration: ${speed}s;">
-            ${messages.join(' • ')}
-          </div>
-        </div>
-      `;
-    }
-            <div class="canvas-element element-image ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}"
-                 onmousedown="startDrag(event, ${index})">
-              <img src="${element.src || 'https://via.placeholder.com/200'}" alt="">
-            </div>
-          `;
-        case 'rectangle':
-          return `
-            <div class="canvas-element element-shape ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}; background: ${element.color || '#333'}; border-radius: ${element.borderRadius || 0}px;"
-                 onmousedown="startDrag(event, ${index})">
-            </div>
-          `;
-        case 'circle':
-          return `
-            <div class="canvas-element element-shape ${selectedClass}" 
-                 data-index="${index}" 
-                 style="${style}; background: ${element.color || '#333'}; border-radius: 50%;"
-                 onmousedown="startDrag(event, ${index})">
-            </div>
-          `;
-        default:
-          return '';
-      }
-    }
-    
-    // Update property panel for layout
-    function updatePropertyPanel(layout) {
-      document.getElementById('screenNameInput').value = layout.name || '';
-      document.getElementById('resolutionSelect').value = layout.resolution || '1080p';
-      document.getElementById('safeZoneSelect').value = layout.safe_zone || 'standard';
-      document.getElementById('bgColorInput').value = layout.background_color || '#000000';
-      document.getElementById('bgImageInput').value = layout.background_image || '';
-      
-      // Hide element properties
-      document.getElementById('elementProperties').style.display = 'none';
-      document.getElementById('screenProperties').style.display = 'block';
-    }
-    
-    // Render layers panel
-    function renderLayers(layout) {
-      const list = document.getElementById('layersList');
-      const elements = layout.elements || [];
-      
-      if (elements.length === 0) {
-        list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 12px;">No elements yet</p>';
-        return;
-      }
-      
-      // Render in reverse order (top layer first)
-      list.innerHTML = [...elements].reverse().map((el, idx) => {
-        const realIndex = elements.length - 1 - idx;
-        const icon = getElementIcon(el.type);
-        return `
-          <div class="layer-item ${selectedElement === realIndex ? 'selected' : ''}" onclick="selectElement(${realIndex})">
-            <span class="layer-icon">${icon}</span>
-            <span class="layer-name">${el.name || el.type}</span>
-            <span class="layer-visibility">👁</span>
-          </div>
-        `;
-      }).join('');
-    }
-    
-    function getElementIcon(type) {
-      switch (type) {
-        case 'text': return 'T';
-        case 'image': return '🖼';
-        case 'rectangle': return '▢';
-        case 'circle': return '○';
-        case 'menu_item': return '🍔';
-        case 'menu_section': return '📋';
-        case 'price_list': return '💰';
-        case 'combo': return '⭐';
-        case 'category_header': return '🏷️';
-        case 'ticker': return '📜';
-        default: return '?';
-      }
-    }
-    
-    // Add element
-    function addElement(type) {
-      if (!activeLayoutId) {
-        alert('Please select or create a screen first');
-        return;
-      }
-      
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
-      
-      const newElement = {
-        type,
-        x: res.w / 2 - 100,
-        y: res.h / 2 - 50,
-        width: 200,
-        height: 100,
-        name: type.charAt(0).toUpperCase() + type.slice(1)
-      };
-      
-      switch (type) {
-        case 'text':
-          newElement.content = 'New Text';
-          newElement.fontSize = 48;
-          newElement.color = '#ffffff';
-          break;
-        case 'image':
-          newElement.src = '';
-          newElement.width = 300;
-          newElement.height = 200;
-          break;
-        case 'rectangle':
-          newElement.color = '#333333';
-          newElement.borderRadius = 0;
-          break;
-        case 'circle':
-          newElement.color = '#333333';
-          newElement.width = 150;
-          newElement.height = 150;
-          break;
-      }
-      
-      if (!layout.elements) layout.elements = [];
-      layout.elements.push(newElement);
-      
-      renderCanvas(layout);
-      renderLayers(layout);
-      
-      // Select new element
-      selectElement(layout.elements.length - 1);
-    }
-
-    // Add menu-aware element
-    function addMenuElement(type) {
-      if (!activeLayoutId) {
-        alert('Please select or create a screen first');
-        return;
-      }
-      
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
-      const defaults = MENU_ELEMENT_DEFAULTS[type];
-      
-      if (!defaults) {
-        console.error('Unknown menu element type:', type);
-        return;
-      }
-      
-      const newElement = {
-        type,
-        x: res.w / 2 - defaults.width / 2,
-        y: res.h / 2 - defaults.height / 2,
-        width: defaults.width,
-        height: defaults.height,
-        name: type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        data: JSON.parse(JSON.stringify(defaults.data)),
-        style: JSON.parse(JSON.stringify(defaults.style))
-      };
-      
-      if (!layout.elements) layout.elements = [];
-      layout.elements.push(newElement);
-      
-      renderCanvas(layout);
-      renderLayers(layout);
-      
-      // Select new element
-      selectElement(layout.elements.length - 1);
-    }
-    
-    // Select element
-    function selectElement(index) {
-      selectedElement = index;
-      
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout || !layout.elements || !layout.elements[index]) return;
-      
-      const element = layout.elements[index];
-      
-      // Hide all property panels first
-      hideAllPropertyPanels();
-      
-      // Show appropriate panel based on element type
-      const menuTypes = ['menu_item', 'menu_section', 'price_list', 'combo', 'category_header', 'ticker'];
-      
-      if (menuTypes.includes(element.type)) {
-        showMenuElementProperties(element);
-      } else {
-        // Show standard element properties
-        document.getElementById('elementProperties').style.display = 'block';
-        
-        document.getElementById('elemX').value = Math.round(element.x);
-        document.getElementById('elemY').value = Math.round(element.y);
-        document.getElementById('elemW').value = Math.round(element.width);
-        document.getElementById('elemH').value = Math.round(element.height);
-        
-        // Show type-specific properties
-        const textRow = document.getElementById('textContentRow');
-        const fontRow = document.getElementById('fontSizeRow');
-        
-        if (element.type === 'text') {
-          textRow.style.display = 'flex';
-          fontRow.style.display = 'flex';
-          document.getElementById('elemText').value = element.content || '';
-          document.getElementById('elemFontSize').value = element.fontSize || 24;
-        } else {
-          textRow.style.display = 'none';
-          fontRow.style.display = 'none';
+        // For now, get org from user data or first menu
+        const userStr = localStorage.getItem('mosm_user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          if (user.organization_id) {
+            currentOrg = { id: user.organization_id };
+          }
         }
         
-        document.getElementById('elemColor').value = element.color || '#ffffff';
-      }
-      
-      renderCanvas(layout);
-      renderLayers(layout);
-    }
-
-    // Hide all property panels
-    function hideAllPropertyPanels() {
-      document.getElementById('screenProperties').style.display = 'none';
-      document.getElementById('elementProperties').style.display = 'none';
-      document.getElementById('menuItemProps').style.display = 'none';
-      document.getElementById('menuSectionProps').style.display = 'none';
-      document.getElementById('priceListProps').style.display = 'none';
-      document.getElementById('comboProps').style.display = 'none';
-      document.getElementById('categoryProps').style.display = 'none';
-      document.getElementById('tickerProps').style.display = 'none';
-    }
-
-    // Show menu element properties
-    function showMenuElementProperties(element) {
-      const data = element.data || {};
-      const style = element.style || {};
-      
-      switch (element.type) {
-        case 'menu_item':
-          document.getElementById('menuItemProps').style.display = 'block';
-          document.getElementById('menuItemName').value = data.name || '';
-          document.getElementById('menuItemDesc').value = data.description || '';
-          document.getElementById('menuItemPrice').value = data.price || '';
-          document.getElementById('menuItemImage').value = data.image || '';
-          document.getElementById('menuItemFontSize').value = style.fontSize || 24;
-          const showImageToggle = document.getElementById('menuItemShowImage');
-          showImageToggle.classList.toggle('active', data.showImage !== false);
-          break;
-          
-        case 'menu_section':
-          document.getElementById('menuSectionProps').style.display = 'block';
-          document.getElementById('sectionTitle').value = data.title || '';
-          document.getElementById('sectionFontSize').value = style.fontSize || 36;
-          document.getElementById('sectionColor').value = style.color || '#ffffff';
-          const dividerToggle = document.getElementById('sectionShowDivider');
-          dividerToggle.classList.toggle('active', data.showDivider !== false);
-          break;
-          
-        case 'price_list':
-          document.getElementById('priceListProps').style.display = 'block';
-          const items = data.items || [];
-          document.getElementById('priceListItems').value = items.map(i => `${i.name} | ${i.price}`).join('\n');
-          document.getElementById('priceListFontSize').value = style.fontSize || 18;
-          break;
-          
-        case 'combo':
-          document.getElementById('comboProps').style.display = 'block';
-          document.getElementById('comboTitle').value = data.title || '';
-          document.getElementById('comboBadge').value = data.badge || '';
-          document.getElementById('comboItems').value = data.items || '';
-          document.getElementById('comboPrice').value = data.price || '';
-          document.getElementById('comboBgColor').value = style.bgColor || '#7c3aed';
-          break;
-          
-        case 'category_header':
-          document.getElementById('categoryProps').style.display = 'block';
-          document.getElementById('categoryTitle').value = data.title || '';
-          document.getElementById('categorySubtitle').value = data.subtitle || '';
-          document.getElementById('categoryIcon').value = data.icon || '';
-          document.getElementById('categoryFontSize').value = style.fontSize || 42;
-          break;
-          
-        case 'ticker':
-          document.getElementById('tickerProps').style.display = 'block';
-          const messages = data.messages || [];
-          document.getElementById('tickerMessages').value = messages.join('\n');
-          document.getElementById('tickerSpeed').value = data.speed || 20;
-          document.getElementById('tickerBgColor').value = style.bgColor || '#000000';
-          document.getElementById('tickerTextColor').value = style.textColor || '#ffffff';
-          break;
+        // Try to get org details
+        try {
+          const data = await apiRequest('/organizations');
+          if (data.organization) {
+            currentOrg = data.organization;
+            document.getElementById('userOrg').textContent = currentOrg.name || 'My Organization';
+          }
+        } catch (e) {
+          document.getElementById('userOrg').textContent = 'My Organization';
+        }
+      } catch (error) {
+        console.error('Error loading organization:', error);
       }
     }
-
-    // Update functions for menu elements
-    function updateMenuItemData() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const element = layout.elements[selectedElement];
-      if (!element.data) element.data = {};
-      if (!element.style) element.style = {};
-      
-      element.data.name = document.getElementById('menuItemName').value;
-      element.data.description = document.getElementById('menuItemDesc').value;
-      element.data.price = document.getElementById('menuItemPrice').value;
-      element.data.image = document.getElementById('menuItemImage').value;
-      element.style.fontSize = parseInt(document.getElementById('menuItemFontSize').value) || 24;
-      
-      renderCanvas(layout);
+    
+    // Navigation
+    function navigateTo(route) {
+      window.location.hash = route;
     }
-
-    function toggleMenuItemImage() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
+    
+    // Router
+    function loadAdminView() {
+      const route = window.location.hash.replace('#', '') || 'menus';
       
-      const element = layout.elements[selectedElement];
-      if (!element.data) element.data = {};
-      
-      element.data.showImage = !element.data.showImage;
-      document.getElementById('menuItemShowImage').classList.toggle('active', element.data.showImage);
-      
-      renderCanvas(layout);
-    }
-
-    function updateSectionData() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const element = layout.elements[selectedElement];
-      if (!element.data) element.data = {};
-      if (!element.style) element.style = {};
-      
-      element.data.title = document.getElementById('sectionTitle').value;
-      element.style.fontSize = parseInt(document.getElementById('sectionFontSize').value) || 36;
-      element.style.color = document.getElementById('sectionColor').value;
-      
-      renderCanvas(layout);
-    }
-
-    function toggleSectionDivider() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const element = layout.elements[selectedElement];
-      if (!element.data) element.data = {};
-      
-      element.data.showDivider = !element.data.showDivider;
-      document.getElementById('sectionShowDivider').classList.toggle('active', element.data.showDivider);
-      
-      renderCanvas(layout);
-    }
-
-    function updatePriceListData() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const element = layout.elements[selectedElement];
-      if (!element.data) element.data = {};
-      if (!element.style) element.style = {};
-      
-      const text = document.getElementById('priceListItems').value;
-      element.data.items = text.split('\n').filter(line => line.trim()).map(line => {
-        const parts = line.split('|').map(s => s.trim());
-        return { name: parts[0] || '', price: parts[1] || '' };
+      // Update nav active state
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.route === route);
       });
-      element.style.fontSize = parseInt(document.getElementById('priceListFontSize').value) || 18;
       
-      renderCanvas(layout);
-    }
-
-    function updateComboData() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const element = layout.elements[selectedElement];
-      if (!element.data) element.data = {};
-      if (!element.style) element.style = {};
-      
-      element.data.title = document.getElementById('comboTitle').value;
-      element.data.badge = document.getElementById('comboBadge').value;
-      element.data.items = document.getElementById('comboItems').value;
-      element.data.price = document.getElementById('comboPrice').value;
-      element.style.bgColor = document.getElementById('comboBgColor').value;
-      
-      renderCanvas(layout);
-    }
-
-    function updateCategoryData() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const element = layout.elements[selectedElement];
-      if (!element.data) element.data = {};
-      if (!element.style) element.style = {};
-      
-      element.data.title = document.getElementById('categoryTitle').value;
-      element.data.subtitle = document.getElementById('categorySubtitle').value;
-      element.data.icon = document.getElementById('categoryIcon').value;
-      element.style.fontSize = parseInt(document.getElementById('categoryFontSize').value) || 42;
-      
-      renderCanvas(layout);
-    }
-
-    function updateTickerData() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const element = layout.elements[selectedElement];
-      if (!element.data) element.data = {};
-      if (!element.style) element.style = {};
-      
-      const text = document.getElementById('tickerMessages').value;
-      element.data.messages = text.split('\n').filter(line => line.trim());
-      element.data.speed = parseInt(document.getElementById('tickerSpeed').value) || 20;
-      element.style.bgColor = document.getElementById('tickerBgColor').value;
-      element.style.textColor = document.getElementById('tickerTextColor').value;
-      
-      renderCanvas(layout);
-    }
-
-    // Auto-layout alignment helper
-    function alignElement(alignment) {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
-      const element = layout.elements[selectedElement];
-      const safeZone = SAFE_ZONES[layout.safe_zone || 'standard'] || 48;
-      
-      switch (alignment) {
-        case 'left':
-          element.x = safeZone;
+      // Load appropriate view
+      switch (route) {
+        case 'devices':
+          loadDevicesView();
           break;
-        case 'center':
-          element.x = (res.w - element.width) / 2;
+        case 'screens':
+          loadScreensView();
           break;
-        case 'right':
-          element.x = res.w - element.width - safeZone;
+        case 'layouts':
+          loadLayoutsView();
+          break;
+        case 'users':
+          loadUsersView();
+          break;
+        case 'settings':
+          loadSettingsView();
+          break;
+        case 'menus':
+        default:
+          loadMenusView();
           break;
       }
-      
-      renderCanvas(layout);
     }
-
-    // Template functions
-    function showTemplateModal() {
-      if (!activeLayoutId) {
-        alert('Please select or create a screen first');
-        return;
-      }
-      document.getElementById('templateModal').classList.add('show');
-      selectedTemplate = null;
-      document.querySelectorAll('.template-card').forEach(el => el.classList.remove('selected'));
-    }
-
-    function hideTemplateModal() {
-      document.getElementById('templateModal').classList.remove('show');
-    }
-
-    function selectTemplate(templateKey) {
-      selectedTemplate = templateKey;
-      document.querySelectorAll('.template-card').forEach(el => {
-        el.classList.toggle('selected', el.dataset.template === templateKey);
-      });
-    }
-
-    function insertTemplate() {
-      if (!selectedTemplate || !activeLayoutId) return;
+    
+    // ==========================================
+    // MENUS VIEW
+    // ==========================================
+    async function loadMenusView() {
+      document.getElementById('pageTitle').textContent = 'Menus';
+      document.getElementById('topBarActions').innerHTML = `
+        <a href="/menus.html" class="btn btn-secondary">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Open Menu Manager
+        </a>
+        <button class="btn btn-primary" onclick="createNewMenu()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          New Menu
+        </button>
+      `;
       
-      const template = TEMPLATES[selectedTemplate];
-      if (!template) return;
+      const content = document.getElementById('adminContent');
+      content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
       
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      // Confirm if layout has existing elements
-      if (layout.elements && layout.elements.length > 0) {
-        if (!confirm('This will add template elements to your existing layout. Continue?')) {
+      try {
+        const data = await apiRequest('/menus');
+        menus = data.menus || [];
+        
+        if (menus.length === 0) {
+          content.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <div class="empty-state-title">No menus yet</div>
+              <div class="empty-state-text">Create your first menu to get started</div>
+              <button class="btn btn-primary" onclick="createNewMenu()">Create Menu</button>
+            </div>
+          `;
           return;
         }
+        
+        content.innerHTML = `
+          <div class="grid-3">
+            ${menus.map(menu => `
+              <div class="item-card" onclick="openMenu('${menu.id}')">
+                <div class="item-card-header">
+                  <div class="item-card-icon">📋</div>
+                  <span class="status-badge status-${menu.status || 'draft'}">${menu.status || 'draft'}</span>
+                </div>
+                <div class="item-card-title">${menu.name}</div>
+                <div class="item-card-subtitle">${menu.layouts?.length || 0} screens</div>
+                <div class="item-card-meta">
+                  <span>v${menu.version || 1}</span>
+                  <span>Updated ${formatDate(menu.updated_at)}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (error) {
+        content.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error loading menus</div><div class="empty-state-text">${error.message}</div></div>`;
       }
-      
-      if (!layout.elements) layout.elements = [];
-      
-      // Add template elements with deep copy
-      template.elements.forEach(el => {
-        layout.elements.push(JSON.parse(JSON.stringify(el)));
-      });
-      
-      hideTemplateModal();
-      renderCanvas(layout);
-      renderLayers(layout);
     }
     
-    // Drag handling
-    function startDrag(event, index) {
-      event.preventDefault();
-      selectedElement = index;
-      isDragging = true;
-      
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      const element = layout.elements[index];
-      
-      const rect = event.target.getBoundingClientRect();
-      dragOffset.x = (event.clientX - rect.left) / zoom;
-      dragOffset.y = (event.clientY - rect.top) / zoom;
-      
-      selectElement(index);
-      
-      document.addEventListener('mousemove', onDrag);
-      document.addEventListener('mouseup', stopDrag);
+    function openMenu(menuId) {
+      window.location.href = `/editor.html#menus/${menuId}`;
     }
     
-    function onDrag(event) {
-      if (!isDragging || selectedElement === null) return;
-      
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const canvasRect = document.getElementById('canvasContent').getBoundingClientRect();
-      
-      const x = (event.clientX - canvasRect.left) / zoom - dragOffset.x;
-      const y = (event.clientY - canvasRect.top) / zoom - dragOffset.y;
-      
-      layout.elements[selectedElement].x = Math.max(0, x);
-      layout.elements[selectedElement].y = Math.max(0, y);
-      
-      renderCanvas(layout);
-      
-      // Update property inputs
-      document.getElementById('elemX').value = Math.round(x);
-      document.getElementById('elemY').value = Math.round(y);
-    }
-    
-    function stopDrag() {
-      isDragging = false;
-      document.removeEventListener('mousemove', onDrag);
-      document.removeEventListener('mouseup', stopDrag);
-    }
-    
-    // Update functions
-    function updateElementPosition() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      layout.elements[selectedElement].x = parseInt(document.getElementById('elemX').value) || 0;
-      layout.elements[selectedElement].y = parseInt(document.getElementById('elemY').value) || 0;
-      renderCanvas(layout);
-    }
-    
-    function updateElementSize() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      layout.elements[selectedElement].width = parseInt(document.getElementById('elemW').value) || 100;
-      layout.elements[selectedElement].height = parseInt(document.getElementById('elemH').value) || 100;
-      renderCanvas(layout);
-    }
-    
-    function updateElementContent() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      layout.elements[selectedElement].content = document.getElementById('elemText').value;
-      renderCanvas(layout);
-    }
-    
-    function updateElementStyle() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      layout.elements[selectedElement].color = document.getElementById('elemColor').value;
-      if (layout.elements[selectedElement].type === 'text') {
-        layout.elements[selectedElement].fontSize = parseInt(document.getElementById('elemFontSize').value) || 24;
-      }
-      renderCanvas(layout);
-    }
-    
-    function deleteSelectedElement() {
-      if (selectedElement === null) return;
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      layout.elements.splice(selectedElement, 1);
-      selectedElement = null;
-      
-      document.getElementById('elementProperties').style.display = 'none';
-      document.getElementById('screenProperties').style.display = 'block';
-      
-      renderCanvas(layout);
-      renderLayers(layout);
-    }
-    
-    // Screen property updates
-    function updateScreenName() {
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      layout.name = document.getElementById('screenNameInput').value;
-      renderScreensList();
-    }
-    
-    function updateResolution() {
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      layout.resolution = document.getElementById('resolutionSelect').value;
-      renderCanvas(layout);
-      renderScreensList();
-    }
-    
-    function updateSafeZone() {
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      layout.safe_zone = document.getElementById('safeZoneSelect').value;
-      renderCanvas(layout);
-    }
-    
-    function updateBackground() {
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      layout.background_color = document.getElementById('bgColorInput').value;
-      layout.background_image = document.getElementById('bgImageInput').value;
-      renderCanvas(layout);
-      renderScreensList();
-    }
-    
-    // Zoom controls
-    function zoomIn() {
-      zoom = Math.min(zoom + 0.1, 2);
-      applyZoom();
-    }
-    
-    function zoomOut() {
-      zoom = Math.max(zoom - 0.1, 0.1);
-      applyZoom();
-    }
-    
-    function zoomFit() {
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
-      
-      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
-      const canvasArea = document.getElementById('canvasArea');
-      const padding = 80;
-      
-      const availableWidth = canvasArea.clientWidth - padding;
-      const availableHeight = canvasArea.clientHeight - padding;
-      
-      const scaleX = availableWidth / res.w;
-      const scaleY = availableHeight / res.h;
-      
-      zoom = Math.min(scaleX, scaleY, 1);
-      applyZoom();
-    }
-    
-    function applyZoom() {
-      const wrapper = document.getElementById('canvasWrapper');
-      wrapper.style.transform = `scale(${zoom})`;
-      document.getElementById('zoomValue').textContent = Math.round(zoom * 100) + '%';
-    }
-    
-    // Populate resolution select
-    function populateResolutionSelect() {
-      const select = document.getElementById('resolutionSelect');
-      select.innerHTML = Object.entries(RESOLUTIONS).map(([key, val]) => 
-        `<option value="${key}">${val.label} (${val.w}×${val.h})</option>`
-      ).join('');
-    }
-    
-    // Populate resolution grid in modal
-    function populateResolutionGrid() {
-      const grid = document.getElementById('resolutionGrid');
-      grid.innerHTML = Object.entries(RESOLUTIONS).map(([key, val]) => `
-        <div class="resolution-option" data-resolution="${key}" onclick="selectResolutionOption('${key}')">
-          <div class="resolution-option-name">${val.label}</div>
-          <div class="resolution-option-size">${val.w} × ${val.h}</div>
-        </div>
-      `).join('');
-    }
-    
-    let selectedResolutionOption = '1080p';
-    
-    function selectResolutionOption(key) {
-      selectedResolutionOption = key;
-      document.querySelectorAll('.resolution-option').forEach(el => {
-        el.classList.toggle('selected', el.dataset.resolution === key);
-      });
-    }
-    
-    // Modal functions
-    function showAddScreenModal() {
-      document.getElementById('addScreenModal').classList.add('show');
-      document.getElementById('newScreenName').value = '';
-      selectResolutionOption('1080p');
-    }
-    
-    function hideAddScreenModal() {
-      document.getElementById('addScreenModal').classList.remove('show');
-    }
-    
-    // Create new screen (layout)
-    async function createScreen() {
-      const name = document.getElementById('newScreenName').value || 'New Screen';
-      const resolution = selectedResolutionOption;
+    async function createNewMenu() {
+      const name = prompt('Menu name:');
+      if (!name) return;
       
       try {
-        const result = await apiRequest('/layouts', {
+        const data = await apiRequest('/menus', {
           method: 'POST',
-          body: JSON.stringify({
-            menuId: currentMenu.id,
-            name,
-            resolution,
-            safe_zone: 'standard',
-            background_color: '#000000',
-            elements: []
+          body: JSON.stringify({ name })
+        });
+        
+        // Open the new menu in editor
+        openMenu(data.menu.id);
+      } catch (error) {
+        alert('Error creating menu: ' + error.message);
+      }
+    }
+    
+    // ==========================================
+    // DEVICES VIEW
+    // ==========================================
+    async function loadDevicesView() {
+      document.getElementById('pageTitle').textContent = 'Devices';
+      document.getElementById('topBarActions').innerHTML = `
+        <button class="btn btn-primary" onclick="showModal('claimDeviceModal')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Claim Device
+        </button>
+      `;
+      
+      const content = document.getElementById('adminContent');
+      content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+      
+      try {
+        const data = await apiRequest('/devices');
+        devices = data.devices || [];
+        
+        // Update online count in sidebar
+        const onlineCount = devices.filter(d => isOnline(d.last_heartbeat)).length;
+        document.getElementById('onlineDeviceCount').textContent = onlineCount;
+        
+        if (devices.length === 0) {
+          content.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📺</div>
+              <div class="empty-state-title">No devices yet</div>
+              <div class="empty-state-text">Open player.html on a kiosk to generate a pairing code, then claim it here.</div>
+              <button class="btn btn-primary" onclick="showModal('claimDeviceModal')">Claim Device</button>
+            </div>
+          `;
+          return;
+        }
+        
+        content.innerHTML = `
+          <div class="card">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Device</th>
+                    <th>Status</th>
+                    <th>Resolution</th>
+                    <th>Last Heartbeat</th>
+                    <th>Location</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${devices.map(device => `
+                    <tr>
+                      <td>
+                        <strong>${device.name || 'Unnamed Device'}</strong>
+                        <div style="font-size: 11px; color: var(--text-muted);">${device.id.slice(0, 8)}...</div>
+                      </td>
+                      <td>
+                        <span class="status-badge ${isOnline(device.last_heartbeat) ? 'status-online' : 'status-offline'}">
+                          <span class="status-dot ${isOnline(device.last_heartbeat) ? 'online' : 'offline'}"></span>
+                          ${isOnline(device.last_heartbeat) ? 'Online' : 'Offline'}
+                        </span>
+                      </td>
+                      <td>${device.resolution || '1920×1080'}</td>
+                      <td>${device.last_heartbeat ? formatTimeAgo(device.last_heartbeat) : 'Never'}</td>
+                      <td>${device.location || '—'}</td>
+                      <td>
+                        <button class="btn btn-sm btn-secondary" onclick="viewDeviceScreens('${device.id}')">Screens</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        content.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error loading devices</div><div class="empty-state-text">${error.message}</div></div>`;
+      }
+    }
+    
+    function isOnline(lastHeartbeat) {
+      if (!lastHeartbeat) return false;
+      const diff = Date.now() - new Date(lastHeartbeat).getTime();
+      return diff < 60000; // Online if heartbeat within 60 seconds
+    }
+    
+    async function claimDevice() {
+      const code = document.getElementById('pairingCodeInput').value.toUpperCase().trim();
+      if (!code || code.length !== 6) {
+        alert('Please enter a valid 6-character pairing code');
+        return;
+      }
+      
+      try {
+        await apiRequest('/devices/claim', {
+          method: 'POST',
+          body: JSON.stringify({ 
+            pairingCode: code,
+            organizationId: currentOrg?.id 
           })
         });
         
-        layouts.push(result.layout);
-        hideAddScreenModal();
-        selectLayout(result.layout.id);
-        
+        hideModal('claimDeviceModal');
+        document.getElementById('pairingCodeInput').value = '';
+        loadDevicesView();
+        alert('Device claimed successfully!');
       } catch (error) {
-        alert('Error creating screen: ' + error.message);
+        alert('Error claiming device: ' + error.message);
       }
     }
     
-    // Save layout
-    async function saveLayout() {
-      if (!activeLayoutId) return;
+    function viewDeviceScreens(deviceId) {
+      navigateTo('screens');
+      // Store selected device for screens view
+      sessionStorage.setItem('selectedDeviceId', deviceId);
+    }
+    
+    // ==========================================
+    // SCREENS VIEW
+    // ==========================================
+    async function loadScreensView() {
+      document.getElementById('pageTitle').textContent = 'Screens';
+      document.getElementById('topBarActions').innerHTML = '';
       
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      if (!layout) return;
+      const content = document.getElementById('adminContent');
+      content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
       
       try {
-        await apiRequest(`/layouts/${layout.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            name: layout.name,
-            resolution: layout.resolution,
-            safe_zone: layout.safe_zone,
-            background_color: layout.background_color,
-            background_image: layout.background_image,
-            elements: layout.elements
-          })
-        });
+        // Load devices first if not loaded
+        if (devices.length === 0) {
+          const devData = await apiRequest('/devices');
+          devices = devData.devices || [];
+        }
         
-        alert('Layout saved!');
-      } catch (error) {
-        alert('Error saving layout: ' + error.message);
-      }
-    }
-    
-    // Publish menu
-    async function publishMenu() {
-      if (!currentMenu) return;
-      
-      // First save current layout
-      if (activeLayoutId) {
-        await saveLayout();
-      }
-      
-      try {
-        await apiRequest('/publish', {
-          method: 'POST',
-          body: JSON.stringify({ menuId: currentMenu.id })
-        });
+        // Load all layouts for assignment dropdown
+        const layoutData = await apiRequest('/layouts');
+        layouts = layoutData.layouts || [];
         
-        // Update status
-        currentMenu.status = 'published';
-        document.getElementById('menuStatus').textContent = 'published';
-        document.getElementById('menuStatus').className = 'menu-status published';
+        if (devices.length === 0) {
+          content.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🖥️</div>
+              <div class="empty-state-title">No devices to show screens for</div>
+              <div class="empty-state-text">Claim a device first to manage its screens.</div>
+              <button class="btn btn-primary" onclick="navigateTo('devices')">Go to Devices</button>
+            </div>
+          `;
+          return;
+        }
         
-        alert('Menu published successfully!');
-      } catch (error) {
-        alert('Error publishing: ' + error.message);
-      }
-    }
-    
-    // Show no screens message
-    function showNoScreensMessage() {
-      document.getElementById('noScreensMessage').style.display = 'flex';
-      document.getElementById('canvasWrapper').style.display = 'none';
-      document.getElementById('canvasInfo').style.display = 'none';
-    }
-    
-    // Setup canvas interactions
-    function setupCanvasInteractions() {
-      const canvasArea = document.getElementById('canvasArea');
-      
-      // Click on canvas to deselect
-      canvasArea.addEventListener('click', (e) => {
-        if (e.target === canvasArea || e.target.id === 'canvasWrapper' || e.target.id === 'canvasContainer') {
-          selectedElement = null;
-          hideAllPropertyPanels();
-          document.getElementById('screenProperties').style.display = 'block';
+        // Build screens view grouped by device
+        let html = '';
+        
+        for (const device of devices) {
+          const screensData = await apiRequest(`/screens?deviceId=${device.id}`);
+          const screens = screensData.screens || [];
           
-          const layout = layouts.find(l => l.id === activeLayoutId);
-          if (layout) {
-            renderCanvas(layout);
-            renderLayers(layout);
-          }
-        }
-      });
-      
-      // Keyboard shortcuts
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Delete' || e.key === 'Backspace') {
-          if (selectedElement !== null && document.activeElement.tagName !== 'INPUT') {
-            deleteSelectedElement();
-          }
+          html += `
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">${device.name || 'Unnamed Device'}</div>
+                  <div style="font-size: 12px; color: var(--text-muted);">
+                    ${isOnline(device.last_heartbeat) ? '🟢 Online' : '🔴 Offline'} • ${device.resolution || '1920×1080'}
+                  </div>
+                </div>
+              </div>
+              
+              ${screens.length === 0 ? `
+                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                  No screens configured for this device
+                </div>
+              ` : `
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Screen</th>
+                        <th>Resolution</th>
+                        <th>Assigned Layout</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${screens.map(screen => `
+                        <tr>
+                          <td><strong>${screen.name || 'Screen ' + screen.index}</strong></td>
+                          <td>${screen.resolution || '1920×1080'}</td>
+                          <td>
+                            <select class="form-select" style="width: auto;" onchange="assignLayout('${screen.id}', this.value)">
+                              <option value="">— Not assigned —</option>
+                              ${layouts.map(l => `
+                                <option value="${l.id}" ${screen.layout_id === l.id ? 'selected' : ''}>${l.name || 'Untitled Layout'}</option>
+                              `).join('')}
+                            </select>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-secondary" onclick="refreshScreen('${screen.id}')">Refresh</button>
+                          </td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `}
+            </div>
+          `;
         }
         
-        if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
-          e.preventDefault();
-          saveLayout();
-        }
-      });
+        content.innerHTML = html;
+      } catch (error) {
+        content.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error loading screens</div><div class="empty-state-text">${error.message}</div></div>`;
+      }
     }
     
-    // Initialize on load
+    async function assignLayout(screenId, layoutId) {
+      try {
+        await apiRequest(`/screens/${screenId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ layout_id: layoutId || null })
+        });
+      } catch (error) {
+        alert('Error assigning layout: ' + error.message);
+        loadScreensView();
+      }
+    }
+    
+    function refreshScreen(screenId) {
+      alert('Refresh signal sent to device. It will update on next heartbeat.');
+    }
+    
+    // ==========================================
+    // LAYOUTS VIEW
+    // ==========================================
+    async function loadLayoutsView() {
+      document.getElementById('pageTitle').textContent = 'Layouts';
+      document.getElementById('topBarActions').innerHTML = `
+        <button class="btn btn-primary" onclick="createNewLayout()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          New Layout
+        </button>
+      `;
+      
+      const content = document.getElementById('adminContent');
+      content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+      
+      try {
+        const data = await apiRequest('/layouts');
+        layouts = data.layouts || [];
+        
+        if (layouts.length === 0) {
+          content.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🎨</div>
+              <div class="empty-state-title">No layouts yet</div>
+              <div class="empty-state-text">Layouts are created within menus. Create a menu first.</div>
+              <button class="btn btn-primary" onclick="navigateTo('menus')">Go to Menus</button>
+            </div>
+          `;
+          return;
+        }
+        
+        content.innerHTML = `
+          <div class="grid-3">
+            ${layouts.map(layout => `
+              <div class="item-card">
+                <div class="item-card-header">
+                  <div class="item-card-icon" style="background: ${layout.background_color || '#1a1a2e'};">🎨</div>
+                  <span class="status-badge status-draft">${layout.resolution || '1080p'}</span>
+                </div>
+                <div class="item-card-title">${layout.name || 'Untitled Layout'}</div>
+                <div class="item-card-subtitle">${(layout.elements || []).length} elements</div>
+                <div class="item-card-meta">
+                  <span>Menu: ${layout.menu_name || '—'}</span>
+                </div>
+                <div style="margin-top: 12px; display: flex; gap: 8px;">
+                  <button class="btn btn-sm btn-secondary" onclick="editLayout('${layout.menu_id}', '${layout.id}')">Edit</button>
+                  <button class="btn btn-sm btn-secondary" onclick="duplicateLayout('${layout.id}')">Duplicate</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (error) {
+        content.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error loading layouts</div><div class="empty-state-text">${error.message}</div></div>`;
+      }
+    }
+    
+    function editLayout(menuId, layoutId) {
+      window.location.href = `/editor.html#menus/${menuId}`;
+    }
+    
+    async function duplicateLayout(layoutId) {
+      alert('Duplicate functionality coming soon');
+    }
+    
+    async function createNewLayout() {
+      alert('Layouts are created within menus. Please create or open a menu first.');
+      navigateTo('menus');
+    }
+    
+    // ==========================================
+    // USERS VIEW
+    // ==========================================
+    async function loadUsersView() {
+      document.getElementById('pageTitle').textContent = 'Team Members';
+      document.getElementById('topBarActions').innerHTML = `
+        <button class="btn btn-primary" onclick="showModal('inviteUserModal')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/>
+            <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+          Invite Member
+        </button>
+      `;
+      
+      const content = document.getElementById('adminContent');
+      content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+      
+      try {
+        // For now, show current user
+        const currentUserData = currentUser || {};
+        
+        content.innerHTML = `
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Team Members</div>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 12px;">${(currentUserData.email?.[0] || 'U').toUpperCase()}</div>
+                        <div>
+                          <strong>${currentUserData.email || 'You'}</strong>
+                          <div style="font-size: 11px; color: var(--text-muted);">Account owner</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="status-badge status-published">Owner</span></td>
+                    <td><span class="status-badge status-online">Active</span></td>
+                    <td>—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Pending Invitations</div>
+            </div>
+            <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+              No pending invitations
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        content.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error loading users</div><div class="empty-state-text">${error.message}</div></div>`;
+      }
+    }
+    
+    async function sendInvite() {
+      const email = document.getElementById('inviteEmailInput').value;
+      const role = document.getElementById('inviteRoleSelect').value;
+      
+      if (!email) {
+        alert('Please enter an email address');
+        return;
+      }
+      
+      try {
+        await apiRequest('/invites', {
+          method: 'POST',
+          body: JSON.stringify({ email, role })
+        });
+        
+        hideModal('inviteUserModal');
+        alert('Invitation sent!');
+        loadUsersView();
+      } catch (error) {
+        alert('Error sending invite: ' + error.message);
+      }
+    }
+    
+    // ==========================================
+    // SETTINGS VIEW
+    // ==========================================
+    async function loadSettingsView() {
+      document.getElementById('pageTitle').textContent = 'Settings';
+      document.getElementById('topBarActions').innerHTML = '';
+      
+      const content = document.getElementById('adminContent');
+      
+      content.innerHTML = `
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Organization</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Organization Name</label>
+              <input type="text" class="form-input" id="orgNameInput" value="${currentOrg?.name || 'My Organization'}" placeholder="Your company name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Timezone</label>
+              <select class="form-select" id="timezoneSelect">
+                <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                <option value="America/Denver">Mountain Time (MT)</option>
+                <option value="America/Chicago">Central Time (CT)</option>
+                <option value="America/New_York" selected>Eastern Time (ET)</option>
+                <option value="UTC">UTC</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveOrgSettings()">Save Changes</button>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Display Defaults</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Default Resolution</label>
+              <select class="form-select" id="defaultResolution">
+                <option value="720p">HD 720p (1280×720)</option>
+                <option value="1080p" selected>Full HD 1080p (1920×1080)</option>
+                <option value="4k">4K UHD (3840×2160)</option>
+                <option value="1080p_portrait">1080p Portrait (1080×1920)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Default Safe Zone</label>
+              <select class="form-select" id="defaultSafeZone">
+                <option value="none">None</option>
+                <option value="standard" selected>Standard (48px)</option>
+                <option value="tv_1080p">TV 1080p (60px)</option>
+                <option value="tv_4k">TV 4K (120px)</option>
+                <option value="kiosk">Kiosk (40px)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveDisplaySettings()">Save Changes</button>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-header">
+            <div class="card-title">Danger Zone</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>Delete Organization</strong>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Permanently delete your organization and all associated data. This action cannot be undone.</p>
+            </div>
+            <button class="btn btn-danger" onclick="confirmDeleteOrg()">Delete Organization</button>
+          </div>
+        </div>
+      `;
+    }
+    
+    async function saveOrgSettings() {
+      const name = document.getElementById('orgNameInput').value;
+      try {
+        await apiRequest('/organizations', {
+          method: 'PUT',
+          body: JSON.stringify({ name })
+        });
+        alert('Settings saved!');
+        document.getElementById('userOrg').textContent = name;
+      } catch (error) {
+        alert('Error saving settings: ' + error.message);
+      }
+    }
+    
+    function saveDisplaySettings() {
+      // Save to localStorage for now
+      localStorage.setItem('mosm_default_resolution', document.getElementById('defaultResolution').value);
+      localStorage.setItem('mosm_default_safezone', document.getElementById('defaultSafeZone').value);
+      alert('Display defaults saved!');
+    }
+    
+    function confirmDeleteOrg() {
+      if (confirm('Are you sure you want to delete your organization? This cannot be undone!')) {
+        if (confirm('This will permanently delete all menus, devices, and users. Type DELETE to confirm.')) {
+          // Not actually implementing delete for safety
+          alert('Organization deletion is disabled in this version.');
+        }
+      }
+    }
+    
+    // ==========================================
+    // UTILITIES
+    // ==========================================
+    function showModal(modalId) {
+      document.getElementById(modalId).classList.add('show');
+    }
+    
+    function hideModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+    
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString();
+    }
+    
+    function formatTimeAgo(dateStr) {
+      if (!dateStr) return 'Never';
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = now - date;
+      
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      return Math.floor(diff / 86400000) + 'd ago';
+    }
+    
+    function toggleUserMenu() {
+      // Simple logout for now
+      if (confirm('Sign out?')) {
+        localStorage.removeItem('mosm_session');
+        localStorage.removeItem('mosm_user');
+        window.location.href = '/login.html';
+      }
+    }
+    
+    // Initialize
     init();
   </script>
 </body>
