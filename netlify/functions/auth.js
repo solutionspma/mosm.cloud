@@ -55,11 +55,23 @@ export async function handler(event, context) {
         email,
         password,
         options: {
-          data: { name: name || '' }
+          data: { name: name || '' },
+          emailRedirectTo: 'https://mosm-cloud.netlify.app/dashboard.html'
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Signup error details:', JSON.stringify(error, null, 2));
+        return {
+          statusCode: error.status || 400,
+          headers,
+          body: JSON.stringify({ 
+            error: error.message,
+            code: error.code,
+            details: error.details || null
+          })
+        };
+      }
       
       return {
         statusCode: 201,
