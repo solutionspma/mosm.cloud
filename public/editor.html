@@ -1673,21 +1673,25 @@
     
     // Initialize
     async function init() {
+      document.getElementById('menuName').textContent = 'Initializing...';
       console.log('Editor init starting...');
       
       // Check auth
       const sessionStr = localStorage.getItem('mosm_session');
       if (!sessionStr) {
         console.log('No session found, redirecting to login');
+        document.getElementById('menuName').textContent = 'No session - redirecting...';
         window.location.href = '/login.html';
         return;
       }
       
       try {
         currentSession = JSON.parse(sessionStr);
+        document.getElementById('menuName').textContent = 'Session OK...';
         console.log('Session loaded successfully');
       } catch (e) {
         console.error('Failed to parse session:', e);
+        document.getElementById('menuName').textContent = 'Bad session - redirecting...';
         window.location.href = '/login.html';
         return;
       }
@@ -1695,10 +1699,12 @@
       // Get menu ID from URL hash
       const hash = window.location.hash;
       console.log('Hash:', hash);
+      document.getElementById('menuName').textContent = 'Parsing URL...';
       const menuIdMatch = hash.match(/menus\/([a-f0-9-]+)/);
       
       if (!menuIdMatch) {
         console.error('No menu ID in hash');
+        document.getElementById('menuName').textContent = 'No menu ID!';
         alert('No menu ID provided');
         window.location.href = '/admin.html';
         return;
@@ -1706,17 +1712,20 @@
       
       const menuId = menuIdMatch[1];
       console.log('Menu ID:', menuId);
+      document.getElementById('menuName').textContent = 'Loading menu...';
       
       // Load menu and layouts
       try {
         console.log('Loading menu...');
         await loadMenu(menuId);
         console.log('Menu loaded, loading layouts...');
+        document.getElementById('menuName').textContent = currentMenu?.name || 'Loading layouts...';
         await loadLayouts(menuId);
         console.log('Layouts loaded');
       } catch (error) {
         console.error('Error loading data:', error);
-        document.getElementById('menuName').textContent = 'Error loading menu';
+        document.getElementById('menuName').textContent = 'Error: ' + error.message;
+        return;
       }
       
       // Populate resolution dropdowns
