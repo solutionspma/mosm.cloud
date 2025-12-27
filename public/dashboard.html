@@ -519,13 +519,13 @@
       
       <div class="nav-section">
         <div class="nav-section-title">Content</div>
-        <a href="/admin.html#menus" class="nav-item">
+        <a href="/menus.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
           Menus
         </a>
-        <a href="/admin.html#layouts" class="nav-item">
+        <a href="/layouts.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
           </svg>
@@ -535,13 +535,13 @@
       
       <div class="nav-section">
         <div class="nav-section-title">Devices</div>
-        <a href="/admin.html#screens" class="nav-item">
+        <a href="/screens.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
           Screens
         </a>
-        <a href="/admin.html#devices" class="nav-item">
+        <a href="/devices.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
           </svg>
@@ -551,13 +551,13 @@
       
       <div class="nav-section">
         <div class="nav-section-title">Admin</div>
-        <a href="/admin.html#users" class="nav-item">
+        <a href="/users.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
           Users
         </a>
-        <a href="/admin.html#settings" class="nav-item">
+        <a href="/settings.html" class="nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -703,19 +703,46 @@
     const API_BASE = '/api';
     let currentUser = null;
     let currentSession = null;
-    
-    // Check authentication
-    function checkAuth() {
+    let currentOrganization = null;
+
+    // Check authentication and organization
+    async function checkAuth() {
       const sessionStr = localStorage.getItem('mosm_session');
       const userStr = localStorage.getItem('mosm_user');
       
       if (!sessionStr || !userStr) {
         window.location.href = '/login.html';
-        return;
+        return false;
       }
       
       currentSession = JSON.parse(sessionStr);
       currentUser = JSON.parse(userStr);
+      
+      // Check if user has an organization
+      try {
+        const response = await fetch('/api/organizations', {
+          headers: {
+            'Authorization': `Bearer ${currentSession.access_token}`
+          }
+        });
+        const orgData = await response.json();
+        
+        console.log('Organization check:', orgData); // Debug
+        
+        if (orgData.requiresOnboarding) {
+          console.log('Redirecting to onboarding...');
+          window.location.href = '/onboarding.html';
+          return false;
+        }
+        
+        currentOrganization = orgData.organization;
+        localStorage.setItem('mosm_organization', JSON.stringify(currentOrganization));
+      } catch (error) {
+        console.error('Error checking organization:', error);
+        // If org check fails, redirect to onboarding to be safe
+        window.location.href = '/onboarding.html';
+        return false;
+      }
       
       // Update user info in sidebar
       const initials = (currentUser.user_metadata?.name || currentUser.email || '?')
@@ -727,7 +754,9 @@
       
       document.getElementById('userAvatar').textContent = initials;
       document.getElementById('userName').textContent = currentUser.user_metadata?.name || currentUser.email;
-      document.getElementById('userRole').textContent = currentUser.user_metadata?.role || 'User';
+      document.getElementById('userRole').textContent = currentOrganization?.name || 'User';
+      
+      return true;
     }
     
     // Logout
@@ -891,12 +920,18 @@
       window.location.href = `/admin.html#menus/${menuId}`;
     }
     
-    // Initialize
-    checkAuth();
-    loadDashboard();
+    // Initialize - wait for auth check before loading dashboard
+    async function init() {
+      const isAuthorized = await checkAuth();
+      // Only load dashboard if we didn't redirect
+      if (isAuthorized) {
+        loadDashboard();
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+      }
+    }
     
-    // Auto-refresh every 30 seconds
-    setInterval(loadDashboard, 30000);
+    init();
   </script>
 </body>
 </html>

@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Devices - mOSm.Cloud</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --bg-dark: #0f0f1a;
+      --bg-card: #1a1a2e;
+      --bg-card-hover: #252540;
+      --accent: #00d4ff;
+      --accent-secondary: #7c3aed;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .back-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    
+    .back-link:hover {
+      color: var(--text-primary);
+    }
+    
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+    }
+    
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+    
+    /* Main content */
+    .main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    
+    .stat-value.online {
+      color: var(--success);
+    }
+    
+    .stat-value.offline {
+      color: var(--danger);
+    }
+    
+    .stat-value.pending {
+      color: var(--warning);
+    }
+    
+    /* Device grid */
+    .devices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 16px;
+    }
+    
+    .device-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    
+    .device-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    
+    .device-card.pending {
+      border-color: var(--warning);
+      border-style: dashed;
+    }
+    
+    .device-header {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .device-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    
+    .device-status-dot.offline {
+      background: var(--danger);
+    }
+    
+    .device-status-dot.pending {
+      background: var(--warning);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .device-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .device-status-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .device-status-badge.online {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+    
+    .device-status-badge.offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+    
+    .device-status-badge.pending {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+    
+    .device-body {
+      padding: 16px;
+    }
+    
+    .device-info {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    
+    .device-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .device-info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .device-info-label {
+      color: var(--text-muted);
+    }
+    
+    .device-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .device-actions .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 8px;
+      font-size: 13px;
+    }
+    
+    /* Pairing code display */
+    .pairing-code {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    
+    .pairing-code-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    
+    .pairing-code-value {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: monospace;
+      color: var(--warning);
+      letter-spacing: 2px;
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    .empty-state p {
+      margin-bottom: 20px;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 450px;
+      border: 1px solid var(--border);
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+    }
+    
+    .modal-body {
+      margin-bottom: 24px;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .form-input.pairing {
+      text-transform: uppercase;
+      font-family: monospace;
+      font-size: 20px;
+      text-align: center;
+      letter-spacing: 4px;
+    }
+    
+    .form-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    
+    /* Assign content modal */
+    .layout-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .layout-option:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent);
+    }
+    
+    .layout-option.selected {
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.1);
+    }
+    
+    .layout-preview {
+      width: 60px;
+      height: 34px;
+      background: #000;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    
+    .layout-info {
+      flex: 1;
+    }
+    
+    .layout-name {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    
+    .layout-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <a href="/dashboard.html" class="back-link">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        Dashboard
+      </a>
+      <h1 class="page-title">Devices</h1>
+    </div>
+    <button class="btn btn-primary" onclick="showClaimModal()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      Claim Device
+    </button>
+  </header>
+  
+  <main class="main">
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Devices</div>
+        <div class="stat-value" id="totalDevices">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Online</div>
+        <div class="stat-value online" id="onlineDevices">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Offline</div>
+        <div class="stat-value offline" id="offlineDevices">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Claim</div>
+        <div class="stat-value pending" id="pendingDevices">0</div>
+      </div>
+    </div>
+    
+    <!-- Device Grid -->
+    <div class="devices-grid" id="devicesGrid">
+      <!-- Devices rendered here -->
+    </div>
+    
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/>
+      </svg>
+      <p>No devices registered yet</p>
+      <p>Open the Player URL on a display device to get started</p>
+      <button class="btn btn-primary" onclick="copyPlayerUrl()">Copy Player URL</button>
+    </div>
+  </main>
+  
+  <!-- Claim Device Modal -->
+  <div class="modal-overlay" id="claimModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Claim Device</h3>
+        <button class="modal-close" onclick="hideClaimModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Pairing Code</label>
+          <input type="text" class="form-input pairing" id="pairingCodeInput" placeholder="ABC123" maxlength="6">
+          <p class="form-hint">Enter the 6-character code displayed on the device screen</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Device Name</label>
+          <input type="text" class="form-input" id="deviceNameInput" placeholder="e.g., Main Lobby Display">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location (optional)</label>
+          <input type="text" class="form-input" id="deviceLocationInput" placeholder="e.g., Building A, Floor 1">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="hideClaimModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="claimDevice()">Claim Device</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Assign Content Modal -->
+  <div class="modal-overlay" id="assignModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Assign Content</h3>
+        <button class="modal-close" onclick="hideAssignModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">Select a layout to display on this device:</p>
+        <div id="layoutOptions">
+          <!-- Layout options rendered here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="hideAssignModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="assignContent()">Assign</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    const PLAYER_URL = 'https://mosm-cloud.netlify.app/player.html';
+    
+    let currentSession = null;
+    let currentOrganization = null;
+    let devices = [];
+    let layouts = [];
+    let selectedLayoutId = null;
+    let assigningDeviceId = null;
+    
+    // Initialize
+    async function init() {
+      const sessionStr = localStorage.getItem('mosm_session');
+      const orgStr = localStorage.getItem('mosm_organization');
+      
+      if (!sessionStr) {
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      currentSession = JSON.parse(sessionStr);
+      currentOrganization = orgStr ? JSON.parse(orgStr) : null;
+      
+      await loadDevices();
+      await loadLayouts();
+      
+      // Refresh every 30 seconds
+      setInterval(loadDevices, 30000);
+    }
+    
+    // API helper
+    async function apiRequest(endpoint, options = {}) {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentSession.access_token}`,
+        ...options.headers
+      };
+      
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Request failed');
+      }
+      
+      return data;
+    }
+    
+    // Load devices
+    async function loadDevices() {
+      try {
+        const data = await apiRequest('/devices');
+        devices = data.devices || [];
+        
+        renderDevices();
+        updateStats();
+        
+      } catch (error) {
+        console.error('Error loading devices:', error);
+      }
+    }
+    
+    // Load layouts for assignment
+    async function loadLayouts() {
+      try {
+        const data = await apiRequest('/layouts');
+        layouts = data.layouts || [];
+      } catch (error) {
+        console.error('Error loading layouts:', error);
+      }
+    }
+    
+    // Render devices
+    function renderDevices() {
+      const grid = document.getElementById('devicesGrid');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (devices.length === 0) {
+        grid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      grid.style.display = 'grid';
+      emptyState.style.display = 'none';
+      
+      grid.innerHTML = devices.map(device => {
+        const isPending = device.status === 'pending';
+        const isOnline = device.status === 'online';
+        const lastSeen = device.last_heartbeat ? formatTimeAgo(device.last_heartbeat) : 'Never';
+        
+        return `
+          <div class="device-card ${isPending ? 'pending' : ''}">
+            <div class="device-header">
+              <div class="device-status-dot ${device.status}"></div>
+              <span class="device-name">${device.name || 'Unnamed Device'}</span>
+              <span class="device-status-badge ${device.status}">${device.status}</span>
+            </div>
+            <div class="device-body">
+              ${isPending ? `
+                <div class="pairing-code">
+                  <div class="pairing-code-label">Pairing Code</div>
+                  <div class="pairing-code-value">${device.pairing_code || '------'}</div>
+                </div>
+              ` : ''}
+              <div class="device-info">
+                <div class="device-info-row">
+                  <span class="device-info-label">Location</span>
+                  <span>${device.location || 'Not set'}</span>
+                </div>
+                <div class="device-info-row">
+                  <span class="device-info-label">Last Seen</span>
+                  <span>${lastSeen}</span>
+                </div>
+                <div class="device-info-row">
+                  <span class="device-info-label">Screens</span>
+                  <span>${device.screens?.length || 0}</span>
+                </div>
+              </div>
+              <div class="device-actions">
+                ${isPending ? `
+                  <button class="btn btn-primary" onclick="activateDevice('${device.id}')">Activate</button>
+                  <button class="btn btn-danger" onclick="deleteDevice('${device.id}')">Remove</button>
+                ` : `
+                  <button class="btn btn-secondary" onclick="showAssignModal('${device.id}')">Assign Content</button>
+                  <button class="btn btn-danger" onclick="deleteDevice('${device.id}')">Remove</button>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Update stats
+    function updateStats() {
+      const total = devices.length;
+      const online = devices.filter(d => d.status === 'online').length;
+      const offline = devices.filter(d => d.status === 'offline').length;
+      const pending = devices.filter(d => d.status === 'pending').length;
+      
+      document.getElementById('totalDevices').textContent = total;
+      document.getElementById('onlineDevices').textContent = online;
+      document.getElementById('offlineDevices').textContent = offline;
+      document.getElementById('pendingDevices').textContent = pending;
+    }
+    
+    // Format time ago
+    function formatTimeAgo(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const seconds = Math.floor((now - date) / 1000);
+      
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
+    }
+    
+    // Show claim modal
+    function showClaimModal() {
+      document.getElementById('claimModal').classList.add('show');
+      document.getElementById('pairingCodeInput').value = '';
+      document.getElementById('deviceNameInput').value = '';
+      document.getElementById('deviceLocationInput').value = '';
+      document.getElementById('pairingCodeInput').focus();
+    }
+    
+    function hideClaimModal() {
+      document.getElementById('claimModal').classList.remove('show');
+    }
+    
+    // Claim device by pairing code
+    async function claimDevice() {
+      const pairingCode = document.getElementById('pairingCodeInput').value.toUpperCase().trim();
+      const name = document.getElementById('deviceNameInput').value.trim();
+      const location = document.getElementById('deviceLocationInput').value.trim();
+      
+      if (!pairingCode || pairingCode.length !== 6) {
+        alert('Please enter a valid 6-character pairing code');
+        return;
+      }
+      
+      try {
+        // Find device with this pairing code
+        const device = devices.find(d => d.pairing_code === pairingCode);
+        
+        if (!device) {
+          alert('No device found with this pairing code. Make sure the device is showing the pairing screen.');
+          return;
+        }
+        
+        // Update device with org and name
+        await apiRequest(`/devices/${device.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name: name || device.name,
+            location: location,
+            organization_id: currentOrganization?.id,
+            status: 'online'
+          })
+        });
+        
+        hideClaimModal();
+        await loadDevices();
+        
+      } catch (error) {
+        alert('Error claiming device: ' + error.message);
+      }
+    }
+    
+    // Activate pending device
+    async function activateDevice(deviceId) {
+      const name = prompt('Enter a name for this device:');
+      if (!name) return;
+      
+      try {
+        await apiRequest(`/devices/${deviceId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name,
+            organization_id: currentOrganization?.id,
+            status: 'online'
+          })
+        });
+        
+        await loadDevices();
+        
+      } catch (error) {
+        alert('Error activating device: ' + error.message);
+      }
+    }
+    
+    // Delete device
+    async function deleteDevice(deviceId) {
+      if (!confirm('Are you sure you want to remove this device?')) return;
+      
+      try {
+        await apiRequest(`/devices/${deviceId}`, { method: 'DELETE' });
+        await loadDevices();
+      } catch (error) {
+        alert('Error removing device: ' + error.message);
+      }
+    }
+    
+    // Show assign modal
+    function showAssignModal(deviceId) {
+      assigningDeviceId = deviceId;
+      selectedLayoutId = null;
+      
+      const optionsDiv = document.getElementById('layoutOptions');
+      
+      if (layouts.length === 0) {
+        optionsDiv.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No layouts available. Create a menu with screens first.</p>';
+      } else {
+        optionsDiv.innerHTML = layouts.map(layout => `
+          <div class="layout-option" data-id="${layout.id}" onclick="selectLayout('${layout.id}')">
+            <div class="layout-preview" style="background: ${layout.background_color || '#000'}">
+              ${layout.resolution || '1080p'}
+            </div>
+            <div class="layout-info">
+              <div class="layout-name">${layout.name || 'Untitled'}</div>
+              <div class="layout-meta">${layout.resolution || '1920×1080'}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      document.getElementById('assignModal').classList.add('show');
+    }
+    
+    function hideAssignModal() {
+      document.getElementById('assignModal').classList.remove('show');
+      assigningDeviceId = null;
+    }
+    
+    function selectLayout(layoutId) {
+      selectedLayoutId = layoutId;
+      document.querySelectorAll('.layout-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.id === layoutId);
+      });
+    }
+    
+    // Assign content to device
+    async function assignContent() {
+      if (!assigningDeviceId || !selectedLayoutId) {
+        alert('Please select a layout');
+        return;
+      }
+      
+      try {
+        // Get or create screen for device
+        const device = devices.find(d => d.id === assigningDeviceId);
+        
+        if (!device.screens || device.screens.length === 0) {
+          // Create a screen
+          await apiRequest('/screens', {
+            method: 'POST',
+            body: JSON.stringify({
+              deviceId: assigningDeviceId,
+              name: 'Main Screen',
+              resolution: '1920x1080',
+              assignedLayoutId: selectedLayoutId
+            })
+          });
+        } else {
+          // Update existing screen
+          await apiRequest(`/screens/${device.screens[0].id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              assigned_layout_id: selectedLayoutId
+            })
+          });
+        }
+        
+        hideAssignModal();
+        alert('Content assigned successfully!');
+        await loadDevices();
+        
+      } catch (error) {
+        alert('Error assigning content: ' + error.message);
+      }
+    }
+    
+    // Copy player URL
+    function copyPlayerUrl() {
+      navigator.clipboard.writeText(PLAYER_URL).then(() => {
+        alert('Player URL copied to clipboard!\n\n' + PLAYER_URL);
+      });
+    }
+    
+    // Initialize
+    init();
+  </script>
+</body>
+</html>

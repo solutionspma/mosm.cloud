@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>mOSm Player</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+    
+    /* Player container */
+    .player {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Screen container - scaled to fit */
+    .screen-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: center center;
+      overflow: hidden;
+    }
+    
+    /* Elements */
+    .element {
+      position: absolute;
+      overflow: hidden;
+    }
+    
+    .element-text {
+      display: flex;
+      align-items: center;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    .element-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* Loading state */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      color: #fff;
+      z-index: 1000;
+    }
+    
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #00d4ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .loading-device-id {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 8px;
+      font-family: monospace;
+    }
+    
+    /* Error state */
+    .error {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      color: #fff;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .error.show {
+      display: flex;
+    }
+    
+    .error-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    
+    .error-message {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    
+    .error-details {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      max-width: 400px;
+      text-align: center;
+    }
+    
+    /* No content state */
+    .no-content {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a0f;
+      color: #fff;
+      z-index: 999;
+      display: none;
+    }
+    
+    .no-content.show {
+      display: flex;
+    }
+    
+    .no-content-logo {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    
+    .no-content-logo span {
+      color: #00d4ff;
+    }
+    
+    .no-content-message {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 10px;
+    }
+    
+    .no-content-subtext {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    /* Status indicator */
+    .status-indicator {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .status-indicator.show {
+      opacity: 1;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    
+    .status-dot.offline {
+      background: #ef4444;
+    }
+    
+    /* Registration overlay */
+    .registration-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      color: #fff;
+      z-index: 2000;
+      display: none;
+    }
+    
+    .registration-overlay.show {
+      display: flex;
+    }
+    
+    .registration-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+    }
+    
+    .registration-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .registration-title span {
+      color: #00d4ff;
+    }
+    
+    .registration-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 30px;
+    }
+    
+    .device-code {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px dashed rgba(0, 212, 255, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .device-code-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .device-code-value {
+      font-size: 36px;
+      font-weight: 700;
+      font-family: monospace;
+      color: #00d4ff;
+      letter-spacing: 4px;
+    }
+    
+    .registration-instructions {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.6;
+    }
+    
+    .registration-instructions strong {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading State -->
+  <div class="loading" id="loadingState">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Connecting to mOSm.Cloud...</div>
+    <div class="loading-device-id" id="loadingDeviceId"></div>
+  </div>
+  
+  <!-- Error State -->
+  <div class="error" id="errorState">
+    <div class="error-icon">⚠️</div>
+    <div class="error-message" id="errorMessage">Connection Error</div>
+    <div class="error-details" id="errorDetails">Unable to connect to the server. Please check your internet connection.</div>
+  </div>
+  
+  <!-- No Content State -->
+  <div class="no-content" id="noContentState">
+    <div class="no-content-logo">m<span>OSm</span>.Cloud</div>
+    <div class="no-content-message">No content assigned to this screen</div>
+    <div class="no-content-subtext">Assign a menu to this device from the dashboard</div>
+  </div>
+  
+  <!-- Registration Overlay (for new devices) -->
+  <div class="registration-overlay" id="registrationOverlay">
+    <div class="registration-box">
+      <div class="registration-title">m<span>OSm</span>.Cloud</div>
+      <div class="registration-subtitle">Device Registration</div>
+      
+      <div class="device-code">
+        <div class="device-code-label">Pairing Code</div>
+        <div class="device-code-value" id="pairingCode">------</div>
+      </div>
+      
+      <div class="registration-instructions">
+        Enter this code in your <strong>mOSm.Cloud dashboard</strong> to register this device and assign content.
+      </div>
+    </div>
+  </div>
+  
+  <!-- Player Container -->
+  <div class="player" id="player">
+    <div class="screen-container" id="screenContainer">
+      <!-- Content rendered here -->
+    </div>
+  </div>
+  
+  <!-- Status Indicator -->
+  <div class="status-indicator" id="statusIndicator">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Connected</span>
+  </div>
+
+  <script>
+    const API_BASE = 'https://mosm-cloud.netlify.app/api';
+    const HEARTBEAT_INTERVAL = 15000; // 15 seconds
+    const CONTENT_CHECK_INTERVAL = 30000; // 30 seconds
+    const DEVICE_ID_KEY = 'mosm_device_id';
+    const PAIRING_CODE_KEY = 'mosm_pairing_code';
+    
+    // State
+    let deviceId = null;
+    let deviceRegistered = false;
+    let currentLayout = null;
+    let heartbeatTimer = null;
+    let contentCheckTimer = null;
+    let lastContentVersion = null;
+    
+    // Get or generate device ID
+    function getDeviceId() {
+      let id = localStorage.getItem(DEVICE_ID_KEY);
+      if (!id) {
+        id = 'device_' + generateRandomId();
+        localStorage.setItem(DEVICE_ID_KEY, id);
+      }
+      return id;
+    }
+    
+    // Generate random ID
+    function generateRandomId() {
+      return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+    
+    // Generate pairing code (6 chars)
+    function generatePairingCode() {
+      let code = localStorage.getItem(PAIRING_CODE_KEY);
+      if (!code) {
+        code = Math.random().toString(36).substring(2, 8).toUpperCase();
+        localStorage.setItem(PAIRING_CODE_KEY, code);
+      }
+      return code;
+    }
+    
+    // Initialize player
+    async function init() {
+      deviceId = getDeviceId();
+      document.getElementById('loadingDeviceId').textContent = `Device: ${deviceId}`;
+      
+      // Check if device is registered
+      try {
+        const device = await checkDeviceRegistration();
+        
+        if (device) {
+          deviceRegistered = true;
+          hideLoading();
+          
+          // Load content
+          await loadContent(device);
+          
+          // Start heartbeat
+          startHeartbeat();
+          
+          // Start content polling
+          startContentPolling();
+          
+        } else {
+          // Show registration screen
+          showRegistrationScreen();
+        }
+        
+      } catch (error) {
+        console.error('Init error:', error);
+        showError('Connection Error', error.message);
+      }
+    }
+    
+    // Check if device is registered
+    async function checkDeviceRegistration() {
+      try {
+        const response = await fetch(`${API_BASE}/devices/${deviceId}`);
+        
+        if (response.status === 404) {
+          return null; // Device not registered
+        }
+        
+        if (!response.ok) {
+          throw new Error('Failed to check device registration');
+        }
+        
+        const data = await response.json();
+        return data.device;
+        
+      } catch (error) {
+        console.error('Check registration error:', error);
+        return null;
+      }
+    }
+    
+    // Show registration screen
+    function showRegistrationScreen() {
+      const pairingCode = generatePairingCode();
+      document.getElementById('pairingCode').textContent = pairingCode;
+      document.getElementById('registrationOverlay').classList.add('show');
+      document.getElementById('loadingState').style.display = 'none';
+      
+      // Try to auto-register
+      autoRegister(pairingCode);
+      
+      // Poll for registration completion
+      pollForRegistration();
+    }
+    
+    // Auto-register device (creates pending device in system)
+    async function autoRegister(pairingCode) {
+      try {
+        await fetch(`${API_BASE}/devices`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            deviceId: deviceId,
+            pairingCode: pairingCode,
+            name: `Device ${pairingCode}`,
+            status: 'pending',
+            deviceInfo: {
+              userAgent: navigator.userAgent,
+              screenWidth: window.screen.width,
+              screenHeight: window.screen.height,
+              timestamp: new Date().toISOString()
+            }
+          })
+        });
+      } catch (error) {
+        console.error('Auto-register error:', error);
+      }
+    }
+    
+    // Poll for registration completion
+    function pollForRegistration() {
+      const checkInterval = setInterval(async () => {
+        try {
+          const device = await checkDeviceRegistration();
+          
+          if (device && device.status !== 'pending') {
+            clearInterval(checkInterval);
+            deviceRegistered = true;
+            
+            document.getElementById('registrationOverlay').classList.remove('show');
+            
+            // Load content
+            await loadContent(device);
+            
+            // Start heartbeat
+            startHeartbeat();
+            
+            // Start content polling
+            startContentPolling();
+          }
+          
+        } catch (error) {
+          console.error('Poll registration error:', error);
+        }
+      }, 5000); // Check every 5 seconds
+    }
+    
+    // Load content for device
+    async function loadContent(device) {
+      try {
+        // Get device's assigned screen/layout
+        if (!device.screens || device.screens.length === 0) {
+          showNoContent();
+          return;
+        }
+        
+        const screen = device.screens[0]; // Primary screen
+        
+        if (!screen.layout_id) {
+          showNoContent();
+          return;
+        }
+        
+        // Fetch layout
+        const response = await fetch(`${API_BASE}/layouts/${screen.layout_id}`);
+        if (!response.ok) {
+          showNoContent();
+          return;
+        }
+        
+        const data = await response.json();
+        const layout = data.layout;
+        
+        // Check if content changed
+        if (lastContentVersion === layout.updated_at) {
+          return; // No change
+        }
+        
+        lastContentVersion = layout.updated_at;
+        currentLayout = layout;
+        
+        // Render content
+        renderLayout(layout);
+        
+        // Show status
+        showStatus('Connected', true);
+        
+      } catch (error) {
+        console.error('Load content error:', error);
+        showError('Content Error', 'Failed to load content');
+      }
+    }
+    
+    // Render layout
+    function renderLayout(layout) {
+      const container = document.getElementById('screenContainer');
+      const playerEl = document.getElementById('player');
+      
+      // Get resolution
+      const width = getResolutionWidth(layout.resolution);
+      const height = getResolutionHeight(layout.resolution);
+      
+      // Calculate scale to fit viewport
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      const scaleX = viewportWidth / width;
+      const scaleY = viewportHeight / height;
+      const scale = Math.min(scaleX, scaleY);
+      
+      // Apply container styles
+      container.style.width = width + 'px';
+      container.style.height = height + 'px';
+      container.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      container.style.background = layout.background_color || '#000';
+      
+      if (layout.background_image) {
+        container.style.backgroundImage = `url(${layout.background_image})`;
+        container.style.backgroundSize = 'cover';
+        container.style.backgroundPosition = 'center';
+      }
+      
+      // Render elements
+      const elements = layout.elements || [];
+      container.innerHTML = elements.map(el => renderElement(el)).join('');
+      
+      // Hide loading/error states
+      hideLoading();
+      hideError();
+      hideNoContent();
+    }
+    
+    // Render element
+    function renderElement(element) {
+      const style = `
+        left: ${element.x}px;
+        top: ${element.y}px;
+        width: ${element.width}px;
+        height: ${element.height}px;
+      `;
+      
+      switch (element.type) {
+        case 'text':
+          return `
+            <div class="element element-text" style="${style}; font-size: ${element.fontSize || 24}px; color: ${element.color || '#fff'};">
+              ${element.content || ''}
+            </div>
+          `;
+        case 'image':
+          return `
+            <div class="element element-image" style="${style}">
+              <img src="${element.src || ''}" alt="" onerror="this.style.display='none'">
+            </div>
+          `;
+        case 'rectangle':
+          return `
+            <div class="element" style="${style}; background: ${element.color || '#333'}; border-radius: ${element.borderRadius || 0}px;"></div>
+          `;
+        case 'circle':
+          return `
+            <div class="element" style="${style}; background: ${element.color || '#333'}; border-radius: 50%;"></div>
+          `;
+        default:
+          return '';
+      }
+    }
+    
+    // Resolution helpers
+    function getResolutionWidth(res) {
+      const resolutions = {
+        '720p': 1280, '1080p': 1920, '4k': 3840,
+        '1080p_portrait': 1080, '4k_portrait': 2160,
+        'kiosk_portrait': 1080, 'kiosk_landscape': 1920,
+        'ultrawide': 2560, 'square_1080': 1080
+      };
+      return resolutions[res] || 1920;
+    }
+    
+    function getResolutionHeight(res) {
+      const resolutions = {
+        '720p': 720, '1080p': 1080, '4k': 2160,
+        '1080p_portrait': 1920, '4k_portrait': 3840,
+        'kiosk_portrait': 1920, 'kiosk_landscape': 1080,
+        'ultrawide': 1080, 'square_1080': 1080
+      };
+      return resolutions[res] || 1080;
+    }
+    
+    // Heartbeat
+    function startHeartbeat() {
+      sendHeartbeat(); // Send immediately
+      
+      heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
+    }
+    
+    async function sendHeartbeat() {
+      try {
+        await fetch(`${API_BASE}/devices/heartbeat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            deviceId: deviceId,
+            status: 'online',
+            timestamp: new Date().toISOString(),
+            currentLayoutId: currentLayout?.id || null
+          })
+        });
+        
+        showStatus('Connected', true);
+        
+      } catch (error) {
+        console.error('Heartbeat error:', error);
+        showStatus('Offline', false);
+      }
+    }
+    
+    // Content polling
+    function startContentPolling() {
+      contentCheckTimer = setInterval(async () => {
+        if (deviceRegistered) {
+          const device = await checkDeviceRegistration();
+          if (device) {
+            await loadContent(device);
+          }
+        }
+      }, CONTENT_CHECK_INTERVAL);
+    }
+    
+    // UI State functions
+    function hideLoading() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+    
+    function showError(title, details) {
+      hideLoading();
+      document.getElementById('errorMessage').textContent = title;
+      document.getElementById('errorDetails').textContent = details;
+      document.getElementById('errorState').classList.add('show');
+    }
+    
+    function hideError() {
+      document.getElementById('errorState').classList.remove('show');
+    }
+    
+    function showNoContent() {
+      hideLoading();
+      hideError();
+      document.getElementById('noContentState').classList.add('show');
+    }
+    
+    function hideNoContent() {
+      document.getElementById('noContentState').classList.remove('show');
+    }
+    
+    function showStatus(text, isOnline) {
+      const indicator = document.getElementById('statusIndicator');
+      const dot = document.getElementById('statusDot');
+      const textEl = document.getElementById('statusText');
+      
+      textEl.textContent = text;
+      dot.classList.toggle('offline', !isOnline);
+      
+      indicator.classList.add('show');
+      
+      // Hide after 3 seconds
+      setTimeout(() => {
+        indicator.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+      if (currentLayout) {
+        renderLayout(currentLayout);
+      }
+    });
+    
+    // Handle visibility change (pause/resume when tab hidden)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        // Pause heartbeat when hidden
+        if (heartbeatTimer) {
+          clearInterval(heartbeatTimer);
+          heartbeatTimer = null;
+        }
+      } else {
+        // Resume heartbeat
+        if (!heartbeatTimer && deviceRegistered) {
+          startHeartbeat();
+        }
+      }
+    });
+    
+    // Initialize
+    init();
+  </script>
+</body>
+</html>

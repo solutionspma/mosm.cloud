@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Organization - mOSm.Cloud</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .onboarding-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 50px;
+      width: 100%;
+      max-width: 500px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .logo h1 {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    
+    .logo span {
+      color: #00d4ff;
+    }
+    
+    .welcome-text {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .welcome-text h2 {
+      color: #fff;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    
+    .welcome-text p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .form-group label .required {
+      color: #ff6b7a;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #00d4ff;
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .form-group select option {
+      background: #1a1a2e;
+      color: #fff;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .error-message {
+      background: rgba(255, 71, 87, 0.2);
+      border: 1px solid rgba(255, 71, 87, 0.5);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #ff6b7a;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+    
+    .info-box {
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .info-box h4 {
+      color: #00d4ff;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    .info-box p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    
+    .user-info {
+      text-align: center;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      margin-bottom: 25px;
+    }
+    
+    .user-info .email {
+      color: #00d4ff;
+      font-size: 14px;
+    }
+    
+    .user-info .label {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="onboarding-container">
+    <div class="logo">
+      <h1>m<span>OSm</span>.Cloud</h1>
+    </div>
+    
+    <div class="welcome-text">
+      <h2>Welcome! Let's get started</h2>
+      <p>Create your organization to begin managing digital menus, devices, and screens.</p>
+    </div>
+    
+    <div class="user-info">
+      <div class="label">Signed in as</div>
+      <div class="email" id="userEmail">Loading...</div>
+    </div>
+    
+    <div id="errorMessage" class="error-message"></div>
+    
+    <div class="info-box">
+      <h4>🏢 What is an Organization?</h4>
+      <p>An organization is your workspace. All your menus, devices, and team members belong to it. You can invite others to join after setup.</p>
+    </div>
+    
+    <form id="onboardingForm">
+      <div class="form-group">
+        <label for="orgName">Organization Name <span class="required">*</span></label>
+        <input type="text" id="orgName" placeholder="e.g., Joe's Burger Joint" required>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="timezone">Timezone</label>
+          <select id="timezone">
+            <option value="America/New_York">Eastern (ET)</option>
+            <option value="America/Chicago">Central (CT)</option>
+            <option value="America/Denver">Mountain (MT)</option>
+            <option value="America/Los_Angeles">Pacific (PT)</option>
+            <option value="America/Phoenix">Arizona</option>
+            <option value="America/Anchorage">Alaska</option>
+            <option value="Pacific/Honolulu">Hawaii</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="currency">Currency</label>
+          <select id="currency">
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="CAD">CAD ($)</option>
+            <option value="AUD">AUD ($)</option>
+            <option value="MXN">MXN ($)</option>
+          </select>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn" id="submitBtn">Create Organization & Continue</button>
+    </form>
+  </div>
+  
+  <script>
+    const API_BASE = '/api';
+    
+    // Check if user is logged in
+    const session = localStorage.getItem('mosm_session');
+    const user = localStorage.getItem('mosm_user');
+    
+    if (!session || !user) {
+      window.location.href = '/login.html';
+    }
+    
+    // Display user email
+    try {
+      const userData = JSON.parse(user);
+      document.getElementById('userEmail').textContent = userData.email;
+    } catch (e) {
+      document.getElementById('userEmail').textContent = 'Unknown';
+    }
+    
+    // Check if user already has an organization
+    async function checkOrganization() {
+      try {
+        const sessionData = JSON.parse(session);
+        const response = await fetch(`${API_BASE}/organizations`, {
+          headers: {
+            'Authorization': `Bearer ${sessionData.access_token}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.organization && !data.requiresOnboarding) {
+          // Already has org, redirect to dashboard
+          window.location.href = '/dashboard.html';
+        }
+      } catch (error) {
+        console.error('Error checking organization:', error);
+      }
+    }
+    
+    checkOrganization();
+    
+    // Form submission
+    document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const btn = document.getElementById('submitBtn');
+      const errorMessage = document.getElementById('errorMessage');
+      
+      btn.disabled = true;
+      btn.textContent = 'Creating...';
+      errorMessage.classList.remove('show');
+      
+      try {
+        const sessionData = JSON.parse(session);
+        
+        const response = await fetch(`${API_BASE}/organizations`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionData.access_token}`
+          },
+          body: JSON.stringify({
+            name: document.getElementById('orgName').value,
+            timezone: document.getElementById('timezone').value,
+            currency: document.getElementById('currency').value
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create organization');
+        }
+        
+        // Store org info
+        localStorage.setItem('mosm_organization', JSON.stringify(data.organization));
+        
+        // Redirect to dashboard
+        window.location.href = '/dashboard.html';
+        
+      } catch (error) {
+        errorMessage.textContent = error.message;
+        errorMessage.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Organization & Continue';
+      }
+    });
+  </script>
+</body>
+</html>

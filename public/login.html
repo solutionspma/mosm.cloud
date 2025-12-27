@@ -367,8 +367,20 @@
         localStorage.setItem('mosm_session', JSON.stringify(data.session));
         localStorage.setItem('mosm_user', JSON.stringify(data.user));
         
-        // Redirect to dashboard
-        window.location.href = '/dashboard.html';
+        // Check if user has an organization
+        const orgResponse = await fetch(`${API_BASE}/organizations`, {
+          headers: {
+            'Authorization': `Bearer ${data.session.access_token}`
+          }
+        });
+        const orgData = await orgResponse.json();
+        
+        // Redirect based on org status
+        if (orgData.requiresOnboarding) {
+          window.location.href = '/onboarding.html';
+        } else {
+          window.location.href = '/dashboard.html';
+        }
         
       } catch (error) {
         showError(error.message);

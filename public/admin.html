@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Editor - mOSm.Cloud</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-panel: #12121a;
+      --bg-card: #1a1a2e;
+      --bg-hover: #252540;
+      --accent: #00d4ff;
+      --accent-secondary: #7c3aed;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    /* Top Bar */
+    .top-bar {
+      height: 50px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    
+    .menu-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .menu-status {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+    }
+    
+    .menu-status.published {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+    
+    .top-bar-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-card);
+      padding: 4px;
+      border-radius: 6px;
+    }
+    
+    .zoom-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    
+    .zoom-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    
+    .zoom-value {
+      font-size: 12px;
+      color: var(--text-secondary);
+      min-width: 40px;
+      text-align: center;
+    }
+    
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+      color: #fff;
+    }
+    
+    /* Main Layout */
+    .editor-layout {
+      display: flex;
+      height: calc(100vh - 50px);
+    }
+    
+    /* Left Panel - Screens List */
+    .screens-panel {
+      width: 240px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+    
+    .add-screen-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px dashed var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    
+    .add-screen-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    .screens-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    
+    .screen-card {
+      background: var(--bg-card);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .screen-card:hover {
+      background: var(--bg-hover);
+    }
+    
+    .screen-card.active {
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.1);
+    }
+    
+    .screen-preview {
+      background: #000;
+      border-radius: 4px;
+      aspect-ratio: 16/9;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .screen-preview.portrait {
+      aspect-ratio: 9/16;
+      max-height: 120px;
+    }
+    
+    .screen-name {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .screen-resolution {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    
+    /* Canvas Area */
+    .canvas-area {
+      flex: 1;
+      background: var(--bg-dark);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .canvas-wrapper {
+      position: relative;
+      transition: transform 0.1s ease-out;
+    }
+    
+    .canvas-container {
+      background: #000;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .safe-zone-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      border: 2px dashed rgba(255, 193, 7, 0.3);
+      z-index: 100;
+    }
+    
+    .canvas-content {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    /* Element on canvas */
+    .canvas-element {
+      position: absolute;
+      cursor: move;
+      user-select: none;
+    }
+    
+    .canvas-element.selected {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    
+    .element-text {
+      color: #fff;
+      padding: 8px;
+    }
+    
+    .element-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .element-shape {
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Right Panel - Properties */
+    .properties-panel {
+      width: 280px;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .property-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .property-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    
+    .property-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .property-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      width: 70px;
+      flex-shrink: 0;
+    }
+    
+    .property-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+    
+    .property-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .property-input-small {
+      width: 60px;
+    }
+    
+    .property-input-group {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+    }
+    
+    .property-input-group input {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    select.property-input {
+      cursor: pointer;
+    }
+    
+    /* Toolbar */
+    .toolbar {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .toolbar-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    
+    .tool-btn {
+      aspect-ratio: 1;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      padding: 8px;
+    }
+    
+    .tool-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    .tool-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .tool-btn span {
+      font-size: 9px;
+    }
+    
+    /* Layers */
+    .layers-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    
+    .layer-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border-radius: 6px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    
+    .layer-item:hover {
+      background: var(--bg-hover);
+    }
+    
+    .layer-item.selected {
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid var(--accent);
+    }
+    
+    .layer-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+    }
+    
+    .layer-name {
+      flex: 1;
+    }
+    
+    .layer-visibility {
+      opacity: 0.5;
+      cursor: pointer;
+    }
+    
+    .layer-visibility:hover {
+      opacity: 1;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal {
+      background: var(--bg-panel);
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      border: 1px solid var(--border);
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 24px;
+    }
+    
+    .modal-body {
+      margin-bottom: 24px;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    
+    .resolution-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .resolution-option {
+      padding: 12px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .resolution-option:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+    }
+    
+    .resolution-option.selected {
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.1);
+    }
+    
+    .resolution-option-name {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .resolution-option-size {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    
+    /* No screens state */
+    .no-screens {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .no-screens svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    .no-screens p {
+      margin-bottom: 16px;
+    }
+
+    /* Canvas resolution info */
+    .canvas-info {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <a href="/dashboard.html" class="back-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        Dashboard
+      </a>
+      <span class="menu-name" id="menuName">Loading...</span>
+      <span class="menu-status" id="menuStatus">draft</span>
+    </div>
+    
+    <div class="top-bar-center">
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+        <span class="zoom-value" id="zoomValue">100%</span>
+        <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
+        <button class="zoom-btn" onclick="zoomFit()" title="Fit to View">⊡</button>
+      </div>
+    </div>
+    
+    <div class="top-bar-right">
+      <button class="btn btn-secondary" onclick="saveLayout()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Save
+      </button>
+      <button class="btn btn-success" onclick="publishMenu()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+        Publish
+      </button>
+    </div>
+  </div>
+  
+  <!-- Main Editor Layout -->
+  <div class="editor-layout">
+    <!-- Left Panel: Screens/Layouts -->
+    <div class="screens-panel">
+      <div class="panel-header">
+        <span class="panel-title">Screens</span>
+        <button class="add-screen-btn" onclick="showAddScreenModal()" title="Add Screen">+</button>
+      </div>
+      <div class="screens-list" id="screensList">
+        <!-- Screens rendered here -->
+      </div>
+    </div>
+    
+    <!-- Canvas Area -->
+    <div class="canvas-area" id="canvasArea">
+      <div class="no-screens" id="noScreensMessage">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/>
+        </svg>
+        <p>No screens in this menu yet</p>
+        <button class="btn btn-primary" onclick="showAddScreenModal()">Add First Screen</button>
+      </div>
+      
+      <div class="canvas-wrapper" id="canvasWrapper" style="display: none;">
+        <div class="canvas-container" id="canvasContainer">
+          <div class="safe-zone-overlay" id="safeZoneOverlay"></div>
+          <div class="canvas-content" id="canvasContent">
+            <!-- Elements rendered here -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="canvas-info" id="canvasInfo" style="display: none;">
+        <span id="resolutionInfo">1920 × 1080</span> • <span id="safeZoneInfo">Standard Safe Zone</span>
+      </div>
+    </div>
+    
+    <!-- Right Panel: Tools & Properties -->
+    <div class="properties-panel">
+      <div class="toolbar">
+        <div class="toolbar-title">Add Elements</div>
+        <div class="tool-grid">
+          <button class="tool-btn" onclick="addElement('text')" title="Add Text">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M4 7V4h16v3M9 20h6M12 4v16"/>
+            </svg>
+            <span>Text</span>
+          </button>
+          <button class="tool-btn" onclick="addElement('image')" title="Add Image">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span>Image</span>
+          </button>
+          <button class="tool-btn" onclick="addElement('rectangle')" title="Add Rectangle">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+            </svg>
+            <span>Box</span>
+          </button>
+          <button class="tool-btn" onclick="addElement('circle')" title="Add Circle">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+            </svg>
+            <span>Circle</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="property-section" id="screenProperties">
+        <div class="property-section-title">Screen Settings</div>
+        <div class="property-row">
+          <span class="property-label">Name</span>
+          <input type="text" class="property-input" id="screenNameInput" placeholder="Screen name" onchange="updateScreenName()">
+        </div>
+        <div class="property-row">
+          <span class="property-label">Resolution</span>
+          <select class="property-input" id="resolutionSelect" onchange="updateResolution()">
+            <!-- Options added dynamically -->
+          </select>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Safe Zone</span>
+          <select class="property-input" id="safeZoneSelect" onchange="updateSafeZone()">
+            <option value="none">None</option>
+            <option value="minimal">Minimal (20px)</option>
+            <option value="standard" selected>Standard (48px)</option>
+            <option value="generous">Generous (80px)</option>
+            <option value="tv_1080p">TV 1080p (60px)</option>
+            <option value="tv_4k">TV 4K (120px)</option>
+            <option value="kiosk">Kiosk (40px)</option>
+          </select>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Background</span>
+          <input type="color" class="property-input" id="bgColorInput" value="#000000" onchange="updateBackground()" style="width: 60px; padding: 2px;">
+          <input type="text" class="property-input" id="bgImageInput" placeholder="Image URL" style="margin-left: 8px;" onchange="updateBackground()">
+        </div>
+      </div>
+      
+      <div class="property-section" id="elementProperties" style="display: none;">
+        <div class="property-section-title">Element Properties</div>
+        <div class="property-row">
+          <span class="property-label">Position</span>
+          <div class="property-input-group">
+            <input type="number" class="property-input property-input-small" id="elemX" placeholder="X" onchange="updateElementPosition()">
+            <input type="number" class="property-input property-input-small" id="elemY" placeholder="Y" onchange="updateElementPosition()">
+          </div>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Size</span>
+          <div class="property-input-group">
+            <input type="number" class="property-input property-input-small" id="elemW" placeholder="W" onchange="updateElementSize()">
+            <input type="number" class="property-input property-input-small" id="elemH" placeholder="H" onchange="updateElementSize()">
+          </div>
+        </div>
+        <div class="property-row" id="textContentRow" style="display: none;">
+          <span class="property-label">Text</span>
+          <input type="text" class="property-input" id="elemText" placeholder="Enter text" onchange="updateElementContent()">
+        </div>
+        <div class="property-row" id="fontSizeRow" style="display: none;">
+          <span class="property-label">Font Size</span>
+          <input type="number" class="property-input" id="elemFontSize" placeholder="24" onchange="updateElementStyle()" style="width: 80px;">
+        </div>
+        <div class="property-row" id="colorRow">
+          <span class="property-label">Color</span>
+          <input type="color" class="property-input" id="elemColor" value="#ffffff" onchange="updateElementStyle()" style="width: 60px; padding: 2px;">
+        </div>
+        <div class="property-row">
+          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
+            Delete Element
+          </button>
+        </div>
+      </div>
+      
+      <div class="toolbar">
+        <div class="toolbar-title">Layers</div>
+      </div>
+      <div class="layers-panel" id="layersList">
+        <!-- Layers rendered here -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add Screen Modal -->
+  <div class="modal-overlay" id="addScreenModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Screen</h3>
+        <button class="modal-close" onclick="hideAddScreenModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="property-row" style="margin-bottom: 16px;">
+          <span class="property-label" style="width: 100px;">Screen Name</span>
+          <input type="text" class="property-input" id="newScreenName" placeholder="e.g., Main Display">
+        </div>
+        <div class="property-section-title" style="margin-bottom: 12px;">Select Resolution</div>
+        <div class="resolution-grid" id="resolutionGrid">
+          <!-- Resolution options added dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="hideAddScreenModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createScreen()">Add Screen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    
+    // Resolution profiles (matching backend)
+    const RESOLUTIONS = {
+      '720p': { w: 1280, h: 720, label: 'HD 720p' },
+      '1080p': { w: 1920, h: 1080, label: 'Full HD 1080p' },
+      '4k': { w: 3840, h: 2160, label: '4K UHD' },
+      '1080p_portrait': { w: 1080, h: 1920, label: '1080p Portrait' },
+      '4k_portrait': { w: 2160, h: 3840, label: '4K Portrait' },
+      'kiosk_portrait': { w: 1080, h: 1920, label: 'Kiosk Portrait' },
+      'kiosk_landscape': { w: 1920, h: 1080, label: 'Kiosk Landscape' },
+      'ultrawide': { w: 2560, h: 1080, label: 'Ultra-wide 21:9' },
+      'square_1080': { w: 1080, h: 1080, label: 'Square 1080' }
+    };
+    
+    const SAFE_ZONES = {
+      none: 0,
+      minimal: 20,
+      standard: 48,
+      generous: 80,
+      tv_1080p: 60,
+      tv_4k: 120,
+      kiosk: 40
+    };
+    
+    // State
+    let currentSession = null;
+    let currentMenu = null;
+    let layouts = [];
+    let activeLayoutId = null;
+    let selectedElement = null;
+    let zoom = 1;
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+    
+    // Initialize
+    async function init() {
+      // Check auth
+      const sessionStr = localStorage.getItem('mosm_session');
+      if (!sessionStr) {
+        window.location.href = '/login.html';
+        return;
+      }
+      currentSession = JSON.parse(sessionStr);
+      
+      // Get menu ID from URL hash
+      const hash = window.location.hash;
+      const menuIdMatch = hash.match(/menus\/([a-f0-9-]+)/);
+      
+      if (!menuIdMatch) {
+        alert('No menu ID provided');
+        window.location.href = '/dashboard.html';
+        return;
+      }
+      
+      const menuId = menuIdMatch[1];
+      
+      // Load menu and layouts
+      await loadMenu(menuId);
+      await loadLayouts(menuId);
+      
+      // Populate resolution dropdowns
+      populateResolutionSelect();
+      populateResolutionGrid();
+      
+      // Setup canvas interactions
+      setupCanvasInteractions();
+    }
+    
+    // API helper
+    async function apiRequest(endpoint, options = {}) {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentSession.access_token}`,
+        ...options.headers
+      };
+      
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Request failed');
+      }
+      
+      return data;
+    }
+    
+    // Load menu
+    async function loadMenu(menuId) {
+      try {
+        const data = await apiRequest(`/menus/${menuId}`);
+        currentMenu = data.menu;
+        
+        document.getElementById('menuName').textContent = currentMenu.name;
+        document.getElementById('menuStatus').textContent = currentMenu.status;
+        document.getElementById('menuStatus').className = `menu-status ${currentMenu.status}`;
+      } catch (error) {
+        console.error('Error loading menu:', error);
+        alert('Error loading menu: ' + error.message);
+      }
+    }
+    
+    // Load layouts (screens)
+    async function loadLayouts(menuId) {
+      try {
+        const data = await apiRequest(`/layouts?menuId=${menuId}`);
+        layouts = data.layouts || [];
+        
+        renderScreensList();
+        
+        if (layouts.length > 0) {
+          selectLayout(layouts[0].id);
+        } else {
+          showNoScreensMessage();
+        }
+      } catch (error) {
+        console.error('Error loading layouts:', error);
+      }
+    }
+    
+    // Render screens list
+    function renderScreensList() {
+      const list = document.getElementById('screensList');
+      
+      if (layouts.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px;">No screens yet</p>';
+        return;
+      }
+      
+      list.innerHTML = layouts.map(layout => {
+        const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
+        const isPortrait = res.h > res.w;
+        
+        return `
+          <div class="screen-card ${layout.id === activeLayoutId ? 'active' : ''}" onclick="selectLayout('${layout.id}')">
+            <div class="screen-preview ${isPortrait ? 'portrait' : ''}" style="background: ${layout.background_color || '#000'}">
+              ${layout.background_image ? `<img src="${layout.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : `${res.w}×${res.h}`}
+            </div>
+            <div class="screen-name">${layout.name || 'Untitled Screen'}</div>
+            <div class="screen-resolution">${res.w} × ${res.h}</div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Select layout
+    function selectLayout(layoutId) {
+      activeLayoutId = layoutId;
+      selectedElement = null;
+      
+      const layout = layouts.find(l => l.id === layoutId);
+      if (!layout) return;
+      
+      // Update UI
+      renderScreensList();
+      renderCanvas(layout);
+      updatePropertyPanel(layout);
+      renderLayers(layout);
+      
+      // Show canvas
+      document.getElementById('noScreensMessage').style.display = 'none';
+      document.getElementById('canvasWrapper').style.display = 'block';
+      document.getElementById('canvasInfo').style.display = 'block';
+    }
+    
+    // Render canvas
+    function renderCanvas(layout) {
+      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
+      const safeZoneMargin = SAFE_ZONES[layout.safe_zone || 'standard'] || 48;
+      
+      const container = document.getElementById('canvasContainer');
+      const content = document.getElementById('canvasContent');
+      const safeZone = document.getElementById('safeZoneOverlay');
+      
+      // Set canvas size
+      container.style.width = res.w + 'px';
+      container.style.height = res.h + 'px';
+      container.style.background = layout.background_color || '#000';
+      
+      if (layout.background_image) {
+        container.style.backgroundImage = `url(${layout.background_image})`;
+        container.style.backgroundSize = 'cover';
+        container.style.backgroundPosition = 'center';
+      } else {
+        container.style.backgroundImage = 'none';
+      }
+      
+      // Set safe zone
+      safeZone.style.margin = safeZoneMargin + 'px';
+      
+      // Update info
+      document.getElementById('resolutionInfo').textContent = `${res.w} × ${res.h}`;
+      document.getElementById('safeZoneInfo').textContent = layout.safe_zone ? `${layout.safe_zone} (${safeZoneMargin}px)` : 'Standard';
+      
+      // Render elements
+      const elements = layout.elements || [];
+      content.innerHTML = elements.map((el, idx) => renderElement(el, idx)).join('');
+      
+      // Fit to view
+      zoomFit();
+    }
+    
+    // Render single element
+    function renderElement(element, index) {
+      const style = `
+        left: ${element.x}px;
+        top: ${element.y}px;
+        width: ${element.width}px;
+        height: ${element.height}px;
+      `;
+      
+      const selectedClass = selectedElement === index ? 'selected' : '';
+      
+      switch (element.type) {
+        case 'text':
+          return `
+            <div class="canvas-element element-text ${selectedClass}" 
+                 data-index="${index}" 
+                 style="${style}; font-size: ${element.fontSize || 24}px; color: ${element.color || '#fff'};"
+                 onmousedown="startDrag(event, ${index})">
+              ${element.content || 'Text'}
+            </div>
+          `;
+        case 'image':
+          return `
+            <div class="canvas-element element-image ${selectedClass}" 
+                 data-index="${index}" 
+                 style="${style}"
+                 onmousedown="startDrag(event, ${index})">
+              <img src="${element.src || 'https://via.placeholder.com/200'}" alt="">
+            </div>
+          `;
+        case 'rectangle':
+          return `
+            <div class="canvas-element element-shape ${selectedClass}" 
+                 data-index="${index}" 
+                 style="${style}; background: ${element.color || '#333'}; border-radius: ${element.borderRadius || 0}px;"
+                 onmousedown="startDrag(event, ${index})">
+            </div>
+          `;
+        case 'circle':
+          return `
+            <div class="canvas-element element-shape ${selectedClass}" 
+                 data-index="${index}" 
+                 style="${style}; background: ${element.color || '#333'}; border-radius: 50%;"
+                 onmousedown="startDrag(event, ${index})">
+            </div>
+          `;
+        default:
+          return '';
+      }
+    }
+    
+    // Update property panel for layout
+    function updatePropertyPanel(layout) {
+      document.getElementById('screenNameInput').value = layout.name || '';
+      document.getElementById('resolutionSelect').value = layout.resolution || '1080p';
+      document.getElementById('safeZoneSelect').value = layout.safe_zone || 'standard';
+      document.getElementById('bgColorInput').value = layout.background_color || '#000000';
+      document.getElementById('bgImageInput').value = layout.background_image || '';
+      
+      // Hide element properties
+      document.getElementById('elementProperties').style.display = 'none';
+      document.getElementById('screenProperties').style.display = 'block';
+    }
+    
+    // Render layers panel
+    function renderLayers(layout) {
+      const list = document.getElementById('layersList');
+      const elements = layout.elements || [];
+      
+      if (elements.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 12px;">No elements yet</p>';
+        return;
+      }
+      
+      // Render in reverse order (top layer first)
+      list.innerHTML = [...elements].reverse().map((el, idx) => {
+        const realIndex = elements.length - 1 - idx;
+        const icon = getElementIcon(el.type);
+        return `
+          <div class="layer-item ${selectedElement === realIndex ? 'selected' : ''}" onclick="selectElement(${realIndex})">
+            <span class="layer-icon">${icon}</span>
+            <span class="layer-name">${el.name || el.type}</span>
+            <span class="layer-visibility">👁</span>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function getElementIcon(type) {
+      switch (type) {
+        case 'text': return 'T';
+        case 'image': return '🖼';
+        case 'rectangle': return '▢';
+        case 'circle': return '○';
+        default: return '?';
+      }
+    }
+    
+    // Add element
+    function addElement(type) {
+      if (!activeLayoutId) {
+        alert('Please select or create a screen first');
+        return;
+      }
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
+      
+      const newElement = {
+        type,
+        x: res.w / 2 - 100,
+        y: res.h / 2 - 50,
+        width: 200,
+        height: 100,
+        name: type.charAt(0).toUpperCase() + type.slice(1)
+      };
+      
+      switch (type) {
+        case 'text':
+          newElement.content = 'New Text';
+          newElement.fontSize = 48;
+          newElement.color = '#ffffff';
+          break;
+        case 'image':
+          newElement.src = '';
+          newElement.width = 300;
+          newElement.height = 200;
+          break;
+        case 'rectangle':
+          newElement.color = '#333333';
+          newElement.borderRadius = 0;
+          break;
+        case 'circle':
+          newElement.color = '#333333';
+          newElement.width = 150;
+          newElement.height = 150;
+          break;
+      }
+      
+      if (!layout.elements) layout.elements = [];
+      layout.elements.push(newElement);
+      
+      renderCanvas(layout);
+      renderLayers(layout);
+      
+      // Select new element
+      selectElement(layout.elements.length - 1);
+    }
+    
+    // Select element
+    function selectElement(index) {
+      selectedElement = index;
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements || !layout.elements[index]) return;
+      
+      const element = layout.elements[index];
+      
+      // Update element properties panel
+      document.getElementById('screenProperties').style.display = 'none';
+      document.getElementById('elementProperties').style.display = 'block';
+      
+      document.getElementById('elemX').value = Math.round(element.x);
+      document.getElementById('elemY').value = Math.round(element.y);
+      document.getElementById('elemW').value = Math.round(element.width);
+      document.getElementById('elemH').value = Math.round(element.height);
+      
+      // Show type-specific properties
+      const textRow = document.getElementById('textContentRow');
+      const fontRow = document.getElementById('fontSizeRow');
+      const colorRow = document.getElementById('colorRow');
+      
+      if (element.type === 'text') {
+        textRow.style.display = 'flex';
+        fontRow.style.display = 'flex';
+        document.getElementById('elemText').value = element.content || '';
+        document.getElementById('elemFontSize').value = element.fontSize || 24;
+      } else {
+        textRow.style.display = 'none';
+        fontRow.style.display = 'none';
+      }
+      
+      document.getElementById('elemColor').value = element.color || '#ffffff';
+      
+      renderCanvas(layout);
+      renderLayers(layout);
+    }
+    
+    // Drag handling
+    function startDrag(event, index) {
+      event.preventDefault();
+      selectedElement = index;
+      isDragging = true;
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      const element = layout.elements[index];
+      
+      const rect = event.target.getBoundingClientRect();
+      dragOffset.x = (event.clientX - rect.left) / zoom;
+      dragOffset.y = (event.clientY - rect.top) / zoom;
+      
+      selectElement(index);
+      
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', stopDrag);
+    }
+    
+    function onDrag(event) {
+      if (!isDragging || selectedElement === null) return;
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const canvasRect = document.getElementById('canvasContent').getBoundingClientRect();
+      
+      const x = (event.clientX - canvasRect.left) / zoom - dragOffset.x;
+      const y = (event.clientY - canvasRect.top) / zoom - dragOffset.y;
+      
+      layout.elements[selectedElement].x = Math.max(0, x);
+      layout.elements[selectedElement].y = Math.max(0, y);
+      
+      renderCanvas(layout);
+      
+      // Update property inputs
+      document.getElementById('elemX').value = Math.round(x);
+      document.getElementById('elemY').value = Math.round(y);
+    }
+    
+    function stopDrag() {
+      isDragging = false;
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('mouseup', stopDrag);
+    }
+    
+    // Update functions
+    function updateElementPosition() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      layout.elements[selectedElement].x = parseInt(document.getElementById('elemX').value) || 0;
+      layout.elements[selectedElement].y = parseInt(document.getElementById('elemY').value) || 0;
+      renderCanvas(layout);
+    }
+    
+    function updateElementSize() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      layout.elements[selectedElement].width = parseInt(document.getElementById('elemW').value) || 100;
+      layout.elements[selectedElement].height = parseInt(document.getElementById('elemH').value) || 100;
+      renderCanvas(layout);
+    }
+    
+    function updateElementContent() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      layout.elements[selectedElement].content = document.getElementById('elemText').value;
+      renderCanvas(layout);
+    }
+    
+    function updateElementStyle() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      layout.elements[selectedElement].color = document.getElementById('elemColor').value;
+      if (layout.elements[selectedElement].type === 'text') {
+        layout.elements[selectedElement].fontSize = parseInt(document.getElementById('elemFontSize').value) || 24;
+      }
+      renderCanvas(layout);
+    }
+    
+    function deleteSelectedElement() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      layout.elements.splice(selectedElement, 1);
+      selectedElement = null;
+      
+      document.getElementById('elementProperties').style.display = 'none';
+      document.getElementById('screenProperties').style.display = 'block';
+      
+      renderCanvas(layout);
+      renderLayers(layout);
+    }
+    
+    // Screen property updates
+    function updateScreenName() {
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      layout.name = document.getElementById('screenNameInput').value;
+      renderScreensList();
+    }
+    
+    function updateResolution() {
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      layout.resolution = document.getElementById('resolutionSelect').value;
+      renderCanvas(layout);
+      renderScreensList();
+    }
+    
+    function updateSafeZone() {
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      layout.safe_zone = document.getElementById('safeZoneSelect').value;
+      renderCanvas(layout);
+    }
+    
+    function updateBackground() {
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      layout.background_color = document.getElementById('bgColorInput').value;
+      layout.background_image = document.getElementById('bgImageInput').value;
+      renderCanvas(layout);
+      renderScreensList();
+    }
+    
+    // Zoom controls
+    function zoomIn() {
+      zoom = Math.min(zoom + 0.1, 2);
+      applyZoom();
+    }
+    
+    function zoomOut() {
+      zoom = Math.max(zoom - 0.1, 0.1);
+      applyZoom();
+    }
+    
+    function zoomFit() {
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
+      const canvasArea = document.getElementById('canvasArea');
+      const padding = 80;
+      
+      const availableWidth = canvasArea.clientWidth - padding;
+      const availableHeight = canvasArea.clientHeight - padding;
+      
+      const scaleX = availableWidth / res.w;
+      const scaleY = availableHeight / res.h;
+      
+      zoom = Math.min(scaleX, scaleY, 1);
+      applyZoom();
+    }
+    
+    function applyZoom() {
+      const wrapper = document.getElementById('canvasWrapper');
+      wrapper.style.transform = `scale(${zoom})`;
+      document.getElementById('zoomValue').textContent = Math.round(zoom * 100) + '%';
+    }
+    
+    // Populate resolution select
+    function populateResolutionSelect() {
+      const select = document.getElementById('resolutionSelect');
+      select.innerHTML = Object.entries(RESOLUTIONS).map(([key, val]) => 
+        `<option value="${key}">${val.label} (${val.w}×${val.h})</option>`
+      ).join('');
+    }
+    
+    // Populate resolution grid in modal
+    function populateResolutionGrid() {
+      const grid = document.getElementById('resolutionGrid');
+      grid.innerHTML = Object.entries(RESOLUTIONS).map(([key, val]) => `
+        <div class="resolution-option" data-resolution="${key}" onclick="selectResolutionOption('${key}')">
+          <div class="resolution-option-name">${val.label}</div>
+          <div class="resolution-option-size">${val.w} × ${val.h}</div>
+        </div>
+      `).join('');
+    }
+    
+    let selectedResolutionOption = '1080p';
+    
+    function selectResolutionOption(key) {
+      selectedResolutionOption = key;
+      document.querySelectorAll('.resolution-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.resolution === key);
+      });
+    }
+    
+    // Modal functions
+    function showAddScreenModal() {
+      document.getElementById('addScreenModal').classList.add('show');
+      document.getElementById('newScreenName').value = '';
+      selectResolutionOption('1080p');
+    }
+    
+    function hideAddScreenModal() {
+      document.getElementById('addScreenModal').classList.remove('show');
+    }
+    
+    // Create new screen (layout)
+    async function createScreen() {
+      const name = document.getElementById('newScreenName').value || 'New Screen';
+      const resolution = selectedResolutionOption;
+      
+      try {
+        const result = await apiRequest('/layouts', {
+          method: 'POST',
+          body: JSON.stringify({
+            menuId: currentMenu.id,
+            name,
+            resolution,
+            safe_zone: 'standard',
+            background_color: '#000000',
+            elements: []
+          })
+        });
+        
+        layouts.push(result.layout);
+        hideAddScreenModal();
+        selectLayout(result.layout.id);
+        
+      } catch (error) {
+        alert('Error creating screen: ' + error.message);
+      }
+    }
+    
+    // Save layout
+    async function saveLayout() {
+      if (!activeLayoutId) return;
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      try {
+        await apiRequest(`/layouts/${layout.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name: layout.name,
+            resolution: layout.resolution,
+            safe_zone: layout.safe_zone,
+            background_color: layout.background_color,
+            background_image: layout.background_image,
+            elements: layout.elements
+          })
+        });
+        
+        alert('Layout saved!');
+      } catch (error) {
+        alert('Error saving layout: ' + error.message);
+      }
+    }
+    
+    // Publish menu
+    async function publishMenu() {
+      if (!currentMenu) return;
+      
+      // First save current layout
+      if (activeLayoutId) {
+        await saveLayout();
+      }
+      
+      try {
+        await apiRequest('/publish', {
+          method: 'POST',
+          body: JSON.stringify({ menuId: currentMenu.id })
+        });
+        
+        // Update status
+        currentMenu.status = 'published';
+        document.getElementById('menuStatus').textContent = 'published';
+        document.getElementById('menuStatus').className = 'menu-status published';
+        
+        alert('Menu published successfully!');
+      } catch (error) {
+        alert('Error publishing: ' + error.message);
+      }
+    }
+    
+    // Show no screens message
+    function showNoScreensMessage() {
+      document.getElementById('noScreensMessage').style.display = 'flex';
+      document.getElementById('canvasWrapper').style.display = 'none';
+      document.getElementById('canvasInfo').style.display = 'none';
+    }
+    
+    // Setup canvas interactions
+    function setupCanvasInteractions() {
+      const canvasArea = document.getElementById('canvasArea');
+      
+      // Click on canvas to deselect
+      canvasArea.addEventListener('click', (e) => {
+        if (e.target === canvasArea || e.target.id === 'canvasWrapper' || e.target.id === 'canvasContainer') {
+          selectedElement = null;
+          document.getElementById('elementProperties').style.display = 'none';
+          document.getElementById('screenProperties').style.display = 'block';
+          
+          const layout = layouts.find(l => l.id === activeLayoutId);
+          if (layout) {
+            renderCanvas(layout);
+            renderLayers(layout);
+          }
+        }
+      });
+      
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+          if (selectedElement !== null && document.activeElement.tagName !== 'INPUT') {
+            deleteSelectedElement();
+          }
+        }
+        
+        if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
+          e.preventDefault();
+          saveLayout();
+        }
+      });
+    }
+    
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>

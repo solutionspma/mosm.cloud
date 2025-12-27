@@ -164,6 +164,14 @@ CREATE POLICY "Users can view own organization" ON organizations
     SELECT organization_id FROM users WHERE id = auth.uid()
   ));
 
+-- Organizations: Allow creating new organizations (for onboarding)
+CREATE POLICY "Users can create organizations" ON organizations
+  FOR INSERT WITH CHECK (true);
+
+-- Organizations: Owners can update their organization
+CREATE POLICY "Owners can update organization" ON organizations
+  FOR UPDATE USING (owner_id = auth.uid());
+
 -- Users: Users can view/update their own profile
 CREATE POLICY "Users can view own profile" ON users
   FOR SELECT USING (id = auth.uid());

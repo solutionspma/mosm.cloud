@@ -160,6 +160,59 @@ export async function handler(event, context) {
       };
     }
     
+    // POST /devices - Self-register from player (with pairing code)
+    if (method === 'POST' && (path === '' || path === '/')) {
+      const { deviceId, pairingCode, name, status, deviceInfo } = body;
+      
+      if (!deviceId || !pairingCode) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'deviceId and pairingCode are required' })
+        };
+      }
+      
+      // Check if device already exists
+      const { data: existing } = await supabase
+        .from('devices')
+        .select('id')
+        .eq('id', deviceId)
+        .single();
+      
+      if (existing) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ message: 'Device already registered', deviceId })
+        };
+      }
+      
+      // Create pending device (needs to be claimed by org)
+      const { data: device, error } = await supabase
+        .from('devices')
+        .insert({
+          id: deviceId,
+          name: name || `Device ${pairingCode}`,
+          pairing_code: pairingCode,
+          status: status || 'pending',
+          device_info: deviceInfo || {},
+          last_heartbeat: new Date().toISOString(),
+          registered_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      return {
+        statusCode: 201,
+        headers,
+        body: JSON.stringify({ device })
+      };
+    }
+    
     // POST /devices/heartbeat - Device heartbeat
     if (method === 'POST' && path === '/heartbeat') {
       const { deviceId, ipAddress, osVersion, appVersion, status } = body;
