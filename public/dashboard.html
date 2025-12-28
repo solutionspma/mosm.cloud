@@ -50,11 +50,21 @@
     .sidebar-logo {
       padding: 0 20px 20px;
       border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .sidebar-logo img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
     }
     
     .sidebar-logo h1 {
-      font-size: 22px;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
     }
     
     .sidebar-logo span {
@@ -503,6 +513,7 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
+      <img src="/images/modOSlogo.png" alt="mOSm.Cloud">
       <h1>m<span>OSm</span>.Cloud</h1>
     </div>
     

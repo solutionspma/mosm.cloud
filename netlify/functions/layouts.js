@@ -46,30 +46,74 @@ export async function handler(event, context) {
       body = JSON.parse(event.body);
     }
     
-    // GET /layouts - List layouts for a menu
+    // GET /layouts - List layouts for a menu or organization
     if (method === 'GET' && (path === '' || path === '/')) {
       const menuId = event.queryStringParameters?.menuId;
+      const organizationId = event.queryStringParameters?.organizationId;
       
-      if (!menuId) {
+      // Query by menuId if provided
+      if (menuId) {
+        const { data, error } = await supabase
+          .from('layouts')
+          .select('*')
+          .eq('menu_id', menuId)
+          .order('screen_index');
+        
+        if (error) throw error;
+        
         return {
-          statusCode: 400,
+          statusCode: 200,
           headers,
-          body: JSON.stringify({ error: 'menuId query parameter is required' })
+          body: JSON.stringify({ layouts: data })
         };
       }
       
-      const { data, error } = await supabase
-        .from('layouts')
-        .select('*')
-        .eq('menu_id', menuId)
-        .order('screen_index');
-      
-      if (error) throw error;
+      // Query by organizationId - get all layouts for all menus in org
+      if (organizationId) {
+        // First get all menus in this organization
+        const { data: menus, error: menusError } = await supabase
+          .from('menus')
+          .select('id, name')
+          .eq('organization_id', organizationId);
+        
+        if (menusError) throw menusError;
+        
+        if (menus.length === 0) {
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({ layouts: [] })
+          };
+        }
+        
+        const menuIds = menus.map(m => m.id);
+        const menuMap = Object.fromEntries(menus.map(m => [m.id, m.name]));
+        
+        const { data, error } = await supabase
+          .from('layouts')
+          .select('*')
+          .in('menu_id', menuIds)
+          .order('screen_index');
+        
+        if (error) throw error;
+        
+        // Add menu name to each layout for display
+        const layoutsWithMenuName = data.map(l => ({
+          ...l,
+          menu_name: menuMap[l.menu_id] || 'Unknown'
+        }));
+        
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ layouts: layoutsWithMenuName })
+        };
+      }
       
       return {
-        statusCode: 200,
+        statusCode: 400,
         headers,
-        body: JSON.stringify({ layouts: data })
+        body: JSON.stringify({ error: 'menuId or organizationId query parameter is required' })
       };
     }
     

@@ -2841,9 +2841,16 @@
       const layout = layouts.find(l => l.id === activeLayoutId);
       const element = layout.elements[index];
       
-      const rect = event.target.getBoundingClientRect();
-      dragOffset.x = (event.clientX - rect.left) / zoom;
-      dragOffset.y = (event.clientY - rect.top) / zoom;
+      // Get the canvas container position (accounts for wrapper transform)
+      const canvasRect = document.getElementById('canvasContainer').getBoundingClientRect();
+      
+      // Calculate mouse position in unscaled canvas coordinates
+      const mouseX = (event.clientX - canvasRect.left) / zoom;
+      const mouseY = (event.clientY - canvasRect.top) / zoom;
+      
+      // Calculate offset from element's current position
+      dragOffset.x = mouseX - element.x;
+      dragOffset.y = mouseY - element.y;
       
       selectElement(index);
       
@@ -2857,10 +2864,16 @@
       const layout = layouts.find(l => l.id === activeLayoutId);
       if (!layout) return;
       
-      const canvasRect = document.getElementById('canvasContent').getBoundingClientRect();
+      // Get canvas container bounding rect (already scaled by CSS transform)
+      const canvasRect = document.getElementById('canvasContainer').getBoundingClientRect();
       
-      const x = (event.clientX - canvasRect.left) / zoom - dragOffset.x;
-      const y = (event.clientY - canvasRect.top) / zoom - dragOffset.y;
+      // Calculate mouse position in unscaled canvas coordinates
+      const mouseX = (event.clientX - canvasRect.left) / zoom;
+      const mouseY = (event.clientY - canvasRect.top) / zoom;
+      
+      // Apply the offset to get the element's new position
+      const x = mouseX - dragOffset.x;
+      const y = mouseY - dragOffset.y;
       
       layout.elements[selectedElement].x = Math.max(0, x);
       layout.elements[selectedElement].y = Math.max(0, y);
@@ -3111,9 +3124,8 @@
       }
       
       try {
-        await apiRequest('/publish', {
-          method: 'POST',
-          body: JSON.stringify({ menuId: currentMenu.id })
+        await apiRequest(`/menus/${currentMenu.id}/publish`, {
+          method: 'POST'
         });
         
         // Update status
