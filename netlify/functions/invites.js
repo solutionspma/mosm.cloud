@@ -15,7 +15,12 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 const headers = {
   'Content-Type': 'application/json',
@@ -28,11 +33,33 @@ const headers = {
  * Get user from authorization header
  */
 async function getUserFromToken(authHeader) {
-  if (!authHeader) return null;
+  if (!authHeader) {
+    console.log('No auth header provided');
+    return null;
+  }
+  
   const token = authHeader.replace('Bearer ', '');
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error) return null;
-  return user;
+  console.log('Token received, length:', token.length);
+  
+  try {
+    const { data, error } = await supabase.auth.getUser(token);
+    
+    if (error) {
+      console.error('Auth error:', error.message);
+      return null;
+    }
+    
+    if (!data?.user) {
+      console.log('No user in response');
+      return null;
+    }
+    
+    console.log('User authenticated:', data.user.email);
+    return data.user;
+  } catch (err) {
+    console.error('Token validation error:', err.message);
+    return null;
+  }
 }
 
 /**
@@ -94,14 +121,18 @@ export async function handler(event, context) {
   const path = event.path.replace('/.netlify/functions/invites', '').replace('/api/invites', '');
   const method = event.httpMethod;
 
+  console.log('Invites API called:', method, path);
+  console.log('Auth header present:', !!event.headers.authorization);
+
   try {
     // Get authenticated user
     const user = await getUserFromToken(event.headers.authorization);
     if (!user) {
+      console.log('Authentication failed - no user returned');
       return {
         statusCode: 401,
         headers,
-        body: JSON.stringify({ error: 'Unauthorized' })
+        body: JSON.stringify({ error: 'Unauthorized - invalid or expired token' })
       };
     }
 
