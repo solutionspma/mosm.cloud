@@ -190,19 +190,33 @@ export async function handler(event, context) {
       
       // PUT /layouts/:id
       if (method === 'PUT') {
-        const updateData = { ...body, updated_at: new Date().toISOString() };
+        const updateData = { updated_at: new Date().toISOString() };
+        
+        // Copy allowed fields
+        if (body.name !== undefined) updateData.name = body.name;
+        if (body.resolution !== undefined) updateData.resolution = body.resolution;
+        if (body.orientation !== undefined) updateData.orientation = body.orientation;
+        if (body.elements !== undefined) updateData.elements = body.elements;
         
         // Map camelCase to snake_case
         if (body.menuId) updateData.menu_id = body.menuId;
-        if (body.screenIndex) updateData.screen_index = body.screenIndex;
+        if (body.screenIndex !== undefined) updateData.screen_index = body.screenIndex;
+        if (body.screen_index !== undefined) updateData.screen_index = body.screen_index;
         if (body.aspectRatio) updateData.aspect_ratio = body.aspectRatio;
+        if (body.aspect_ratio) updateData.aspect_ratio = body.aspect_ratio;
         if (body.safeZone) updateData.safe_zone = body.safeZone;
+        if (body.safe_zone) updateData.safe_zone = body.safe_zone;
         
-        // Remove camelCase versions
-        delete updateData.menuId;
-        delete updateData.screenIndex;
-        delete updateData.aspectRatio;
-        delete updateData.safeZone;
+        // Handle background - combine background_color and background_image into single JSONB
+        if (body.background_color !== undefined || body.background_image !== undefined) {
+          updateData.background = {
+            type: body.background_image ? 'image' : 'color',
+            value: body.background_image || body.background_color || '#000000',
+            color: body.background_color || '#000000'
+          };
+        } else if (body.background !== undefined) {
+          updateData.background = body.background;
+        }
         
         const { data, error } = await supabase
           .from('layouts')

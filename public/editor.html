@@ -2013,7 +2013,7 @@
     async function loadLayouts(menuId) {
       try {
         const data = await apiRequest(`/layouts?menuId=${menuId}`);
-        layouts = data.layouts || [];
+        layouts = (data.layouts || []).map(normalizeLayout);
         
         renderScreensList();
         
@@ -2025,6 +2025,22 @@
       } catch (error) {
         console.error('Error loading layouts:', error);
       }
+    }
+    
+    // Normalize layout data - extract background_color from JSONB background
+    function normalizeLayout(layout) {
+      // If background is JSONB object, extract color
+      if (layout.background && typeof layout.background === 'object') {
+        layout.background_color = layout.background.color || layout.background.value || '#000000';
+        if (layout.background.type === 'image' && layout.background.value) {
+          layout.background_image = layout.background.value;
+        }
+      }
+      // Default if no background_color
+      if (!layout.background_color) {
+        layout.background_color = '#000000';
+      }
+      return layout;
     }
     
     // Render screens list
