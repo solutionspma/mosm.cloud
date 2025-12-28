@@ -14,23 +14,9 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
-// Service client for database operations (bypasses RLS)
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
-
-// Auth client for validating user tokens
-const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
+// Use service key - same as other working functions
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const headers = {
   'Content-Type': 'application/json',
@@ -40,7 +26,7 @@ const headers = {
 };
 
 /**
- * Get user from authorization header
+ * Get user from authorization header - same pattern as organizations.js
  */
 async function getUserFromToken(authHeader) {
   if (!authHeader) {
@@ -49,28 +35,17 @@ async function getUserFromToken(authHeader) {
   }
   
   const token = authHeader.replace('Bearer ', '');
-  console.log('Token received, length:', token.length);
+  console.log('Validating token, length:', token.length);
   
-  try {
-    // Use the auth client (with anon key) to validate user tokens
-    const { data, error } = await supabaseAuth.auth.getUser(token);
-    
-    if (error) {
-      console.error('Auth error:', error.message);
-      return null;
-    }
-    
-    if (!data?.user) {
-      console.log('No user in response');
-      return null;
-    }
-    
-    console.log('User authenticated:', data.user.email);
-    return data.user;
-  } catch (err) {
-    console.error('Token validation error:', err.message);
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  
+  if (error) {
+    console.error('Auth error:', error.message, error.status);
     return null;
   }
+  
+  console.log('User authenticated:', user?.email);
+  return user;
 }
 
 /**
