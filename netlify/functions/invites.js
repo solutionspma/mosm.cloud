@@ -158,7 +158,7 @@ export async function handler(event, context) {
 
     // POST /invites - Create and send invite
     if (method === 'POST' && (path === '' || path === '/')) {
-      const { email, role = 'viewer' } = body;
+      let { email, role = 'viewer' } = body;
 
       if (!email) {
         return {
@@ -168,14 +168,20 @@ export async function handler(event, context) {
         };
       }
 
+      // Map common role aliases to valid roles
+      const roleMap = {
+        'admin': 'manager',
+        'editor': 'designer',
+        'view': 'viewer'
+      };
+      if (roleMap[role]) {
+        role = roleMap[role];
+      }
+
       // Validate role
       const validRoles = ['owner', 'manager', 'designer', 'viewer'];
       if (!validRoles.includes(role)) {
-        return {
-          statusCode: 400,
-          headers,
-          body: JSON.stringify({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` })
-        };
+        role = 'viewer'; // Default to viewer if invalid
       }
 
       // Get user's organization
