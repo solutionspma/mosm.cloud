@@ -78,7 +78,7 @@ export async function handler(event, context) {
         
         if (menusError) throw menusError;
         
-        if (menus.length === 0) {
+        if (!menus || menus.length === 0) {
           return {
             statusCode: 200,
             headers,
@@ -98,7 +98,7 @@ export async function handler(event, context) {
         if (error) throw error;
         
         // Add menu name to each layout for display
-        const layoutsWithMenuName = data.map(l => ({
+        const layoutsWithMenuName = (data || []).map(l => ({
           ...l,
           menu_name: menuMap[l.menu_id] || 'Unknown'
         }));
@@ -110,10 +110,11 @@ export async function handler(event, context) {
         };
       }
       
+      // No filter provided - return empty array (safer than error for UI)
       return {
-        statusCode: 400,
+        statusCode: 200,
         headers,
-        body: JSON.stringify({ error: 'menuId or organizationId query parameter is required' })
+        body: JSON.stringify({ layouts: [] })
       };
     }
     

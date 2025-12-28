@@ -36,17 +36,45 @@ async function getUserFromToken(authHeader) {
 }
 
 /**
- * Get user's organization ID
+ * Get user's organization ID - tries multiple methods
  */
-async function getUserOrganization(userId) {
-  const { data, error } = await supabase
+async function getUserOrganization(userId, userEmail) {
+  // First try users table by ID
+  const { data: userData } = await supabase
     .from('users')
     .select('organization_id')
     .eq('id', userId)
     .single();
   
-  if (error || !data) return null;
-  return data.organization_id;
+  if (userData?.organization_id) {
+    return userData.organization_id;
+  }
+  
+  // Try users table by email
+  if (userEmail) {
+    const { data: emailUser } = await supabase
+      .from('users')
+      .select('organization_id')
+      .eq('email', userEmail.toLowerCase())
+      .single();
+    
+    if (emailUser?.organization_id) {
+      return emailUser.organization_id;
+    }
+  }
+  
+  // Last resort: find org where this user is owner
+  const { data: org } = await supabase
+    .from('organizations')
+    .select('id')
+    .eq('owner_id', userId)
+    .single();
+  
+  if (org?.id) {
+    return org.id;
+  }
+  
+  return null;
 }
 
 /**
@@ -84,7 +112,7 @@ export async function handler(event, context) {
 
     // GET /invites - List pending invites for user's organization
     if (method === 'GET' && (path === '' || path === '/')) {
-      const organizationId = await getUserOrganization(user.id);
+      const organizationId = await getUserOrganization(user.id, user.email);
       
       if (!organizationId) {
         return {
@@ -134,7 +162,7 @@ export async function handler(event, context) {
       }
 
       // Get user's organization
-      const organizationId = await getUserOrganization(user.id);
+      const organizationId = await getUserOrganization(user.id, user.email);
       if (!organizationId) {
         return {
           statusCode: 400,
@@ -319,7 +347,7 @@ export async function handler(event, context) {
 
       // DELETE /invites/:id - Cancel invite
       if (method === 'DELETE') {
-        const organizationId = await getUserOrganization(user.id);
+        const organizationId = await getUserOrganization(user.id, user.email);
         
         // Verify the invite belongs to user's organization
         const { data: invite, error: fetchError } = await supabase
