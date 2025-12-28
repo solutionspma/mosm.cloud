@@ -172,6 +172,78 @@
       color: #fff;
     }
     
+    .btn-icon {
+      padding: 8px;
+      min-width: 36px;
+    }
+    
+    .btn-icon:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    .history-controls {
+      display: flex;
+      gap: 4px;
+      margin-right: 16px;
+      padding-right: 16px;
+      border-right: 1px solid var(--border);
+    }
+    
+    /* Collapsible Panels */
+    .panel-header-collapsible {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .panel-header-collapsible:hover {
+      background: var(--bg-hover);
+    }
+    
+    .collapse-icon {
+      transition: transform 0.2s;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    
+    .collapsed .collapse-icon {
+      transform: rotate(-90deg);
+    }
+    
+    .panel-content {
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .collapsed .panel-content {
+      max-height: 0 !important;
+      padding: 0 !important;
+    }
+    
+    .property-section.collapsible {
+      padding: 0;
+    }
+    
+    .property-section.collapsible .panel-header-collapsible {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .property-section.collapsible .panel-content {
+      padding: 0 16px 16px 16px;
+    }
+    
+    .property-section.collapsible.collapsed .panel-content {
+      padding: 0;
+    }
+    
+    /* Scrollable right panel */
+    .properties-panel {
+      overflow-y: auto;
+    }
+    
     /* Main Layout */
     .editor-layout {
       display: flex;
@@ -1032,6 +1104,18 @@
     </div>
     
     <div class="top-bar-center">
+      <div class="history-controls">
+        <button class="btn btn-secondary btn-icon" id="undoBtn" onclick="undo()" title="Undo (Ctrl+Z)" disabled>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l4-4M3 10l4 4"/>
+          </svg>
+        </button>
+        <button class="btn btn-secondary btn-icon" id="redoBtn" onclick="redo()" title="Redo (Ctrl+Shift+Z)" disabled>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 10H11a5 5 0 0 0-5 5v2M21 10l-4-4M21 10l-4 4"/>
+          </svg>
+        </button>
+      </div>
       <div class="zoom-controls">
         <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
         <span class="zoom-value" id="zoomValue">100%</span>
@@ -1097,8 +1181,12 @@
     
     <!-- Right Panel: Tools & Properties -->
     <div class="properties-panel">
-      <div class="toolbar">
-        <div class="toolbar-title">Basic Shapes</div>
+      <div class="toolbar property-section collapsible" id="shapesSection">
+        <div class="panel-header-collapsible" onclick="togglePanel('shapesSection')">
+          <span class="toolbar-title" style="margin-bottom: 0;">Basic Shapes</span>
+          <span class="collapse-icon">▼</span>
+        </div>
+        <div class="panel-content">
         <div class="tool-grid">
           <button class="tool-btn" onclick="addElement('text')" title="Add Text">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1127,8 +1215,15 @@
             <span>Circle</span>
           </button>
         </div>
+        </div>
+      </div>
 
-        <div class="tool-section-divider">Menu Components</div>
+      <div class="toolbar property-section collapsible" id="componentsSection">
+        <div class="panel-header-collapsible" onclick="togglePanel('componentsSection')">
+          <span class="toolbar-title" style="margin-bottom: 0;">Menu Components</span>
+          <span class="collapse-icon">▼</span>
+        </div>
+        <div class="panel-content">
         <div class="menu-tool-grid">
           <button class="menu-tool-btn" onclick="addMenuElement('menu_item')" title="Add Menu Item">
             <span class="icon">🍔</span>
@@ -1155,8 +1250,15 @@
             <span class="label">Ticker</span>
           </button>
         </div>
+        </div>
+      </div>
 
-        <div class="tool-section-divider">Templates</div>
+      <div class="toolbar property-section collapsible" id="templatesSection">
+        <div class="panel-header-collapsible" onclick="togglePanel('templatesSection')">
+          <span class="toolbar-title" style="margin-bottom: 0;">Templates</span>
+          <span class="collapse-icon">▼</span>
+        </div>
+        <div class="panel-content">
         <button class="btn btn-secondary" onclick="showTemplateModal()" style="width: 100%; justify-content: center;">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
@@ -1164,11 +1266,16 @@
           </svg>
           Insert Template
         </button>
+        </div>
       </div>
       
-      <div class="property-section" id="screenProperties">
-        <div class="property-section-title">Screen Settings</div>
-        <div class="property-row">
+      <div class="property-section collapsible" id="screenProperties">
+        <div class="panel-header-collapsible" onclick="togglePanel('screenProperties')">
+          <span class="property-section-title" style="margin-bottom: 0;">Screen Settings</span>
+          <span class="collapse-icon">▼</span>
+        </div>
+        <div class="panel-content">
+        <div class="property-row" style="margin-top: 12px;">
           <span class="property-label">Name</span>
           <input type="text" class="property-input" id="screenNameInput" placeholder="Screen name" onchange="updateScreenName()">
         </div>
@@ -1194,6 +1301,7 @@
           <span class="property-label">Background</span>
           <input type="color" class="property-input" id="bgColorInput" value="#000000" onchange="updateBackground()" style="width: 60px; padding: 2px;">
           <input type="text" class="property-input" id="bgImageInput" placeholder="Image URL" style="margin-left: 8px;" onchange="updateBackground()">
+        </div>
         </div>
       </div>
       
@@ -1247,9 +1355,15 @@
           <span class="property-label">Price</span>
           <input type="text" class="property-input" id="menuItemPrice" placeholder="$0.00" onchange="updateMenuItemData()">
         </div>
-        <div class="property-row">
-          <span class="property-label">Image</span>
-          <input type="text" class="property-input" id="menuItemImage" placeholder="Image URL" onchange="updateMenuItemData()">
+        <div class="property-row" style="flex-direction: column; align-items: stretch;">
+          <span class="property-label" style="width: 100%; margin-bottom: 6px;">Image</span>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" class="property-input" id="menuItemImage" placeholder="Image URL or paste link" onchange="updateMenuItemData()" style="flex: 1;">
+            <button class="btn btn-secondary" onclick="browseStockImages()" title="Browse stock images" style="padding: 8px 12px;">📷</button>
+          </div>
+          <div id="menuItemImagePreview" style="margin-top: 8px; display: none;">
+            <img id="menuItemImageThumb" style="max-width: 100%; max-height: 80px; border-radius: 4px; object-fit: cover;">
+          </div>
         </div>
         <div class="property-row toggle-row">
           <span class="property-label">Show Image</span>
@@ -1401,11 +1515,16 @@
         </div>
       </div>
       
-      <div class="toolbar">
-        <div class="toolbar-title">Layers</div>
-      </div>
+      <div class="toolbar property-section collapsible" id="layersSection">
+        <div class="panel-header-collapsible" onclick="togglePanel('layersSection')">
+          <span class="toolbar-title" style="margin-bottom: 0;">Layers</span>
+          <span class="collapse-icon">▼</span>
+        </div>
+        <div class="panel-content">
       <div class="layers-panel" id="layersList">
         <!-- Layers rendered here -->
+      </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1671,6 +1790,104 @@
     let dragOffset = { x: 0, y: 0 };
     let selectedTemplate = null;
     
+    // Undo/Redo History
+    let historyStack = [];
+    let historyIndex = -1;
+    const MAX_HISTORY = 50;
+    
+    // Save state to history
+    function saveToHistory() {
+      const activeLayout = layouts.find(l => l.id === activeLayoutId);
+      if (!activeLayout) return;
+      
+      const state = JSON.stringify(activeLayout.elements || []);
+      
+      // Remove any future states if we're not at the end
+      if (historyIndex < historyStack.length - 1) {
+        historyStack = historyStack.slice(0, historyIndex + 1);
+      }
+      
+      // Don't save if state hasn't changed
+      if (historyStack.length > 0 && historyStack[historyIndex] === state) {
+        return;
+      }
+      
+      historyStack.push(state);
+      if (historyStack.length > MAX_HISTORY) {
+        historyStack.shift();
+      } else {
+        historyIndex++;
+      }
+      
+      updateHistoryButtons();
+    }
+    
+    function undo() {
+      if (historyIndex <= 0) return;
+      
+      historyIndex--;
+      applyHistoryState();
+    }
+    
+    function redo() {
+      if (historyIndex >= historyStack.length - 1) return;
+      
+      historyIndex++;
+      applyHistoryState();
+    }
+    
+    function applyHistoryState() {
+      const activeLayout = layouts.find(l => l.id === activeLayoutId);
+      if (!activeLayout || !historyStack[historyIndex]) return;
+      
+      activeLayout.elements = JSON.parse(historyStack[historyIndex]);
+      selectedElement = null;
+      renderCanvas(activeLayout);
+      renderLayers(activeLayout);
+      hideAllMenuProps();
+      updateHistoryButtons();
+    }
+    
+    function updateHistoryButtons() {
+      const undoBtn = document.getElementById('undoBtn');
+      const redoBtn = document.getElementById('redoBtn');
+      if (undoBtn) undoBtn.disabled = historyIndex <= 0;
+      if (redoBtn) redoBtn.disabled = historyIndex >= historyStack.length - 1;
+    }
+    
+    function clearHistory() {
+      historyStack = [];
+      historyIndex = -1;
+      updateHistoryButtons();
+    }
+    
+    // Panel collapse toggle
+    function togglePanel(panelId) {
+      const panel = document.getElementById(panelId);
+      if (panel) {
+        panel.classList.toggle('collapsed');
+      }
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Undo: Ctrl+Z or Cmd+Z
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+      // Redo: Ctrl+Shift+Z or Cmd+Shift+Z or Ctrl+Y
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'Z' || e.key === 'y')) {
+        e.preventDefault();
+        redo();
+      }
+      // Delete element
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement !== null && !e.target.matches('input, textarea')) {
+        e.preventDefault();
+        deleteSelectedElement();
+      }
+    });
+    
     // Initialize
     async function init() {
       document.getElementById('menuName').textContent = 'Initializing...';
@@ -1842,6 +2059,10 @@
       
       const layout = layouts.find(l => l.id === layoutId);
       if (!layout) return;
+      
+      // Clear and init history for this layout
+      clearHistory();
+      saveToHistory();
       
       // Update UI
       renderScreensList();
@@ -2162,6 +2383,7 @@
       if (!layout.elements) layout.elements = [];
       layout.elements.push(newElement);
       
+      saveToHistory();
       renderCanvas(layout);
       renderLayers(layout);
       
@@ -2201,6 +2423,7 @@
       if (!layout.elements) layout.elements = [];
       layout.elements.push(newElement);
       
+      saveToHistory();
       renderCanvas(layout);
       renderLayers(layout);
       
@@ -2266,6 +2489,9 @@
       document.getElementById('categoryProps').style.display = 'none';
       document.getElementById('tickerProps').style.display = 'none';
     }
+    
+    // Alias for convenience
+    const hideAllMenuProps = hideAllPropertyPanels;
 
     // Show menu element properties
     function showMenuElementProperties(element) {
@@ -2344,7 +2570,72 @@
       element.data.image = document.getElementById('menuItemImage').value;
       element.style.fontSize = parseInt(document.getElementById('menuItemFontSize').value) || 24;
       
+      // Update image preview
+      const imageUrl = element.data.image;
+      const preview = document.getElementById('menuItemImagePreview');
+      const thumb = document.getElementById('menuItemImageThumb');
+      if (imageUrl && imageUrl.trim()) {
+        thumb.src = imageUrl;
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+      
+      saveToHistory();
       renderCanvas(layout);
+    }
+    
+    // Browse stock food images
+    function browseStockImages() {
+      const foodImages = [
+        { name: 'Burger', url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop' },
+        { name: 'Pizza', url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop' },
+        { name: 'Salad', url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop' },
+        { name: 'Steak', url: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=200&h=200&fit=crop' },
+        { name: 'Pasta', url: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=200&h=200&fit=crop' },
+        { name: 'Sushi', url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&h=200&fit=crop' },
+        { name: 'Tacos', url: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=200&h=200&fit=crop' },
+        { name: 'Sandwich', url: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200&h=200&fit=crop' },
+        { name: 'Chicken', url: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=200&h=200&fit=crop' },
+        { name: 'Fries', url: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200&h=200&fit=crop' },
+        { name: 'Soup', url: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200&h=200&fit=crop' },
+        { name: 'Dessert', url: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=200&h=200&fit=crop' }
+      ];
+      
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'stockImageModal';
+      modal.innerHTML = `
+        <div class="modal" style="max-width: 500px;">
+          <div class="modal-header">
+            <h3 class="modal-title">Select Food Image</h3>
+            <button class="modal-close" onclick="closeStockImageModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+              ${foodImages.map(img => `
+                <div onclick="selectStockImage('${img.url}')" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='transparent'">
+                  <img src="${img.url}" alt="${img.name}" style="width: 100%; height: 80px; object-fit: cover; display: block;">
+                  <div style="font-size: 10px; text-align: center; padding: 4px; background: var(--bg-card);">${img.name}</div>
+                </div>
+              `).join('')}
+            </div>
+            <p style="margin-top: 12px; font-size: 11px; color: var(--text-muted);">Or paste any image URL in the field above</p>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+    
+    function selectStockImage(url) {
+      document.getElementById('menuItemImage').value = url;
+      updateMenuItemData();
+      closeStockImageModal();
+    }
+    
+    function closeStockImageModal() {
+      const modal = document.getElementById('stockImageModal');
+      if (modal) modal.remove();
     }
 
     function toggleMenuItemImage() {
@@ -2358,6 +2649,7 @@
       element.data.showImage = !element.data.showImage;
       document.getElementById('menuItemShowImage').classList.toggle('active', element.data.showImage);
       
+      saveToHistory();
       renderCanvas(layout);
     }
 
@@ -2374,6 +2666,7 @@
       element.style.fontSize = parseInt(document.getElementById('sectionFontSize').value) || 36;
       element.style.color = document.getElementById('sectionColor').value;
       
+      saveToHistory();
       renderCanvas(layout);
     }
 
@@ -2388,6 +2681,7 @@
       element.data.showDivider = !element.data.showDivider;
       document.getElementById('sectionShowDivider').classList.toggle('active', element.data.showDivider);
       
+      saveToHistory();
       renderCanvas(layout);
     }
 
@@ -2579,6 +2873,9 @@
     }
     
     function stopDrag() {
+      if (isDragging) {
+        saveToHistory();
+      }
       isDragging = false;
       document.removeEventListener('mousemove', onDrag);
       document.removeEventListener('mouseup', stopDrag);
@@ -2592,6 +2889,7 @@
       
       layout.elements[selectedElement].x = parseInt(document.getElementById('elemX').value) || 0;
       layout.elements[selectedElement].y = parseInt(document.getElementById('elemY').value) || 0;
+      saveToHistory();
       renderCanvas(layout);
     }
     
@@ -2602,6 +2900,7 @@
       
       layout.elements[selectedElement].width = parseInt(document.getElementById('elemW').value) || 100;
       layout.elements[selectedElement].height = parseInt(document.getElementById('elemH').value) || 100;
+      saveToHistory();
       renderCanvas(layout);
     }
     
@@ -2634,8 +2933,10 @@
       layout.elements.splice(selectedElement, 1);
       selectedElement = null;
       
+      saveToHistory();
       document.getElementById('elementProperties').style.display = 'none';
       document.getElementById('screenProperties').style.display = 'block';
+      hideAllMenuProps();
       
       renderCanvas(layout);
       renderLayers(layout);
