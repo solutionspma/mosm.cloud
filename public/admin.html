@@ -1386,8 +1386,75 @@
       content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
       
       try {
+        // Load pending invites from API
+        let pendingInvites = [];
+        try {
+          const invitesResponse = await apiRequest('/invites');
+          pendingInvites = invitesResponse.invites || [];
+        } catch (e) {
+          console.error('Error loading invites:', e);
+        }
+        
         // For now, show current user
         const currentUserData = currentUser || {};
+        
+        // Build pending invites HTML
+        let pendingInvitesHtml = '';
+        if (pendingInvites.length === 0) {
+          pendingInvitesHtml = `
+            <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+              No pending invitations
+            </div>
+          `;
+        } else {
+          pendingInvitesHtml = `
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Sent</th>
+                    <th>Expires</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pendingInvites.map(invite => {
+                    const sentDate = new Date(invite.created_at).toLocaleDateString();
+                    const expiresDate = new Date(invite.expires_at).toLocaleDateString();
+                    const roleDisplay = invite.role.charAt(0).toUpperCase() + invite.role.slice(1);
+                    return `
+                      <tr>
+                        <td>
+                          <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 12px; background: var(--bg-tertiary);">${invite.email[0].toUpperCase()}</div>
+                            <div>
+                              <strong>${invite.email}</strong>
+                              <div style="font-size: 11px; color: var(--text-muted);">Pending acceptance</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <select class="form-select" style="width: auto; padding: 4px 8px; font-size: 12px;" onchange="updateInviteRole('${invite.id}', this.value)">
+                            <option value="viewer" ${invite.role === 'viewer' ? 'selected' : ''}>Viewer</option>
+                            <option value="designer" ${invite.role === 'designer' ? 'selected' : ''}>Designer</option>
+                            <option value="manager" ${invite.role === 'manager' ? 'selected' : ''}>Manager</option>
+                          </select>
+                        </td>
+                        <td style="font-size: 12px;">${sentDate}</td>
+                        <td style="font-size: 12px;">${expiresDate}</td>
+                        <td>
+                          <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="cancelInvite('${invite.id}')">Cancel</button>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
         
         content.innerHTML = `
           <div class="card">
@@ -1427,14 +1494,39 @@
           <div class="card">
             <div class="card-header">
               <div class="card-title">Pending Invitations</div>
+              <span style="font-size: 12px; color: var(--text-muted);">${pendingInvites.length} pending</span>
             </div>
-            <div style="text-align: center; padding: 30px; color: var(--text-muted);">
-              No pending invitations
-            </div>
+            ${pendingInvitesHtml}
           </div>
         `;
       } catch (error) {
         content.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error loading users</div><div class="empty-state-text">${error.message}</div></div>`;
+      }
+    }
+    
+    async function updateInviteRole(inviteId, newRole) {
+      try {
+        await apiRequest(`/invites/${inviteId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ role: newRole })
+        });
+        // Silently succeed - the dropdown is already showing the new value
+      } catch (error) {
+        alert('Error updating role: ' + error.message);
+        loadUsersView(); // Reload to reset the dropdown
+      }
+    }
+    
+    async function cancelInvite(inviteId) {
+      if (!confirm('Are you sure you want to cancel this invitation?')) return;
+      
+      try {
+        await apiRequest(`/invites/${inviteId}`, {
+          method: 'DELETE'
+        });
+        loadUsersView();
+      } catch (error) {
+        alert('Error cancelling invite: ' + error.message);
       }
     }
     

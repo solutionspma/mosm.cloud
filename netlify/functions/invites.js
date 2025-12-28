@@ -368,6 +368,72 @@ export async function handler(event, context) {
         };
       }
 
+      // PUT /invites/:id - Update invite (change role)
+      if (method === 'PUT') {
+        const organizationId = await getUserOrganization(user.id, user.email);
+        
+        // Verify the invite belongs to user's organization
+        const { data: invite, error: fetchError } = await supabase
+          .from('invites')
+          .select('*')
+          .eq('id', inviteId)
+          .single();
+
+        if (fetchError || !invite || invite.organization_id !== organizationId) {
+          return {
+            statusCode: 404,
+            headers,
+            body: JSON.stringify({ error: 'Invite not found' })
+          };
+        }
+
+        // Check if invite is still pending
+        if (invite.accepted_at) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Cannot modify an accepted invitation' })
+          };
+        }
+
+        let { role } = body;
+        
+        // Map common role aliases
+        const roleMap = {
+          'admin': 'manager',
+          'editor': 'designer',
+          'view': 'viewer'
+        };
+        if (roleMap[role]) {
+          role = roleMap[role];
+        }
+
+        // Validate role
+        const validRoles = ['owner', 'manager', 'designer', 'viewer'];
+        if (!validRoles.includes(role)) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Invalid role' })
+          };
+        }
+
+        const { data: updated, error } = await supabase
+          .from('invites')
+          .update({ role })
+          .eq('id', inviteId)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ invite: updated, message: 'Invitation updated' })
+        };
+      }
+
       // DELETE /invites/:id - Cancel invite
       if (method === 'DELETE') {
         const organizationId = await getUserOrganization(user.id, user.email);
