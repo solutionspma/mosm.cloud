@@ -718,6 +718,34 @@
 
     // Check authentication and organization
     async function checkAuth() {
+      // Check for token passed via URL (cross-domain auth from modOSmenus)
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = urlParams.get('token');
+      
+      if (tokenFromUrl) {
+        // Verify and establish session from URL token
+        try {
+          const response = await fetch('/api/auth/session', {
+            headers: {
+              'Authorization': `Bearer ${tokenFromUrl}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            // Create session object and store
+            const session = { access_token: tokenFromUrl };
+            localStorage.setItem('mosm_session', JSON.stringify(session));
+            localStorage.setItem('mosm_user', JSON.stringify(data.user));
+            
+            // Clean URL to remove token
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } catch (e) {
+          console.log('Token verification failed:', e);
+        }
+      }
+      
       const sessionStr = localStorage.getItem('mosm_session');
       const userStr = localStorage.getItem('mosm_user');
       
