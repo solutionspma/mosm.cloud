@@ -14,8 +14,18 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
+// Service client for database operations (bypasses RLS)
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
+
+// Auth client for validating user tokens
+const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false
@@ -42,7 +52,8 @@ async function getUserFromToken(authHeader) {
   console.log('Token received, length:', token.length);
   
   try {
-    const { data, error } = await supabase.auth.getUser(token);
+    // Use the auth client (with anon key) to validate user tokens
+    const { data, error } = await supabaseAuth.auth.getUser(token);
     
     if (error) {
       console.error('Auth error:', error.message);
