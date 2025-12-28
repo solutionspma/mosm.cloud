@@ -276,6 +276,14 @@
   <script>
     const API_BASE = '/api';
     
+    // Check for expired session message
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('expired') === '1') {
+      // Clear any remaining session data
+      localStorage.removeItem('mosm_session');
+      localStorage.removeItem('mosm_user');
+    }
+    
     // Elements
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
@@ -285,6 +293,12 @@
     const toggleLogin = document.getElementById('toggleLogin');
     const toggleSignup = document.getElementById('toggleSignup');
     const toggleReset = document.getElementById('toggleReset');
+    
+    // Show expired message if redirected due to expired session
+    if (urlParams.get('expired') === '1') {
+      errorMessage.textContent = 'Your session has expired. Please log in again.';
+      errorMessage.style.display = 'block';
+    }
     
     // Show/hide forms
     document.getElementById('showSignup').addEventListener('click', (e) => {

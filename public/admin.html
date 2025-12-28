@@ -822,6 +822,18 @@
       
       try {
         currentSession = JSON.parse(sessionStr);
+        
+        // Check if token is expired
+        if (currentSession.expires_at) {
+          const expiresAt = new Date(currentSession.expires_at * 1000);
+          if (expiresAt < new Date()) {
+            console.log('Session expired, redirecting to login');
+            localStorage.removeItem('mosm_session');
+            localStorage.removeItem('mosm_user');
+            window.location.href = '/login.html?expired=1';
+            return;
+          }
+        }
         console.log('Session loaded');
       } catch (e) {
         console.error('Failed to parse session:', e);
@@ -853,7 +865,7 @@
     async function apiRequest(endpoint, options = {}) {
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${currentSession.access_token}`,
+        'Authorization': `Bearer ${currentSession?.access_token}`,
         ...options.headers
       };
       
@@ -863,6 +875,15 @@
       });
       
       const data = await response.json();
+      
+      // Handle expired token - redirect to login
+      if (response.status === 401) {
+        console.log('Unauthorized - session expired, redirecting to login');
+        localStorage.removeItem('mosm_session');
+        localStorage.removeItem('mosm_user');
+        window.location.href = '/login.html?expired=1';
+        return;
+      }
       
       if (!response.ok) {
         throw new Error(data.error || 'Request failed');
