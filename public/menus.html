@@ -296,6 +296,7 @@
   <script>
     const API_BASE = '/api';
     let currentSession = null;
+    let currentOrganization = null;
     let menus = [];
     
     async function init() {
@@ -305,6 +306,24 @@
         return;
       }
       currentSession = JSON.parse(sessionStr);
+      
+      // Load organization from localStorage or fetch it
+      const orgStr = localStorage.getItem('mosm_organization');
+      if (orgStr) {
+        currentOrganization = JSON.parse(orgStr);
+      } else {
+        // Fetch organization if not in localStorage
+        try {
+          const orgData = await apiRequest('/organizations');
+          if (orgData.organization) {
+            currentOrganization = orgData.organization;
+            localStorage.setItem('mosm_organization', JSON.stringify(currentOrganization));
+          }
+        } catch (e) {
+          console.error('Error loading organization:', e);
+        }
+      }
+      
       await loadMenus();
     }
     
@@ -324,7 +343,8 @@
     
     async function loadMenus() {
       try {
-        const data = await apiRequest('/menus');
+        const orgFilter = currentOrganization?.id ? `?organizationId=${currentOrganization.id}` : '';
+        const data = await apiRequest(`/menus${orgFilter}`);
         menus = data.menus || [];
         renderMenus();
       } catch (error) {
@@ -380,10 +400,19 @@
         return;
       }
       
+      if (!currentOrganization?.id) {
+        alert('No organization found. Please complete onboarding first.');
+        window.location.href = '/onboarding.html';
+        return;
+      }
+      
       try {
         const result = await apiRequest('/menus', {
           method: 'POST',
-          body: JSON.stringify({ name })
+          body: JSON.stringify({ 
+            name,
+            organizationId: currentOrganization.id
+          })
         });
         
         hideCreateModal();

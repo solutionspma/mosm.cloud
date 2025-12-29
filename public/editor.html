@@ -1638,6 +1638,34 @@
         
         <!-- Style Tab -->
         <div class="property-tab-content" id="propTabStyle">
+          <!-- Image Source Row (for image elements) -->
+          <div class="property-row" id="imageSourceRow" style="display: none; flex-direction: column; align-items: stretch;">
+            <span class="property-label" style="width: 100%; margin-bottom: 6px;">Image Source</span>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <input type="text" class="property-input" id="elemImageSrc" placeholder="Image URL or upload" onchange="updateImageSource()" style="flex: 1;">
+              <input type="file" id="elemImageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+              <button class="btn btn-primary" onclick="document.getElementById('elemImageUpload').click()" title="Upload from computer" style="padding: 8px 12px;">📤 Upload</button>
+            </div>
+            <div id="elemImagePreview" style="display: none; margin-bottom: 8px;">
+              <img id="elemImageThumb" style="max-width: 100%; max-height: 100px; border-radius: 4px; object-fit: contain; background: var(--bg-card);">
+            </div>
+            <div id="uploadProgress" style="display: none; margin-bottom: 8px;">
+              <div style="background: var(--bg-card); border-radius: 4px; height: 6px; overflow: hidden;">
+                <div id="uploadProgressBar" style="background: var(--accent); height: 100%; width: 0%; transition: width 0.3s;"></div>
+              </div>
+              <span id="uploadStatus" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;"></span>
+            </div>
+          </div>
+          <!-- Image Fit Row (for image elements) -->
+          <div class="property-row" id="imageFitRow" style="display: none;">
+            <span class="property-label">Image Fit</span>
+            <select class="property-input" id="elemImageFit" onchange="updateImageFit()" style="width: 100px;">
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="fill">Fill</option>
+              <option value="none">None</option>
+            </select>
+          </div>
           <div class="property-row" id="textContentRow" style="display: none;">
             <span class="property-label">Text</span>
             <input type="text" class="property-input" id="elemText" placeholder="Enter text" onchange="updateElementContent()">
@@ -1710,8 +1738,16 @@
         <div class="property-row" style="flex-direction: column; align-items: stretch;">
           <span class="property-label" style="width: 100%; margin-bottom: 6px;">Image</span>
           <div style="display: flex; gap: 8px;">
-            <input type="text" class="property-input" id="menuItemImage" placeholder="Image URL or paste link" onchange="updateMenuItemData()" style="flex: 1;">
+            <input type="text" class="property-input" id="menuItemImage" placeholder="Image URL or upload" onchange="updateMenuItemData()" style="flex: 1;">
+            <input type="file" id="menuItemImageUpload" accept="image/*" style="display: none;" onchange="handleMenuItemImageUpload(event)">
+            <button class="btn btn-primary" onclick="document.getElementById('menuItemImageUpload').click()" title="Upload from computer" style="padding: 8px 12px;">📤</button>
             <button class="btn btn-secondary" onclick="browseStockImages()" title="Browse stock images" style="padding: 8px 12px;">📷</button>
+          </div>
+          <div id="menuItemUploadProgress" style="display: none; margin-top: 8px;">
+            <div style="background: var(--bg-card); border-radius: 4px; height: 6px; overflow: hidden;">
+              <div id="menuItemUploadProgressBar" style="background: var(--accent); height: 100%; width: 0%; transition: width 0.3s;"></div>
+            </div>
+            <span id="menuItemUploadStatus" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;"></span>
           </div>
           <div id="menuItemImagePreview" style="margin-top: 8px; display: none;">
             <img id="menuItemImageThumb" style="max-width: 100%; max-height: 80px; border-radius: 4px; object-fit: cover;">
@@ -2544,12 +2580,15 @@
             </div>
           `;
         case 'image':
+          const imgFit = element.fit || 'cover';
+          const imgSrc = element.src || '';
+          const placeholder = imgSrc ? '' : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:14px;">📷 No image</div>';
           return `
             <div class="canvas-element element-image ${selectedClass}" 
                  data-index="${index}" 
                  style="${style}"
                  onmousedown="startDrag(event, ${index})">
-              <img src="${element.src || 'https://via.placeholder.com/200'}" alt="">
+              ${imgSrc ? `<img src="${imgSrc}" alt="" style="object-fit: ${imgFit};">` : placeholder}
               ${resizeHandles}
             </div>
           `;
@@ -3074,15 +3113,37 @@
         // Show type-specific properties
         const textRow = document.getElementById('textContentRow');
         const fontRow = document.getElementById('fontSizeRow');
+        const imageSourceRow = document.getElementById('imageSourceRow');
+        const imageFitRow = document.getElementById('imageFitRow');
+        const colorRow = document.getElementById('colorRow');
+        
+        // Hide all type-specific rows first
+        textRow.style.display = 'none';
+        fontRow.style.display = 'none';
+        imageSourceRow.style.display = 'none';
+        imageFitRow.style.display = 'none';
+        colorRow.style.display = 'flex';
         
         if (element.type === 'text') {
           textRow.style.display = 'flex';
           fontRow.style.display = 'flex';
           document.getElementById('elemText').value = element.content || '';
           document.getElementById('elemFontSize').value = element.fontSize || 24;
-        } else {
-          textRow.style.display = 'none';
-          fontRow.style.display = 'none';
+        } else if (element.type === 'image') {
+          imageSourceRow.style.display = 'flex';
+          imageFitRow.style.display = 'flex';
+          colorRow.style.display = 'none';
+          document.getElementById('elemImageSrc').value = element.src || '';
+          document.getElementById('elemImageFit').value = element.fit || 'cover';
+          // Show preview if image exists
+          const preview = document.getElementById('elemImagePreview');
+          const thumb = document.getElementById('elemImageThumb');
+          if (element.src) {
+            thumb.src = element.src;
+            preview.style.display = 'block';
+          } else {
+            preview.style.display = 'none';
+          }
         }
         
         document.getElementById('elemColor').value = element.color || '#ffffff';
@@ -3217,6 +3278,89 @@
       
       saveToHistory();
       renderCanvas(layout);
+    }
+    
+    // Handle menu item image upload
+    async function handleMenuItemImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Image must be less than 10MB');
+        return;
+      }
+      
+      const progressDiv = document.getElementById('menuItemUploadProgress');
+      const progressBar = document.getElementById('menuItemUploadProgressBar');
+      const statusText = document.getElementById('menuItemUploadStatus');
+      
+      progressDiv.style.display = 'block';
+      progressBar.style.width = '10%';
+      statusText.textContent = 'Preparing upload...';
+      
+      try {
+        // Convert to base64 for upload
+        const base64 = await fileToBase64(file);
+        progressBar.style.width = '30%';
+        statusText.textContent = 'Uploading to server...';
+        
+        // Upload via API
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentSession.access_token}`
+          },
+          body: JSON.stringify({
+            file: base64,
+            filename: file.name,
+            contentType: file.type,
+            organizationId: currentMenu?.organization_id
+          })
+        });
+        
+        progressBar.style.width = '80%';
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Upload failed');
+        }
+        
+        const result = await response.json();
+        progressBar.style.width = '100%';
+        statusText.textContent = 'Upload complete!';
+        
+        // Update menu item with uploaded image URL
+        document.getElementById('menuItemImage').value = result.url;
+        updateMenuItemData();
+        
+        // Hide progress after a moment
+        setTimeout(() => {
+          progressDiv.style.display = 'none';
+          progressBar.style.width = '0%';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        statusText.textContent = 'Upload failed: ' + error.message;
+        progressBar.style.background = 'var(--danger)';
+        
+        setTimeout(() => {
+          progressDiv.style.display = 'none';
+          progressBar.style.width = '0%';
+          progressBar.style.background = 'var(--accent)';
+        }, 3000);
+      }
+      
+      // Reset file input
+      event.target.value = '';
     }
     
     // Toggle lock aspect ratio for images
@@ -3725,6 +3869,129 @@
       renderCanvas(layout);
     }
     
+    // Image element functions
+    function updateImageSource() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || layout.elements[selectedElement].type !== 'image') return;
+      
+      const src = document.getElementById('elemImageSrc').value;
+      layout.elements[selectedElement].src = src;
+      
+      // Update preview
+      const preview = document.getElementById('elemImagePreview');
+      const thumb = document.getElementById('elemImageThumb');
+      if (src) {
+        thumb.src = src;
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+      
+      saveToHistory();
+      renderCanvas(layout);
+    }
+    
+    function updateImageFit() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || layout.elements[selectedElement].type !== 'image') return;
+      
+      layout.elements[selectedElement].fit = document.getElementById('elemImageFit').value;
+      renderCanvas(layout);
+    }
+    
+    async function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Image must be less than 10MB');
+        return;
+      }
+      
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressBar = document.getElementById('uploadProgressBar');
+      const statusText = document.getElementById('uploadStatus');
+      
+      progressDiv.style.display = 'block';
+      progressBar.style.width = '10%';
+      statusText.textContent = 'Preparing upload...';
+      
+      try {
+        // Convert to base64 for upload
+        const base64 = await fileToBase64(file);
+        progressBar.style.width = '30%';
+        statusText.textContent = 'Uploading to server...';
+        
+        // Upload via API
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentSession.access_token}`
+          },
+          body: JSON.stringify({
+            file: base64,
+            filename: file.name,
+            contentType: file.type,
+            organizationId: currentMenu?.organization_id
+          })
+        });
+        
+        progressBar.style.width = '80%';
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Upload failed');
+        }
+        
+        const result = await response.json();
+        progressBar.style.width = '100%';
+        statusText.textContent = 'Upload complete!';
+        
+        // Update element with uploaded image URL
+        document.getElementById('elemImageSrc').value = result.url;
+        updateImageSource();
+        
+        // Hide progress after a moment
+        setTimeout(() => {
+          progressDiv.style.display = 'none';
+          progressBar.style.width = '0%';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        statusText.textContent = 'Upload failed: ' + error.message;
+        progressBar.style.background = 'var(--danger)';
+        
+        setTimeout(() => {
+          progressDiv.style.display = 'none';
+          progressBar.style.width = '0%';
+          progressBar.style.background = 'var(--accent)';
+        }, 3000);
+      }
+      
+      // Reset file input
+      event.target.value = '';
+    }
+    
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+
     function deleteSelectedElement() {
       if (selectedElement === null) return;
       const layout = layouts.find(l => l.id === activeLayoutId);
