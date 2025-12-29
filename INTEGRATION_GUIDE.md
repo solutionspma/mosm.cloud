@@ -1,470 +1,423 @@
-# mOSm.Cloud - Complete Build Summary & Integration Guide
+# mOSm.Cloud + modOSmenus Integration Guide
 
-> **Document Purpose**: Summary of mOSm.Cloud backend implementation for handoff/collaboration with other AI assistants or developers.
-
----
-
-## 🏗️ What Was Built
-
-### Project Overview
-**mOSm.Cloud** is the authoritative backend control plane for the Modos Menus digital signage ecosystem. It serves as the single source of truth for:
-- Menu management (CRUD, versioning, publishing)
-- Device registration and heartbeat monitoring
-- Screen/layout assignments
-- User authentication and organization management
-- Live publishing to kiosks/displays
-
-### Architecture Principle
-> "All frontends (Menu Builder, Kiosk, Admin) READ AND WRITE THROUGH THIS CLOUD LAYER. There is no local-only state."
+## CRITICAL: This is the single source of truth for both platforms
 
 ---
 
-## 📁 Project Structure
+## 🏗️ Architecture Overview
 
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        mOSm.Cloud                               │
+│                 (mosm-cloud.netlify.app)                        │
+│                                                                 │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
+│  │ index.html  │ │ login.html  │ │dashboard.html│              │
+│  │ (Lead Gate) │ │ (Auth)      │ │ (Main App)  │               │
+│  └─────────────┘ └─────────────┘ └─────────────┘               │
+│         │              │               │                        │
+│         └──────────────┼───────────────┘                        │
+│                        ▼                                        │
+│                 /js/auth.js                                     │
+│           (Shared Auth Module)                                  │
+│                        │                                        │
+│         ┌──────────────┼──────────────┐                        │
+│         ▼              ▼              ▼                        │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐                 │
+│  │ Supabase   │ │ Netlify    │ │ GitHub     │                 │
+│  │ Database   │ │ Functions  │ │ Auto-deploy│                 │
+│  └────────────┘ └────────────┘ └────────────┘                 │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ SSO Token via URL
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        modOSmenus                               │
+│                 (modosmenus.netlify.app)                        │
+│                                                                 │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
+│  │ login.html  │ │ kiosk.html  │ │ kiosk.js    │               │
+│  │ (Auth)      │ │ (Display)   │ │ (Renderer)  │               │
+│  └─────────────┘ └─────────────┘ └─────────────┘               │
+│                                                                 │
+│  Deploy: npx netlify deploy --prod --dir=apps/shell/dist        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 File Structure
+
+### mOSm.Cloud Repository
 ```
 mOSm.cloud/
-├── models/
-│   ├── User.js
-│   ├── Organization.js
-│   ├── Menu.js
-│   ├── Layout.js
-│   ├── Screen.js
-│   ├── Device.js
-│   ├── Location.js
-│   └── index.js
-├── services/
-│   ├── supabase.js          # Supabase client initialization
-│   ├── authService.js       # Authentication operations
-│   ├── menuService.js       # Menu CRUD operations
-│   ├── layoutService.js     # Layout management
-│   ├── deviceService.js     # Device registration/heartbeat
-│   ├── publishService.js    # Publishing workflow
-│   └── index.js
-├── utils/
-│   ├── resolutionProfiles.js # Screen resolution definitions
-│   ├── safeZones.js         # TV/kiosk safe zone margins
-│   ├── validators.js        # Input validation helpers
-│   └── index.js
+├── public/                      # Static files (Netlify serves this)
+│   ├── index.html              # Landing page with lead capture
+│   ├── login.html              # Authentication page
+│   ├── dashboard.html          # Main dashboard
+│   ├── editor.html             # Layout/menu editor
+│   ├── menus.html              # Menu management
+│   ├── devices.html            # Device management
+│   ├── screens.html            # Screen management
+│   ├── users.html              # User management
+│   ├── settings.html           # Organization settings
+│   └── js/
+│       └── auth.js             # SHARED AUTH MODULE
 ├── netlify/
-│   └── functions/
-│       ├── auth.js          # POST /api/auth/signup, /signin, /signout
-│       ├── menus.js         # GET/POST /api/menus
-│       ├── layouts.js       # GET/POST /api/layouts
-│       ├── devices.js       # GET/POST /api/devices, /heartbeat
-│       ├── screens.js       # GET/POST /api/screens
-│       └── publish.js       # POST /api/publish
-├── public/
-│   ├── index.html           # Landing page
-│   ├── login.html           # Auth UI
-│   └── dashboard.html       # Admin dashboard
-├── supabase/
-│   └── schema.sql           # Complete database schema
-├── netlify.toml             # Netlify configuration
-├── package.json
-├── .env                     # Environment variables (not committed)
-├── .env.example
-└── README.md
+│   └── functions/              # Serverless API endpoints
+│       ├── submit-lead.js      # Lead capture endpoint
+│       └── [...other functions]
+├── netlify.toml                # Netlify config (headers, redirects)
+└── package.json
+```
+
+### modOSmenus Repository (Kiosk Shell)
+```
+modosmenus/
+└── apps/
+    └── shell/
+        └── dist/               # DEPLOY THIS FOLDER ONLY
+            ├── index.html      # Redirect to kiosk
+            ├── apps/
+            │   ├── login.html  # Auth page
+            │   ├── kiosk.html  # Kiosk display
+            │   └── js/
+            │       ├── auth.js # Shared auth (copy from mOSm.cloud)
+            │       └── kiosk.js # Kiosk renderer
+            └── _headers        # Cache-busting headers
 ```
 
 ---
 
-## 🌐 Live Deployment
+## 🔐 Authentication System
 
-| Resource | URL |
-|----------|-----|
-| **Production Site** | https://mosm-cloud.netlify.app |
-| **Login Page** | https://mosm-cloud.netlify.app/login.html |
-| **Dashboard** | https://mosm-cloud.netlify.app/dashboard.html |
-| **Menus List** | https://mosm-cloud.netlify.app/menus.html |
-| **Menu Editor** | https://mosm-cloud.netlify.app/admin.html |
-| **Devices** | https://mosm-cloud.netlify.app/devices.html |
-| **Device Player** | https://mosm-cloud.netlify.app/player.html |
-| **Onboarding** | https://mosm-cloud.netlify.app/onboarding.html |
-| **GitHub Repo** | https://github.com/solutionspma/mosm.cloud |
-| **Netlify Project** | mosm-cloud (ID: 48e5af30-9596-4fa1-9766-7fee16f03396) |
-
----
-
-## 🔌 API Endpoints
-
-All endpoints are accessed via `https://mosm-cloud.netlify.app/api/...`
-
-### Authentication
-```
-POST /api/auth/signup     - Create new account
-POST /api/auth/signin     - Login (returns session token)
-POST /api/auth/signout    - Logout
-GET  /api/auth/session    - Verify session (requires Bearer token)
-POST /api/auth/reset-password - Send password reset email
-```
-
-### Menus
-```
-GET  /api/menus           - List all menus for organization
-GET  /api/menus/:id       - Get single menu with layouts
-POST /api/menus           - Create new menu
-PUT  /api/menus/:id       - Update menu
-DELETE /api/menus/:id     - Delete menu
-```
-
-### Layouts
-```
-GET  /api/layouts?menuId=xxx  - Get layouts for a menu
-POST /api/layouts             - Create layout
-PUT  /api/layouts/:id         - Update layout (elements, background, etc.)
-DELETE /api/layouts/:id       - Delete layout
-```
-
-### Devices
-```
-GET  /api/devices              - List devices for organization
-POST /api/devices              - Register new device
-POST /api/devices/register-self - Device self-registration (returns pairing code)
-POST /api/devices/claim        - Claim device by pairing code
-POST /api/devices/heartbeat    - Device heartbeat (every 15s)
-PUT  /api/devices/:id          - Update device settings
-DELETE /api/devices/:id        - Remove device
-```
-
-### Screens
-```
-GET  /api/screens?deviceId=xxx - Get screens for a device
-POST /api/screens              - Add screen to device
-PUT  /api/screens/:id          - Update screen (assign layout)
-DELETE /api/screens/:id        - Remove screen
-```
-
-### Publishing
-```
-POST /api/publish              - Publish menu to assigned screens
-  Body: { menuId: "uuid" }
-  - Increments version
-  - Updates status to "published"
-  - Records in publish_history
-  - Flags devices for update
-
-GET  /api/publish/device/:id   - Get published content for device (used by player)
-```
-
----
-
-## 📱 Application Pages
-
-### Menu Editor (`/admin.html`)
-Full multi-screen layout editor with:
-- **Resolution Profiles**: 720p through 8K, portrait/landscape variants
-- **Multi-Screen Support**: Manage multiple screens per layout
-- **Element Palette**: Text, Image, Video, Zone elements
-- **Properties Panel**: Edit selected element properties
-- **Safe Zone Overlay**: Visualize TV overscan/kiosk bezels
-- **Publish Button**: One-click publish to devices
-
-### Device Player (`/player.html`)
-Kiosk/display runtime with:
-- **Self-Registration**: Automatically registers with cloud on first load
-- **Pairing Code Display**: Shows 6-character code until claimed
-- **Heartbeat**: Sends status every 15 seconds
-- **Auto-Refresh**: Polls for published content updates
-- **CSS Transform Scaling**: Fits any resolution to screen
-
-### Device Management (`/devices.html`)
-Admin page for device pairing:
-- **Pairing Code Entry**: Enter code displayed on kiosk to claim it
-- **Device List**: View all claimed devices with online/offline status
-- **Menu Assignment**: Assign menus to device screens
-
-### Menus List (`/menus.html`)
-Menu management page:
-- **Grid View**: Visual cards for all organization menus
-- **Quick Actions**: Create, Edit, Delete menus
-- **Status Indicators**: Draft, Published, Archived
-
----
-
-## 🗄️ Database Schema (Supabase)
-
-### Tables
-- **organizations** - Multi-tenant organization support
-- **users** - User profiles (extends auth.users)
-- **locations** - Physical locations for devices
-- **menus** - Menu definitions with status/versioning
-- **layouts** - Visual layouts tied to menus (elements stored as JSONB)
-- **devices** - Registered display devices
-- **screens** - Individual screens on devices
-- **publish_history** - Audit trail of publishes
-- **invites** - Team invitation system
-
-### Key Relationships
-```
-Organization → Users (many)
-Organization → Menus (many)
-Organization → Devices (many)
-Menu → Layouts (many)
-Device → Screens (many)
-Screen → Layout (assigned)
-```
-
-### Row Level Security (RLS)
-All tables have RLS enabled. Users can only access data within their organization.
-
-### Triggers
-- `on_auth_user_created` - Auto-creates user profile on signup
-- `update_*_updated_at` - Auto-updates timestamps on all tables
-
----
-
-## 🖥️ Resolution Profiles
-
-Defined in `utils/resolutionProfiles.js`:
-
+### Storage Keys (localStorage)
 ```javascript
-RESOLUTIONS = {
-  '720p': { width: 1280, height: 720, aspectRatio: '16:9' },
-  '1080p': { width: 1920, height: 1080, aspectRatio: '16:9' },
-  '2k': { width: 2560, height: 1440, aspectRatio: '16:9' },
-  '4k': { width: 3840, height: 2160, aspectRatio: '16:9' },
-  '8k': { width: 7680, height: 4320, aspectRatio: '16:9' },
-  // Portrait variants
-  '1080p_portrait': { width: 1080, height: 1920, aspectRatio: '9:16' },
-  '4k_portrait': { width: 2160, height: 3840, aspectRatio: '9:16' },
-  // Ultrawide
-  'ultrawide_1080p': { width: 2560, height: 1080, aspectRatio: '21:9' },
-  'ultrawide_1440p': { width: 3440, height: 1440, aspectRatio: '21:9' },
-}
+mosm_session     // Supabase session object (JSON)
+mosm_user        // User data (JSON)
+mosm_last_activity // Timestamp of last activity
+mosm_organization // Organization ID
+mosm_lead_submitted // Whether lead form was submitted
+```
+
+### Session Timeout: 30 minutes
+- Activity refreshes timeout
+- 5-minute warning toast before expiration
+- Auto-logout on expiration
+
+### SSO Flow
+```
+mOSm.Cloud Dashboard
+    │
+    │ User clicks "Open Kiosk"
+    │
+    │ ┌──────────────────────────────────────────────────┐
+    │ │ const token = await supabase.auth.getSession(); │
+    │ │ const url = `https://modosmenus.netlify.app/    │
+    │ │            apps/kiosk.html?token=${token}`;     │
+    │ │ window.open(url, '_blank');                      │
+    │ └──────────────────────────────────────────────────┘
+    │
+    ▼
+modOSmenus Kiosk
+    │
+    │ ┌──────────────────────────────────────────────────┐
+    │ │ const urlParams = new URLSearchParams(...);      │
+    │ │ const token = urlParams.get('token');           │
+    │ │ if (token) {                                     │
+    │ │   await supabase.auth.setSession(token);        │
+    │ │   localStorage.setItem('mosm_session', token);  │
+    │ │ }                                               │
+    │ └──────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📐 Safe Zones
+## 🚀 Deployment Commands
 
-Defined in `utils/safeZones.js`:
+### ⚠️ CRITICAL: mOSm.Cloud - USE CLI DEPLOY, NOT GIT PUSH
+```bash
+cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/mOSm.cloud
 
-```javascript
-SAFE_ZONES = {
-  tv_4k: { top: 120, right: 120, bottom: 120, left: 120 },
-  tv_1080p: { top: 60, right: 60, bottom: 60, left: 60 },
-  kiosk: { top: 40, right: 40, bottom: 40, left: 40 },
-  desktop: { top: 20, right: 20, bottom: 20, left: 20 },
-  none: { top: 0, right: 0, bottom: 0, left: 0 },
-}
+# ALWAYS use Netlify CLI - GitHub auto-deploy is UNRELIABLE
+npx netlify deploy --prod --dir=public
+
+# This bypasses the GitHub integration and deploys directly
+# The GitHub auto-deploy often fails to invalidate CDN cache
+```
+
+**WHY NOT GIT PUSH?**
+- GitHub integration sometimes doesn't trigger Netlify rebuild
+- Netlify CDN caches aggressively and doesn't invalidate on git push
+- CLI deploy ALWAYS works and invalidates cache immediately
+
+### modOSmenus (Kiosk)
+```bash
+cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/modosmenus/modosmenus
+npx netlify deploy --prod --dir=apps/shell/dist
+# Manual deploy to modosmenus.netlify.app
 ```
 
 ---
 
-## 🔐 Environment Variables
+## ⚠️ CACHE PROBLEMS & SOLUTIONS
 
-The following are configured in Netlify:
+### Problem: Updates not showing after deploy
 
-| Variable | Description |
-|----------|-------------|
-| `SUPABASE_URL` | Supabase project URL (https://agkrwcdvfraivfhttjrp.supabase.co) |
-| `SUPABASE_ANON_KEY` | Public anon key (JWT token - configured in Netlify) |
-| `SUPABASE_SERVICE_KEY` | Service role key for admin operations (configured in Netlify) |
+### Solution 1: netlify.toml headers (mOSm.cloud)
+```toml
+# netlify.toml
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
-> **Note**: Keys are stored securely in Netlify environment variables. The anon key was regenerated on Dec 27, 2025.
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+```
+
+### Solution 2: _headers file (modOSmenus)
+```
+# apps/shell/dist/_headers
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/apps/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/apps/js/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+```
+
+### Solution 3: Version query strings
+```html
+<script src="/js/auth.js?v=1766969346"></script>
+```
+
+### Solution 4: Force redeploy
+```bash
+git commit --allow-empty -m "Force redeploy $(date +%s)"
+git push
+```
+
+### Solution 5: Purge Netlify CDN cache
+- Go to Netlify Dashboard → Site → Deploys → Production
+- Click "..." menu → "Clear cache and retry deploy"
 
 ---
 
-## 🔗 Integration with MODOSmenus
+## 🔧 Supabase Configuration
 
-### Current State
-- MODOSmenus app lives at: `modosmenus.netlify.app`
-- Has a "Cloud" button that currently points to a problematic CMS page
-- Menu Builder (CMS) is at `/apps/cms.html`
-
-### Integration Points Needed
-
-#### 1. Authentication Flow
-MODOSmenus should authenticate against mOSm.Cloud:
-
-```javascript
-// In MODOSmenus app
-const MOSM_API = 'https://mosm-cloud.netlify.app/api';
-
-async function login(email, password) {
-  const response = await fetch(`${MOSM_API}/auth/signin`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  const { user, session } = await response.json();
-  localStorage.setItem('mosm_session', JSON.stringify(session));
-  localStorage.setItem('mosm_user', JSON.stringify(user));
-  return { user, session };
-}
+### Environment Variables (Netlify)
+```
+SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-#### 2. Menu Builder → Cloud Save
-When saving a menu in the CMS:
+### Database Tables Required
+```sql
+-- Leads table for landing page gate
+CREATE TABLE leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  company TEXT,
+  role TEXT,
+  locations TEXT,
+  source TEXT DEFAULT 'landing_page',
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-```javascript
-async function saveMenuToCloud(menuData, layoutData) {
-  const session = JSON.parse(localStorage.getItem('mosm_session'));
-  
-  // Create or update menu
-  const menuResponse = await fetch(`${MOSM_API}/menus`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`
-    },
-    body: JSON.stringify({
-      name: menuData.name,
-      organizationId: user.organization_id
-    })
-  });
-  const menu = await menuResponse.json();
-  
-  // Save layout with elements
-  await fetch(`${MOSM_API}/layouts`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`
-    },
-    body: JSON.stringify({
-      menuId: menu.id,
-      resolution: layoutData.resolution,
-      elements: layoutData.elements,
-      background: layoutData.background
-    })
-  });
-}
-```
+-- Organizations
+CREATE TABLE organizations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  owner_id UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-#### 3. Cloud Button Behavior
-The Cloud button in MODOSmenus should:
-1. Check if user is logged into mOSm.Cloud
-2. If not, redirect to `https://mosm-cloud.netlify.app/login.html?redirect=modosmenus`
-3. If yes, show cloud sync options (Save, Load, Publish)
+-- Menus
+CREATE TABLE menus (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID REFERENCES organizations(id),
+  name TEXT NOT NULL,
+  layouts JSONB DEFAULT '[]',
+  status TEXT DEFAULT 'draft',
+  version INTEGER DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-#### 4. Kiosk/Player Integration
-Kiosks fetch published menus:
-
-```javascript
-async function fetchPublishedMenu(deviceId) {
-  const response = await fetch(`${MOSM_API}/devices/${deviceId}/content`);
-  const { layouts } = await response.json();
-  return layouts; // Render these on screen
-}
-
-// Heartbeat every 15 seconds
-setInterval(async () => {
-  await fetch(`${MOSM_API}/devices/heartbeat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      deviceId: DEVICE_ID,
-      status: 'online',
-      ipAddress: await getLocalIP()
-    })
-  });
-}, 15000);
+-- Devices
+CREATE TABLE devices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID REFERENCES organizations(id),
+  name TEXT NOT NULL,
+  device_code TEXT UNIQUE,
+  assigned_menu_id UUID REFERENCES menus(id),
+  assigned_layout_index INTEGER,
+  last_heartbeat TIMESTAMPTZ,
+  status TEXT DEFAULT 'offline',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 ```
 
 ---
 
-## ✅ What's Working
+## 📱 Kiosk API Endpoints
 
-- [x] Netlify deployment live
-- [x] Supabase database schema created
-- [x] All API endpoints functional
-- [x] User signup/signin working
-- [x] Session tokens being issued
-- [x] RLS policies in place
-- [x] Trigger for auto user profile creation
-- [x] Organization onboarding flow
-- [x] Multi-screen layout editor (admin.html)
-- [x] Device self-registration with pairing codes
-- [x] Device player with heartbeat and content rendering
-- [x] Device claiming by pairing code
-- [x] Menu publishing to devices
-- [x] Menus list page with CRUD operations
-
-## ⚠️ Known Issues / TODOs
-
-1. ~~**Email Confirmation Redirect**: Was pointing to localhost:3000.~~ ✅ Fixed
-
-2. ~~**Service Role Key**: Needs to be updated in Netlify.~~ ✅ Fixed
-
-3. **CORS**: Currently allows all origins (`*`). May need to restrict to specific domains in production.
-
-4. ~~**Organization Creation**: New users don't have an organization yet.~~ ✅ Fixed - Onboarding flow creates organization
-
----
-
-## 🚀 Next Steps for Integration
-
-1. ~~**Update MODOSmenus Cloud button**~~ ✅ mOSm.Cloud has its own full UI now
-2. **Connect MODOSmenus Menu Builder** to mOSm.Cloud API for save/load
-3. **Implement shared auth** - single login works across all apps
-4. ~~**Build device registration flow**~~ ✅ Complete with pairing codes
-5. ~~**Create publish workflow**~~ ✅ Available in Menu Editor
-6. **Add real-time updates** via Supabase subscriptions (optional)
-7. **Media asset management** - Image/video upload and library
-
----
-
-## 🔄 Device Pairing Flow
-
-### How It Works
-
-1. **Kiosk loads player.html**
-   - Calls `POST /api/devices/register-self`
-   - Receives `deviceId` and 6-character `pairingCode`
-   - Displays pairing code on screen
-
-2. **Admin opens devices.html**
-   - Clicks "Add Device"
-   - Enters the pairing code shown on kiosk
-   - Calls `POST /api/devices/claim` with code + orgId
-
-3. **Device is claimed**
-   - Device now belongs to organization
-   - Admin can assign menus to device
-   - Kiosk starts displaying published content
-
-### Code Example (Player Side)
-```javascript
-// Self-register device
-const response = await fetch('/api/devices/register-self', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: 'Kiosk',
-    resolution: '1920x1080'
-  })
-});
-const { deviceId, pairingCode } = await response.json();
-// Display pairingCode on screen until claimed
+### Get Menu for Device
+```
+GET /api/kiosk/menu?device_code=XXXX-XXXX
+Response: { menu, layout }
 ```
 
-### Code Example (Admin Side)
+### Device Heartbeat
+```
+POST /api/devices/heartbeat
+Body: { device_code, status }
+```
+
+---
+
+## 🎨 Editor Features (Phase 2)
+
+### Element Types
+- `text` - Text block
+- `image` - Image element
+- `rectangle` - Box/rectangle shape
+- `circle` - Circle shape
+- `group` - Container for grouping elements
+- `menu_item` - Menu item with name, description, price, image
+- `menu_section` - Section header
+- `price_list` - Price list table
+- `combo` - Combo/special deal
+- `category_header` - Category header
+- `ticker` - Scrolling ticker
+
+### Element Properties
 ```javascript
-// Claim device by pairing code
-const response = await fetch('/api/devices/claim', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`
+{
+  type: 'menu_item',
+  x: 100,
+  y: 100,
+  width: 400,
+  height: 200,
+  name: 'Item Name',
+  hidden: false,      // Don't render in editor/kiosk
+  locked: false,      // Prevent editing
+  parentId: null,     // Group parent reference
+  data: {
+    name: 'Burger',
+    description: 'Delicious burger',
+    price: '$9.99',
+    image: 'https://...',
+    showImage: true
   },
-  body: JSON.stringify({
-    pairingCode: 'ABC123',
-    organizationId: user.organization_id
-  })
-});
+  style: {
+    fontSize: 24,
+    color: '#ffffff',
+    bgColor: 'rgba(0,0,0,0.6)',
+    imageFit: 'cover',  // cover, contain, fill, none
+    opacity: 100
+  }
+}
 ```
 
 ---
 
-## 📞 Support
+## 🔄 Sync Checklist When Making Changes
 
-- **GitHub**: https://github.com/solutionspma/mosm.cloud
-- **Supabase Project**: mosm.cloud (agkrwcdvfraivfhttjrp)
-- **Netlify Site**: mosm-cloud
+### If you change auth.js:
+1. Update `/public/js/auth.js` in mOSm.cloud
+2. Copy to `/apps/shell/dist/apps/js/auth.js` in modOSmenus
+3. Deploy both platforms
+
+### If you change kiosk rendering:
+1. Update `/apps/shell/dist/apps/js/kiosk.js` in modOSmenus
+2. Deploy modOSmenus only
+
+### If you change editor:
+1. Update `/public/editor.html` in mOSm.cloud
+2. Deploy mOSm.cloud only
+3. Test kiosk still renders correctly
+
+### If you add new element types:
+1. Add to editor.html (addElement, renderElement, getElementIcon)
+2. Add to kiosk.js (renderElementContent)
+3. Deploy both platforms
 
 ---
 
-*Document created: December 27, 2025*
-*Last updated: December 27, 2025*
-*Phases 1-6 completed: December 27, 2025*
+## 🐛 Common Issues
+
+### ⚠️ "Changes not showing after deploy" - THE BIG ONE
+**SOLUTION: USE CLI DEPLOY, NOT GIT PUSH**
+```bash
+# For mOSm.cloud
+cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/mOSm.cloud
+npx netlify deploy --prod --dir=public
+
+# For modOSmenus
+cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/modosmenus/modosmenus
+npx netlify deploy --prod --dir=apps/shell/dist
+```
+**WHY?** GitHub auto-deploy integration is unreliable. The CDN doesn't always invalidate cache on git push. CLI deploy ALWAYS works.
+
+To verify your changes are live:
+```bash
+curl -s https://mosm-cloud.netlify.app | head -20
+```
+
+### "Kiosk shows blank/black screen"
+- Check browser console for errors
+- Verify API returns layout with elements (not empty array)
+- Check `elements.length > 0` condition
+- Verify hidden elements are being skipped
+
+### "Login not persisting"
+- Check localStorage has `mosm_session`
+- Verify Supabase session not expired
+- Check auth.js is loaded (no 404)
+
+### "Lead form not submitting"
+- Check Netlify function logs
+- Verify `leads` table exists in Supabase
+- Check SUPABASE_SERVICE_KEY is set in Netlify env
+
+---
+
+## 📋 Pre-Deploy Checklist
+
+- [ ] Make all code changes
+- [ ] Run: `npx netlify deploy --prod --dir=public`
+- [ ] Verify with: `curl -s https://mosm-cloud.netlify.app | head -20`
+- [ ] Test in incognito browser
+- [ ] Verify critical functionality:
+  - [ ] Landing page loads
+  - [ ] Login works
+  - [ ] Dashboard loads
+  - [ ] Editor saves/loads menus
+  - [ ] Kiosk renders menu
+
+---
+
+## 🔗 URLs
+
+| Platform | URL |
+|----------|-----|
+| mOSm.Cloud (Prod) | https://mosm-cloud.netlify.app |
+| modOSmenus (Prod) | https://modosmenus.netlify.app |
+| mOSm.Cloud Netlify Dashboard | https://app.netlify.com/sites/mosm-cloud |
+| modOSmenus Netlify Dashboard | https://app.netlify.com/sites/modosmenus |
+| Supabase Dashboard | https://app.supabase.com/project/YOUR_PROJECT |
+| GitHub mOSm.cloud | https://github.com/solutionspma/mosm.cloud |
+
+---
+
+*Last updated: December 28, 2025*
