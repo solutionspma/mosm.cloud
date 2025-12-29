@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advertising Center - mOSm.Cloud</title>
+  <link rel="icon" type="image/png" href="/images/modOSlogo.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    
+    .logo img { height: 32px; }
+    
+    .logo span {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    .logo span em {
+      color: #00d4ff;
+      font-style: normal;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .nav-links a {
+      padding: 8px 16px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .nav-links a:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    
+    .nav-links a.active {
+      background: rgba(255,107,0,0.15);
+      color: #ff6b00;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+    }
+    
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b00, #ff3200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .user-name {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    /* Main content */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+    
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .page-header h1 span {
+      font-size: 28px;
+    }
+    
+    .page-header p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #ff6b00, #ff3200);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255,107,0,0.3);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    
+    .stat-card.highlight {
+      background: linear-gradient(135deg, rgba(255,107,0,0.15) 0%, rgba(255,50,0,0.1) 100%);
+      border-color: rgba(255,107,0,0.3);
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    
+    .stat-value.orange { color: #ff6b00; }
+    .stat-value.green { color: #00ff88; }
+    .stat-value.blue { color: #00d4ff; }
+    
+    .stat-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 2px 8px;
+      border-radius: 100px;
+    }
+    
+    .stat-change.up {
+      background: rgba(0,255,136,0.15);
+      color: #00ff88;
+    }
+    
+    .stat-change.down {
+      background: rgba(255,50,50,0.15);
+      color: #ff5050;
+    }
+    
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+    
+    /* Card */
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: rgba(255,255,255,0.05);
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    .tab.active {
+      background: rgba(255,107,0,0.2);
+      color: #ff6b00;
+    }
+    
+    .tab:hover:not(.active) {
+      color: #fff;
+    }
+    
+    /* Ad Campaigns Table */
+    .campaigns-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .campaigns-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .campaigns-table td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .campaigns-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+    
+    .campaign-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .campaign-thumb {
+      width: 48px;
+      height: 32px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    
+    .campaign-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+    }
+    
+    .campaign-status.active {
+      background: rgba(0,255,136,0.15);
+      color: #00ff88;
+    }
+    
+    .campaign-status.pending {
+      background: rgba(255,200,0,0.15);
+      color: #ffc800;
+    }
+    
+    .campaign-status.paused {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+    }
+    
+    .campaign-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .campaign-action {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .campaign-action:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    
+    /* Settings Panel */
+    .settings-section {
+      margin-bottom: 24px;
+    }
+    
+    .settings-section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .setting-info {
+      flex: 1;
+    }
+    
+    .setting-label {
+      font-size: 14px;
+    }
+    
+    .setting-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background: #ff6b00;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    
+    .toggle-switch.active::after {
+      left: 22px;
+    }
+    
+    /* Placement Selection */
+    .placements {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+    
+    .placement {
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    
+    .placement:hover {
+      border-color: rgba(255,107,0,0.3);
+    }
+    
+    .placement.selected {
+      border-color: #ff6b00;
+      background: rgba(255,107,0,0.1);
+    }
+    
+    .placement .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .placement .name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .placement .desc {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+    
+    /* Upload Zone */
+    .upload-zone {
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+    
+    .upload-zone:hover {
+      border-color: rgba(255,107,0,0.3);
+      background: rgba(255,107,0,0.05);
+    }
+    
+    .upload-zone .icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    
+    .upload-zone p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+    }
+    
+    .upload-zone .formats {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 8px;
+    }
+    
+    /* Revenue Chart Placeholder */
+    .chart-placeholder {
+      height: 200px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.3);
+    }
+    
+    /* Advertisers List */
+    .advertiser-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    
+    .advertiser-logo {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    
+    .advertiser-info {
+      flex: 1;
+    }
+    
+    .advertiser-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .advertiser-type {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .advertiser-revenue {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ff6b00;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .modal > p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 6px;
+    }
+    
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+    }
+    
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #ff6b00;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .modal-actions .btn {
+      flex: 1;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <a href="/dashboard.html" class="logo">
+        <img src="/images/modOSlogo.png" alt="mOSm">
+        <span>m<em>OSm</em>.Cloud</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/menus.html">Menus</a>
+        <a href="/devices.html">Devices</a>
+        <a href="/editor.html">Editor</a>
+        <a href="/billing.html">Billing</a>
+        <a href="/advertising.html" class="active">Advertising</a>
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span class="user-name" id="userName">Loading...</span>
+      </div>
+    </div>
+  </header>
+  
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1><span>📺</span> Advertising Center</h1>
+        <p>Manage ads on your displays and track your advertising revenue</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="showInviteAdvertiser()">
+          <span>👥</span> Invite Advertiser
+        </button>
+        <button class="btn btn-primary" onclick="showCreateCampaign()">
+          <span>+</span> Create Campaign
+        </button>
+      </div>
+    </div>
+    
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card highlight">
+        <div class="stat-label">Revenue This Month</div>
+        <div class="stat-value orange">$127.50</div>
+        <div class="stat-change up">↑ 23% vs last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Impressions</div>
+        <div class="stat-value blue">12,450</div>
+        <div class="stat-change up">↑ 15% vs last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Campaigns</div>
+        <div class="stat-value">4</div>
+        <div class="stat-change">2 from network, 2 yours</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">All-Time Revenue</div>
+        <div class="stat-value green">$892.00</div>
+        <div class="stat-change">Since Oct 2025</div>
+      </div>
+    </div>
+    
+    <div class="content-grid">
+      <div class="left-column">
+        <!-- Campaigns -->
+        <div class="card">
+          <div class="tabs">
+            <button class="tab active" onclick="switchTab(this, 'my-campaigns')">My Campaigns</button>
+            <button class="tab" onclick="switchTab(this, 'network')">Network Ads</button>
+            <button class="tab" onclick="switchTab(this, 'pending')">Pending Review</button>
+          </div>
+          
+          <table class="campaigns-table">
+            <thead>
+              <tr>
+                <th>Campaign</th>
+                <th>Status</th>
+                <th>Impressions</th>
+                <th>Revenue</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="campaignsList">
+              <tr>
+                <td>
+                  <div class="campaign-name">
+                    <div class="campaign-thumb">🍔</div>
+                    <div>
+                      <div>Summer Special Promo</div>
+                      <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Your campaign</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="campaign-status active">● Active</span></td>
+                <td>3,240</td>
+                <td style="color: #ff6b00; font-weight: 600;">$45.20</td>
+                <td>
+                  <div class="campaign-actions">
+                    <button class="campaign-action" title="Edit">✏️</button>
+                    <button class="campaign-action" title="Pause">⏸️</button>
+                    <button class="campaign-action" title="Stats">📊</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="campaign-name">
+                    <div class="campaign-thumb">🥤</div>
+                    <div>
+                      <div>Coca-Cola Partnership</div>
+                      <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Network ad</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="campaign-status active">● Active</span></td>
+                <td>5,120</td>
+                <td style="color: #ff6b00; font-weight: 600;">$52.30</td>
+                <td>
+                  <div class="campaign-actions">
+                    <button class="campaign-action" title="View">👁️</button>
+                    <button class="campaign-action" title="Stats">📊</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="campaign-name">
+                    <div class="campaign-thumb">🎉</div>
+                    <div>
+                      <div>New Year Special</div>
+                      <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Your campaign</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="campaign-status pending">● Scheduled</span></td>
+                <td>-</td>
+                <td>-</td>
+                <td>
+                  <div class="campaign-actions">
+                    <button class="campaign-action" title="Edit">✏️</button>
+                    <button class="campaign-action" title="Delete">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="campaign-name">
+                    <div class="campaign-thumb">🏠</div>
+                    <div>
+                      <div>Local Realty - Homes</div>
+                      <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Direct advertiser</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="campaign-status active">● Active</span></td>
+                <td>2,890</td>
+                <td style="color: #ff6b00; font-weight: 600;">$30.00</td>
+                <td>
+                  <div class="campaign-actions">
+                    <button class="campaign-action" title="View">👁️</button>
+                    <button class="campaign-action" title="Pause">⏸️</button>
+                    <button class="campaign-action" title="Stats">📊</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Revenue Chart -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h2 class="card-title">Revenue Over Time</h2>
+            <select style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 13px;">
+              <option>Last 30 days</option>
+              <option>Last 90 days</option>
+              <option>This year</option>
+            </select>
+          </div>
+          <div class="chart-placeholder">
+            📊 Revenue chart will render here (Stripe/Payment integration needed)
+          </div>
+        </div>
+      </div>
+      
+      <div class="right-column">
+        <!-- Ad Settings -->
+        <div class="card">
+          <h2 class="card-title" style="margin-bottom: 20px;">Ad Settings</h2>
+          
+          <div class="settings-section">
+            <h3>Network Participation</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Enable Network Ads</div>
+                <div class="setting-desc">Show ads from the mOSm global network</div>
+              </div>
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Allow Direct Advertisers</div>
+                <div class="setting-desc">Let advertisers buy space directly</div>
+              </div>
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <h3>Content Filters</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Family Friendly Only</div>
+                <div class="setting-desc">Block adult content ads</div>
+              </div>
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Block Competitor Ads</div>
+                <div class="setting-desc">No competing restaurants</div>
+              </div>
+              <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <h3>Ad Frequency</h3>
+            <div style="margin-top: 8px;">
+              <select style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                <option>Show ads every 5 minutes</option>
+                <option>Show ads every 10 minutes</option>
+                <option>Show ads every 15 minutes</option>
+                <option>Show ads every 30 minutes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Your Advertisers -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h2 class="card-title">Your Advertisers</h2>
+          </div>
+          
+          <div class="advertiser-item">
+            <div class="advertiser-logo">🏠</div>
+            <div class="advertiser-info">
+              <div class="advertiser-name">Local Realty Group</div>
+              <div class="advertiser-type">Direct advertiser</div>
+            </div>
+            <div class="advertiser-revenue">$30/mo</div>
+          </div>
+          
+          <div class="advertiser-item">
+            <div class="advertiser-logo">🚗</div>
+            <div class="advertiser-info">
+              <div class="advertiser-name">Joe's Auto Service</div>
+              <div class="advertiser-type">Direct advertiser</div>
+            </div>
+            <div class="advertiser-revenue">$25/mo</div>
+          </div>
+          
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;" onclick="showInviteAdvertiser()">
+            + Invite New Advertiser
+          </button>
+        </div>
+        
+        <!-- Ad Placements -->
+        <div class="card" style="margin-top: 24px;">
+          <h2 class="card-title" style="margin-bottom: 16px;">Ad Placements</h2>
+          <p style="font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 12px;">Select where ads can appear</p>
+          
+          <div class="placements">
+            <div class="placement selected" onclick="togglePlacement(this)">
+              <div class="icon">📐</div>
+              <div class="name">Corner Banner</div>
+              <div class="desc">Bottom corner of screen</div>
+            </div>
+            <div class="placement selected" onclick="togglePlacement(this)">
+              <div class="icon">📺</div>
+              <div class="name">Full Screen</div>
+              <div class="desc">Between content</div>
+            </div>
+            <div class="placement" onclick="togglePlacement(this)">
+              <div class="icon">📰</div>
+              <div class="name">Side Panel</div>
+              <div class="desc">Sidebar area</div>
+            </div>
+            <div class="placement selected" onclick="togglePlacement(this)">
+              <div class="icon">🎬</div>
+              <div class="name">Video Slot</div>
+              <div class="desc">15-30 sec videos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Create Campaign Modal -->
+  <div class="modal-overlay" id="createCampaignModal">
+    <div class="modal">
+      <h2>Create Ad Campaign</h2>
+      <p>Create your own promotional content to display on your screens</p>
+      
+      <form onsubmit="createCampaign(event)">
+        <div class="form-group">
+          <label>Campaign Name</label>
+          <input type="text" placeholder="e.g., Summer Special Promo" required>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date">
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Target Screens</label>
+          <select>
+            <option>All Screens</option>
+            <option>Main Dining Area</option>
+            <option>Drive-Thru</option>
+            <option>Entrance Display</option>
+          </select>
+        </div>
+        
+        <div class="upload-zone">
+          <div class="icon">📤</div>
+          <p>Drag & drop your ad creative here, or click to upload</p>
+          <div class="formats">Supports: JPG, PNG, MP4, GIF (max 50MB)</div>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('createCampaignModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Campaign</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Invite Advertiser Modal -->
+  <div class="modal-overlay" id="inviteAdvertiserModal">
+    <div class="modal">
+      <h2>Invite Advertiser</h2>
+      <p>Invite a local business to advertise on your screens and earn revenue</p>
+      
+      <form onsubmit="inviteAdvertiser(event)">
+        <div class="form-group">
+          <label>Business Name</label>
+          <input type="text" placeholder="e.g., Joe's Auto Service" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Contact Email</label>
+          <input type="email" placeholder="contact@business.com" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Monthly Rate</label>
+          <input type="number" placeholder="$25" min="10">
+        </div>
+        
+        <div class="form-group">
+          <label>Message (optional)</label>
+          <textarea rows="3" placeholder="Personalize your invitation..."></textarea>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('inviteAdvertiserModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Invitation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    // Check auth
+    const session = localStorage.getItem('mosm_session');
+    if (!session) {
+      window.location.href = '/login.html';
+    }
+    
+    // Load user info
+    const userData = JSON.parse(localStorage.getItem('mosm_user') || '{}');
+    if (userData.email) {
+      document.getElementById('userAvatar').textContent = userData.email.charAt(0).toUpperCase();
+      document.getElementById('userName').textContent = userData.email.split('@')[0];
+    }
+    
+    // Tab switching
+    function switchTab(el, tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      // TODO: Load different campaign data based on tab
+    }
+    
+    // Placement toggle
+    function togglePlacement(el) {
+      el.classList.toggle('selected');
+    }
+    
+    // Modal functions
+    function showCreateCampaign() {
+      document.getElementById('createCampaignModal').classList.add('show');
+    }
+    
+    function showInviteAdvertiser() {
+      document.getElementById('inviteAdvertiserModal').classList.add('show');
+    }
+    
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+    
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('show');
+        }
+      });
+    });
+    
+    // Form handlers
+    function createCampaign(e) {
+      e.preventDefault();
+      alert('Campaign created! (Integration pending)');
+      closeModal('createCampaignModal');
+    }
+    
+    function inviteAdvertiser(e) {
+      e.preventDefault();
+      alert('Invitation sent! (Integration pending)');
+      closeModal('inviteAdvertiserModal');
+    }
+  </script>
+</body>
+</html>

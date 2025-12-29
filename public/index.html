@@ -72,12 +72,23 @@
     }
     
     .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo img {
+      height: 40px;
+      width: auto;
+    }
+    
+    .logo-text {
       font-size: 28px;
       font-weight: 700;
       letter-spacing: -0.5px;
     }
     
-    .logo span {
+    .logo-text span {
       color: #00d4ff;
     }
     
@@ -459,7 +470,10 @@
   
   <div class="landing-container">
     <header class="landing-header">
-      <div class="logo">m<span>OSm</span>.Cloud</div>
+      <div class="logo">
+        <img src="/images/modOSlogo.png" alt="mOSm.Cloud logo">
+        <div class="logo-text">m<span>OSm</span>.Cloud</div>
+      </div>
       <nav class="header-links">
         <a href="#features">Features</a>
         <a href="https://modosmenus.com" target="_blank">ModosMenus.com</a>
@@ -481,13 +495,13 @@
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <span>No credit card required</span>
+              <span>Free demo available</span>
             </div>
             <div class="trust-badge">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <span>Free trial included</span>
+              <span>14-day free trial</span>
             </div>
             <div class="trust-badge">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">

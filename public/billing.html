@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing & Subscription - mOSm.Cloud</title>
+  <link rel="icon" type="image/png" href="/images/modOSlogo.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    
+    .logo img {
+      height: 32px;
+    }
+    
+    .logo span {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    .logo span em {
+      color: #00d4ff;
+      font-style: normal;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .nav-links a {
+      padding: 8px 16px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .nav-links a:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    
+    .nav-links a.active {
+      background: rgba(0,212,255,0.15);
+      color: #00d4ff;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+    }
+    
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00d4ff, #0099cc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .user-name {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    /* Main content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .page-header p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+    }
+    
+    /* Grid layout */
+    .billing-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+    
+    /* Cards */
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .card-action {
+      padding: 8px 16px;
+      background: rgba(0,212,255,0.15);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 8px;
+      color: #00d4ff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .card-action:hover {
+      background: rgba(0,212,255,0.25);
+    }
+    
+    /* Current Plan */
+    .current-plan {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    
+    .plan-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    
+    .plan-details h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .plan-price {
+      font-size: 32px;
+      font-weight: 700;
+      color: #00d4ff;
+      margin: 8px 0;
+    }
+    
+    .plan-price span {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+    }
+    
+    .plan-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .plan-feature {
+      padding: 4px 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 100px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+    }
+    
+    .plan-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(0,255,136,0.15);
+      border-radius: 100px;
+      font-size: 12px;
+      color: #00ff88;
+      margin-top: 12px;
+    }
+    
+    .plan-status.trial {
+      background: rgba(255,200,0,0.15);
+      color: #ffc800;
+    }
+    
+    .plan-status.expired {
+      background: rgba(255,50,50,0.15);
+      color: #ff5050;
+    }
+    
+    /* Payment Methods */
+    .payment-methods {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .payment-method {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .payment-method:hover {
+      border-color: rgba(0,212,255,0.3);
+    }
+    
+    .payment-method.default {
+      border-color: rgba(0,212,255,0.5);
+      background: rgba(0,212,255,0.05);
+    }
+    
+    .payment-icon {
+      width: 48px;
+      height: 32px;
+      background: #fff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #333;
+    }
+    
+    .payment-icon.visa { background: linear-gradient(135deg, #1a1f71, #00579f); color: #fff; }
+    .payment-icon.mastercard { background: linear-gradient(135deg, #eb001b, #f79e1b); color: #fff; }
+    .payment-icon.amex { background: #006fcf; color: #fff; }
+    
+    .payment-details {
+      flex: 1;
+    }
+    
+    .payment-details .card-number {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .payment-details .card-expiry {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .payment-default {
+      padding: 4px 8px;
+      background: rgba(0,212,255,0.2);
+      border-radius: 4px;
+      font-size: 11px;
+      color: #00d4ff;
+    }
+    
+    .add-payment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .add-payment:hover {
+      border-color: rgba(0,212,255,0.3);
+      color: #00d4ff;
+    }
+    
+    /* Billing History */
+    .billing-history {
+      margin-top: 24px;
+    }
+    
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .history-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .history-table td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .history-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+    
+    .invoice-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+    }
+    
+    .invoice-status.paid {
+      background: rgba(0,255,136,0.15);
+      color: #00ff88;
+    }
+    
+    .invoice-status.pending {
+      background: rgba(255,200,0,0.15);
+      color: #ffc800;
+    }
+    
+    .invoice-status.failed {
+      background: rgba(255,50,50,0.15);
+      color: #ff5050;
+    }
+    
+    .download-invoice {
+      color: #00d4ff;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    
+    .download-invoice:hover {
+      text-decoration: underline;
+    }
+    
+    /* Usage Stats */
+    .usage-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    
+    .usage-item {
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+    }
+    
+    .usage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .usage-label {
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+    }
+    
+    .usage-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .usage-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    
+    .usage-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00d4ff, #0099cc);
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+    
+    .usage-fill.warning {
+      background: linear-gradient(90deg, #ffc800, #ff9500);
+    }
+    
+    .usage-fill.danger {
+      background: linear-gradient(90deg, #ff5050, #cc0000);
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .quick-action {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .quick-action:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(0,212,255,0.3);
+    }
+    
+    .quick-action .icon {
+      font-size: 18px;
+    }
+    
+    /* Advertising Section */
+    .ad-section {
+      margin-top: 24px;
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(255,107,0,0.1) 0%, rgba(255,50,0,0.1) 100%);
+      border: 1px solid rgba(255,107,0,0.2);
+      border-radius: 16px;
+    }
+    
+    .ad-section h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .ad-section p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .ad-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 13px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background: #ff6b00;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    
+    .toggle-switch.active::after {
+      left: 25px;
+    }
+    
+    .ad-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    
+    .ad-stat {
+      padding: 16px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      text-align: center;
+    }
+    
+    .ad-stat .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ff6b00;
+    }
+    
+    .ad-stat .label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+    }
+    
+    .modal h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .modal p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 6px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #00d4ff;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #00d4ff, #0099cc);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,212,255,0.3);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+      .billing-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .ad-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <a href="/dashboard.html" class="logo">
+        <img src="/images/modOSlogo.png" alt="mOSm">
+        <span>m<em>OSm</em>.Cloud</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/menus.html">Menus</a>
+        <a href="/devices.html">Devices</a>
+        <a href="/editor.html">Editor</a>
+        <a href="/billing.html" class="active">Billing</a>
+        <a href="/settings.html">Settings</a>
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span class="user-name" id="userName">Loading...</span>
+      </div>
+    </div>
+  </header>
+  
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Billing & Subscription</h1>
+      <p>Manage your subscription, payment methods, and view billing history</p>
+    </div>
+    
+    <div class="billing-grid">
+      <div class="left-column">
+        <!-- Current Plan -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Current Plan</h2>
+            <button class="card-action" onclick="showUpgradeModal()">Upgrade Plan</button>
+          </div>
+          <div class="current-plan">
+            <div class="plan-icon">⚡</div>
+            <div class="plan-details">
+              <h3 id="planName">Professional</h3>
+              <div class="plan-price">$49<span>/month</span></div>
+              <div class="plan-features">
+                <span class="plan-feature">10 Screens</span>
+                <span class="plan-feature">5 Locations</span>
+                <span class="plan-feature">Unlimited Menus</span>
+                <span class="plan-feature">Priority Support</span>
+              </div>
+              <div class="plan-status" id="planStatus">
+                <span>●</span> Active - Renews Jan 28, 2026
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Advertising Revenue -->
+        <div class="ad-section">
+          <h3>📺 Advertising Network</h3>
+          <p>Opt in to display ads on your screens and earn revenue. You control the placement and frequency.</p>
+          
+          <div class="ad-toggle">
+            <div class="toggle-switch" id="adToggle" onclick="toggleAds()"></div>
+            <span>Enable advertising on my displays</span>
+          </div>
+          
+          <div class="ad-stats" id="adStats" style="display: none;">
+            <div class="ad-stat">
+              <div class="value">$127.50</div>
+              <div class="label">This Month</div>
+            </div>
+            <div class="ad-stat">
+              <div class="value">$892.00</div>
+              <div class="label">All Time</div>
+            </div>
+            <div class="ad-stat">
+              <div class="value">12,450</div>
+              <div class="label">Ad Impressions</div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 16px;">
+            <a href="/advertising.html" class="quick-action" style="display: inline-flex; width: auto;">
+              <span class="icon">📊</span>
+              <span>Advertising Center →</span>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Billing History -->
+        <div class="card billing-history">
+          <div class="card-header">
+            <h2 class="card-title">Billing History</h2>
+          </div>
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="billingHistory">
+              <tr>
+                <td>Dec 28, 2025</td>
+                <td>Professional Plan - Monthly</td>
+                <td>$49.00</td>
+                <td><span class="invoice-status paid">● Paid</span></td>
+                <td><a href="#" class="download-invoice">Download</a></td>
+              </tr>
+              <tr>
+                <td>Nov 28, 2025</td>
+                <td>Professional Plan - Monthly</td>
+                <td>$49.00</td>
+                <td><span class="invoice-status paid">● Paid</span></td>
+                <td><a href="#" class="download-invoice">Download</a></td>
+              </tr>
+              <tr>
+                <td>Oct 28, 2025</td>
+                <td>Professional Plan - Monthly</td>
+                <td>$49.00</td>
+                <td><span class="invoice-status paid">● Paid</span></td>
+                <td><a href="#" class="download-invoice">Download</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="right-column">
+        <!-- Payment Methods -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Payment Methods</h2>
+          </div>
+          <div class="payment-methods" id="paymentMethods">
+            <div class="payment-method default">
+              <div class="payment-icon visa">VISA</div>
+              <div class="payment-details">
+                <div class="card-number">•••• •••• •••• 4242</div>
+                <div class="card-expiry">Expires 12/26</div>
+              </div>
+              <span class="payment-default">Default</span>
+            </div>
+            <div class="add-payment" onclick="showAddPaymentModal()">
+              <span>+</span>
+              <span>Add Payment Method</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Usage -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h2 class="card-title">Usage</h2>
+          </div>
+          <div class="usage-stats">
+            <div class="usage-item">
+              <div class="usage-header">
+                <span class="usage-label">Screens</span>
+                <span class="usage-value">7 / 10</span>
+              </div>
+              <div class="usage-bar">
+                <div class="usage-fill" style="width: 70%;"></div>
+              </div>
+            </div>
+            <div class="usage-item">
+              <div class="usage-header">
+                <span class="usage-label">Locations</span>
+                <span class="usage-value">3 / 5</span>
+              </div>
+              <div class="usage-bar">
+                <div class="usage-fill" style="width: 60%;"></div>
+              </div>
+            </div>
+            <div class="usage-item">
+              <div class="usage-header">
+                <span class="usage-label">Storage</span>
+                <span class="usage-value">2.4 GB / 10 GB</span>
+              </div>
+              <div class="usage-bar">
+                <div class="usage-fill" style="width: 24%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card" style="margin-top: 24px;">
+          <h2 class="card-title" style="margin-bottom: 16px;">Quick Actions</h2>
+          <div class="quick-actions">
+            <a href="#" class="quick-action" onclick="showUpgradeModal(); return false;">
+              <span class="icon">⬆️</span>
+              <span>Upgrade Plan</span>
+            </a>
+            <a href="#" class="quick-action">
+              <span class="icon">📧</span>
+              <span>Update Billing Email</span>
+            </a>
+            <a href="#" class="quick-action">
+              <span class="icon">📄</span>
+              <span>Download All Invoices</span>
+            </a>
+            <a href="#" class="quick-action" style="color: #ff5050;">
+              <span class="icon">⏸️</span>
+              <span>Cancel Subscription</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Add Payment Modal -->
+  <div class="modal-overlay" id="addPaymentModal">
+    <div class="modal">
+      <h2>Add Payment Method</h2>
+      <p>Add a credit or debit card to your account</p>
+      
+      <form onsubmit="addPaymentMethod(event)">
+        <div class="form-group">
+          <label>Card Number</label>
+          <input type="text" placeholder="1234 5678 9012 3456" maxlength="19" id="cardNumber">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Expiry Date</label>
+            <input type="text" placeholder="MM/YY" maxlength="5" id="cardExpiry">
+          </div>
+          <div class="form-group">
+            <label>CVC</label>
+            <input type="text" placeholder="123" maxlength="4" id="cardCvc">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Name on Card</label>
+          <input type="text" placeholder="John Smith" id="cardName">
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addPaymentModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Card</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Upgrade Plan Modal -->
+  <div class="modal-overlay" id="upgradeModal">
+    <div class="modal" style="max-width: 600px;">
+      <h2>Upgrade Your Plan</h2>
+      <p>Choose a plan that fits your business</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0;">
+        <div class="plan-option" onclick="selectPlan('starter')" style="padding: 20px; background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 8px;">🌱</div>
+          <div style="font-weight: 600; margin-bottom: 4px;">Starter</div>
+          <div style="font-size: 24px; font-weight: 700; color: #00d4ff;">$19<span style="font-size: 12px; color: rgba(255,255,255,0.5);">/mo</span></div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 8px;">3 Screens • 1 Location</div>
+        </div>
+        <div class="plan-option selected" onclick="selectPlan('pro')" style="padding: 20px; background: rgba(0,212,255,0.1); border: 2px solid #00d4ff; border-radius: 12px; cursor: pointer; text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 8px;">⚡</div>
+          <div style="font-weight: 600; margin-bottom: 4px;">Professional</div>
+          <div style="font-size: 24px; font-weight: 700; color: #00d4ff;">$49<span style="font-size: 12px; color: rgba(255,255,255,0.5);">/mo</span></div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 8px;">10 Screens • 5 Locations</div>
+        </div>
+        <div class="plan-option" onclick="selectPlan('enterprise')" style="padding: 20px; background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 8px;">🏢</div>
+          <div style="font-weight: 600; margin-bottom: 4px;">Enterprise</div>
+          <div style="font-size: 24px; font-weight: 700; color: #00d4ff;">$149<span style="font-size: 12px; color: rgba(255,255,255,0.5);">/mo</span></div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 8px;">Unlimited • SSO • Support</div>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('upgradeModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="upgradePlan()">Upgrade Now</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Check auth
+    const session = localStorage.getItem('mosm_session');
+    if (!session) {
+      window.location.href = '/login.html';
+    }
+    
+    // Load user info
+    const userData = JSON.parse(localStorage.getItem('mosm_user') || '{}');
+    if (userData.email) {
+      document.getElementById('userAvatar').textContent = userData.email.charAt(0).toUpperCase();
+      document.getElementById('userName').textContent = userData.email.split('@')[0];
+    }
+    
+    // Modal functions
+    function showAddPaymentModal() {
+      document.getElementById('addPaymentModal').classList.add('show');
+    }
+    
+    function showUpgradeModal() {
+      document.getElementById('upgradeModal').classList.add('show');
+    }
+    
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+    
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('show');
+        }
+      });
+    });
+    
+    // Add payment method
+    function addPaymentMethod(e) {
+      e.preventDefault();
+      // TODO: Integrate with Stripe/Payment Cloud
+      alert('Payment method integration coming soon!');
+      closeModal('addPaymentModal');
+    }
+    
+    // Toggle ads
+    function toggleAds() {
+      const toggle = document.getElementById('adToggle');
+      const stats = document.getElementById('adStats');
+      toggle.classList.toggle('active');
+      stats.style.display = toggle.classList.contains('active') ? 'grid' : 'none';
+    }
+    
+    // Select plan
+    function selectPlan(plan) {
+      document.querySelectorAll('.plan-option').forEach(el => {
+        el.style.background = 'rgba(255,255,255,0.03)';
+        el.style.borderColor = 'rgba(255,255,255,0.1)';
+      });
+      event.currentTarget.style.background = 'rgba(0,212,255,0.1)';
+      event.currentTarget.style.borderColor = '#00d4ff';
+    }
+    
+    // Upgrade plan
+    function upgradePlan() {
+      // TODO: Integrate with Stripe/Payment Cloud
+      alert('Plan upgrade integration coming soon!');
+      closeModal('upgradeModal');
+    }
+    
+    // Format card number input
+    document.getElementById('cardNumber')?.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      value = value.replace(/(.{4})/g, '$1 ').trim();
+      e.target.value = value;
+    });
+    
+    // Format expiry input
+    document.getElementById('cardExpiry')?.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2);
+      }
+      e.target.value = value;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Control - mOSm.Cloud</title>
+  <link rel="icon" type="image/png" href="/images/modOSlogo.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a0a1e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    
+    /* Header - Master theme (purple/gold) */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.5);
+      border-bottom: 2px solid rgba(255,215,0,0.3);
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    
+    .logo img { height: 32px; }
+    
+    .logo span {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    .logo span em {
+      color: #ffd700;
+      font-style: normal;
+    }
+    
+    .master-badge {
+      padding: 4px 12px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .nav-links a {
+      padding: 8px 16px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .nav-links a:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    
+    .nav-links a.active {
+      background: rgba(255,215,0,0.15);
+      color: #ffd700;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(255,215,0,0.1);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 8px;
+    }
+    
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #000;
+    }
+    
+    .user-name {
+      font-size: 13px;
+      color: #ffd700;
+    }
+    
+    /* Main content */
+    .main-content {
+      padding: 32px 24px;
+    }
+    
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      max-width: 1600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .page-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .page-header h1 .crown {
+      font-size: 32px;
+    }
+    
+    .page-header p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    /* Global Stats */
+    .global-stats {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+      max-width: 1600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .global-stat {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .global-stat.highlight {
+      background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,170,0,0.05) 100%);
+      border-color: rgba(255,215,0,0.3);
+    }
+    
+    .global-stat .value {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    
+    .global-stat .value.gold { color: #ffd700; }
+    .global-stat .value.blue { color: #00d4ff; }
+    .global-stat .value.green { color: #00ff88; }
+    .global-stat .value.orange { color: #ff6b00; }
+    
+    .global-stat .label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+    
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    /* Card */
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    
+    .card.gold-border {
+      border-color: rgba(255,215,0,0.3);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    /* Search */
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #ffd700;
+    }
+    
+    .search-input::placeholder {
+      color: rgba(255,255,255,0.3);
+    }
+    
+    .filter-btn {
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .filter-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    
+    /* Organizations Table */
+    .orgs-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .orgs-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .orgs-table td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .orgs-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+    
+    .org-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .org-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    
+    .org-info .name {
+      font-weight: 500;
+    }
+    
+    .org-info .email {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+    }
+    
+    .status-badge.active {
+      background: rgba(0,255,136,0.15);
+      color: #00ff88;
+    }
+    
+    .status-badge.trial {
+      background: rgba(255,200,0,0.15);
+      color: #ffc800;
+    }
+    
+    .status-badge.suspended {
+      background: rgba(255,50,50,0.15);
+      color: #ff5050;
+    }
+    
+    .status-badge.power-user {
+      background: rgba(139,92,246,0.15);
+      color: #8b5cf6;
+    }
+    
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .role-badge.master {
+      background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,170,0,0.1));
+      color: #ffd700;
+      border: 1px solid rgba(255,215,0,0.3);
+    }
+    
+    .role-badge.power {
+      background: rgba(139,92,246,0.15);
+      color: #8b5cf6;
+    }
+    
+    .role-badge.user {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.6);
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .action-btn:hover {
+      background: rgba(255,215,0,0.1);
+      border-color: rgba(255,215,0,0.3);
+    }
+    
+    /* Quick Actions */
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    
+    .quick-action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: #fff;
+    }
+    
+    .quick-action:hover {
+      border-color: rgba(255,215,0,0.3);
+      background: rgba(255,215,0,0.05);
+    }
+    
+    .quick-action .icon {
+      font-size: 24px;
+    }
+    
+    .quick-action .label {
+      font-size: 12px;
+      text-align: center;
+    }
+    
+    /* System Health */
+    .health-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .health-item:last-child {
+      border-bottom: none;
+    }
+    
+    .health-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    
+    .health-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+    
+    .health-status.healthy { color: #00ff88; }
+    .health-status.warning { color: #ffc800; }
+    .health-status.error { color: #ff5050; }
+    
+    /* Activity Log */
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .activity-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .activity-text {
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    
+    .activity-text strong {
+      color: #00d4ff;
+    }
+    
+    .activity-time {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 2px;
+    }
+    
+    /* Impersonate Mode */
+    .impersonate-banner {
+      display: none;
+      padding: 12px 24px;
+      background: rgba(255,50,50,0.1);
+      border-bottom: 1px solid rgba(255,50,50,0.3);
+      color: #ff5050;
+      font-size: 14px;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    
+    .impersonate-banner.show {
+      display: flex;
+    }
+    
+    .impersonate-banner button {
+      padding: 6px 16px;
+      background: #ff5050;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    .modal h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .modal > p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 6px;
+    }
+    
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+    }
+    
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #ffd700;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #000;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255,215,0,0.3);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 1400px) {
+      .global-stats {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    @media (max-width: 1024px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .global-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    /* Unauthorized */
+    .unauthorized {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+    }
+    
+    .unauthorized .icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+    
+    .unauthorized h2 {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    
+    .unauthorized p {
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="impersonate-banner" id="impersonateBanner">
+    ⚠️ You are viewing as: <strong id="impersonateUser">-</strong>
+    <button onclick="exitImpersonate()">Exit View</button>
+  </div>
+  
+  <header class="header">
+    <div class="header-left">
+      <a href="/dashboard.html" class="logo">
+        <img src="/images/modOSlogo.png" alt="mOSm">
+        <span>m<em>OSm</em>.Cloud</span>
+      </a>
+      <span class="master-badge">👑 Master Control</span>
+      <nav class="nav-links">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/admin.html" class="active">Master Control</a>
+        <a href="/billing.html">Billing</a>
+        <a href="/advertising.html">Advertising</a>
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">S</div>
+        <span class="user-name" id="userName">solutions</span>
+      </div>
+    </div>
+  </header>
+  
+  <main class="main-content" id="mainContent">
+    <div class="page-header">
+      <div>
+        <h1><span class="crown">👑</span> Master Control</h1>
+        <p>Global administration for all mOSm.Cloud organizations and users</p>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn btn-secondary" onclick="showCreateOrg()">+ Create Organization</button>
+        <button class="btn btn-primary" onclick="showCreateUser()">+ Add User</button>
+      </div>
+    </div>
+    
+    <!-- Global Stats -->
+    <div class="global-stats">
+      <div class="global-stat highlight">
+        <div class="value gold">$4,892</div>
+        <div class="label">Total Revenue (MTD)</div>
+      </div>
+      <div class="global-stat">
+        <div class="value blue">47</div>
+        <div class="label">Organizations</div>
+      </div>
+      <div class="global-stat">
+        <div class="value green">312</div>
+        <div class="label">Active Screens</div>
+      </div>
+      <div class="global-stat">
+        <div class="value">156</div>
+        <div class="label">Total Users</div>
+      </div>
+      <div class="global-stat">
+        <div class="value orange">89,450</div>
+        <div class="label">Ad Impressions</div>
+      </div>
+      <div class="global-stat">
+        <div class="value">99.8%</div>
+        <div class="label">Uptime</div>
+      </div>
+    </div>
+    
+    <div class="content-grid">
+      <div class="left-column">
+        <!-- Organizations -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">All Organizations</h2>
+          </div>
+          
+          <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search organizations or users...">
+            <button class="filter-btn">🔽 Filter</button>
+          </div>
+          
+          <table class="orgs-table">
+            <thead>
+              <tr>
+                <th>Organization</th>
+                <th>Plan</th>
+                <th>Screens</th>
+                <th>Status</th>
+                <th>Revenue</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orgsList">
+              <tr>
+                <td>
+                  <div class="org-name">
+                    <div class="org-avatar">🏢</div>
+                    <div class="org-info">
+                      <div class="name">Pitch Marketing Agency</div>
+                      <div class="email">solutions@pitchmarketing.agency</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="role-badge master">👑 Master</span></td>
+                <td>∞</td>
+                <td><span class="status-badge active">● Active</span></td>
+                <td>-</td>
+                <td>
+                  <button class="action-btn" onclick="viewOrg('pitch')">Manage</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="org-name">
+                    <div class="org-avatar">🍔</div>
+                    <div class="org-info">
+                      <div class="name">Big Burger Co</div>
+                      <div class="email">admin@bigburger.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Professional</td>
+                <td>8</td>
+                <td><span class="status-badge active">● Active</span></td>
+                <td>$49/mo</td>
+                <td>
+                  <button class="action-btn" onclick="viewOrg('bigburger')">View</button>
+                  <button class="action-btn" onclick="impersonate('bigburger')">👁️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="org-name">
+                    <div class="org-avatar">🍕</div>
+                    <div class="org-info">
+                      <div class="name">Pizza Palace</div>
+                      <div class="email">owner@pizzapalace.net</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Starter</td>
+                <td>3</td>
+                <td><span class="status-badge trial">● Trial</span></td>
+                <td>$0 (trial)</td>
+                <td>
+                  <button class="action-btn" onclick="viewOrg('pizza')">View</button>
+                  <button class="action-btn" onclick="impersonate('pizza')">👁️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="org-name">
+                    <div class="org-avatar">☕</div>
+                    <div class="org-info">
+                      <div class="name">Morning Brew Cafe</div>
+                      <div class="email">hello@morningbrew.cafe</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Professional</td>
+                <td>5</td>
+                <td><span class="status-badge active">● Active</span></td>
+                <td>$49/mo</td>
+                <td>
+                  <button class="action-btn" onclick="viewOrg('brew')">View</button>
+                  <button class="action-btn" onclick="impersonate('brew')">👁️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="org-name">
+                    <div class="org-avatar">🍜</div>
+                    <div class="org-info">
+                      <div class="name">Noodle House</div>
+                      <div class="email">manager@noodlehouse.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Enterprise</td>
+                <td>24</td>
+                <td><span class="status-badge active">● Active</span></td>
+                <td>$149/mo</td>
+                <td>
+                  <button class="action-btn" onclick="viewOrg('noodle')">View</button>
+                  <button class="action-btn" onclick="impersonate('noodle')">👁️</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Power Users -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h2 class="card-title">Power Users & Controllers</h2>
+          </div>
+          
+          <table class="orgs-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Organization</th>
+                <th>Last Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="org-name">
+                    <div class="org-avatar" style="background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000;">S</div>
+                    <div class="org-info">
+                      <div class="name">solutions@pitchmarketing.agency</div>
+                      <div class="email">Master Account</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="role-badge master">👑 Master</span></td>
+                <td>Pitch Marketing Agency</td>
+                <td style="color: #00ff88;">Now</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="org-name">
+                    <div class="org-avatar" style="background: rgba(139,92,246,0.3);">J</div>
+                    <div class="org-info">
+                      <div class="name">jason.harris@pitchmarketing.agency</div>
+                      <div class="email">Power User</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="role-badge power">⚡ Power User</span></td>
+                <td>Pitch Marketing Agency</td>
+                <td>2 min ago</td>
+                <td>
+                  <button class="action-btn" onclick="editUser('jason')">Edit</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="right-column">
+        <!-- Quick Actions -->
+        <div class="card gold-border">
+          <h2 class="card-title" style="margin-bottom: 16px;">Quick Actions</h2>
+          
+          <div class="quick-actions-grid">
+            <a href="#" class="quick-action" onclick="showCreateOrg(); return false;">
+              <span class="icon">🏢</span>
+              <span class="label">New Organization</span>
+            </a>
+            <a href="#" class="quick-action" onclick="showCreateUser(); return false;">
+              <span class="icon">👤</span>
+              <span class="label">Add User</span>
+            </a>
+            <a href="/billing.html" class="quick-action">
+              <span class="icon">💳</span>
+              <span class="label">Billing</span>
+            </a>
+            <a href="/advertising.html" class="quick-action">
+              <span class="icon">📺</span>
+              <span class="label">Ad Network</span>
+            </a>
+            <a href="#" class="quick-action">
+              <span class="icon">📊</span>
+              <span class="label">Analytics</span>
+            </a>
+            <a href="#" class="quick-action">
+              <span class="icon">⚙️</span>
+              <span class="label">Settings</span>
+            </a>
+          </div>
+        </div>
+        
+        <!-- System Health -->
+        <div class="card" style="margin-top: 24px;">
+          <h2 class="card-title" style="margin-bottom: 16px;">System Health</h2>
+          
+          <div class="health-item">
+            <span class="health-label">🟢 API Server</span>
+            <span class="health-status healthy">Healthy</span>
+          </div>
+          <div class="health-item">
+            <span class="health-label">🟢 Database</span>
+            <span class="health-status healthy">Healthy</span>
+          </div>
+          <div class="health-item">
+            <span class="health-label">🟢 CDN</span>
+            <span class="health-status healthy">Healthy</span>
+          </div>
+          <div class="health-item">
+            <span class="health-label">🟢 Stripe</span>
+            <span class="health-status healthy">Connected</span>
+          </div>
+          <div class="health-item">
+            <span class="health-label">🟢 Supabase</span>
+            <span class="health-status healthy">Connected</span>
+          </div>
+        </div>
+        
+        <!-- Activity Log -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h2 class="card-title">Activity Log</h2>
+          </div>
+          
+          <div class="activity-item">
+            <div class="activity-icon">👤</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Pizza Palace</strong> started free trial</div>
+              <div class="activity-time">2 minutes ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon">💳</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Big Burger Co</strong> payment successful</div>
+              <div class="activity-time">1 hour ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon">📺</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Noodle House</strong> added 3 new screens</div>
+              <div class="activity-time">3 hours ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon">🎨</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Morning Brew</strong> published new menu</div>
+              <div class="activity-time">5 hours ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Unauthorized View -->
+  <div class="unauthorized" id="unauthorizedView" style="display: none;">
+    <div class="icon">🔒</div>
+    <h2>Access Denied</h2>
+    <p>You don't have permission to access Master Control.<br>This area is restricted to administrators only.</p>
+    <a href="/dashboard.html" class="btn btn-primary" style="text-decoration: none;">Go to Dashboard</a>
+  </div>
+  
+  <!-- Create Org Modal -->
+  <div class="modal-overlay" id="createOrgModal">
+    <div class="modal">
+      <h2>Create Organization</h2>
+      <p>Set up a new customer organization</p>
+      
+      <form onsubmit="createOrg(event)">
+        <div class="form-group">
+          <label>Organization Name</label>
+          <input type="text" placeholder="e.g., Big Burger Co" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Admin Email</label>
+          <input type="email" placeholder="admin@company.com" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Plan</label>
+          <select>
+            <option value="trial">14-Day Trial</option>
+            <option value="starter">Starter ($19/mo)</option>
+            <option value="professional">Professional ($49/mo)</option>
+            <option value="enterprise">Enterprise ($149/mo)</option>
+          </select>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('createOrgModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Organization</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Create User Modal -->
+  <div class="modal-overlay" id="createUserModal">
+    <div class="modal">
+      <h2>Add User</h2>
+      <p>Add a new user to an organization</p>
+      
+      <form onsubmit="createUser(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="user@company.com" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Organization</label>
+          <select>
+            <option value="">Select organization...</option>
+            <option value="pitch">Pitch Marketing Agency</option>
+            <option value="bigburger">Big Burger Co</option>
+            <option value="pizza">Pizza Palace</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Role</label>
+          <select>
+            <option value="user">User</option>
+            <option value="manager">Manager</option>
+            <option value="power">Power User</option>
+            <option value="master">Master (Admin Only)</option>
+          </select>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('createUserModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    // Master admin emails
+    const MASTER_EMAILS = [
+      'solutions@pitchmarketing.agency'
+    ];
+    
+    const POWER_EMAILS = [
+      'jason.harris@pitchmarketing.agency'
+    ];
+    
+    // Check auth
+    const session = localStorage.getItem('mosm_session');
+    if (!session) {
+      window.location.href = '/login.html';
+    }
+    
+    // Load user info and check permissions
+    const userData = JSON.parse(localStorage.getItem('mosm_user') || '{}');
+    const userEmail = userData.email || '';
+    
+    if (userData.email) {
+      document.getElementById('userAvatar').textContent = userData.email.charAt(0).toUpperCase();
+      document.getElementById('userName').textContent = userData.email.split('@')[0];
+    }
+    
+    // Check if user has master or power access
+    const isMaster = MASTER_EMAILS.includes(userEmail);
+    const isPower = POWER_EMAILS.includes(userEmail);
+    
+    if (!isMaster && !isPower) {
+      // Show unauthorized view
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('unauthorizedView').style.display = 'flex';
+    }
+    
+    // Modal functions
+    function showCreateOrg() {
+      document.getElementById('createOrgModal').classList.add('show');
+    }
+    
+    function showCreateUser() {
+      document.getElementById('createUserModal').classList.add('show');
+    }
+    
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+    
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('show');
+        }
+      });
+    });
+    
+    // Organization actions
+    function viewOrg(orgId) {
+      alert('Opening organization details for: ' + orgId);
+      // TODO: Navigate to org detail page
+    }
+    
+    function impersonate(orgId) {
+      // Store impersonation state
+      localStorage.setItem('mosm_impersonate', orgId);
+      document.getElementById('impersonateBanner').classList.add('show');
+      document.getElementById('impersonateUser').textContent = orgId;
+    }
+    
+    function exitImpersonate() {
+      localStorage.removeItem('mosm_impersonate');
+      document.getElementById('impersonateBanner').classList.remove('show');
+    }
+    
+    function editUser(userId) {
+      alert('Editing user: ' + userId);
+    }
+    
+    // Form handlers
+    function createOrg(e) {
+      e.preventDefault();
+      alert('Organization created! (Integration pending)');
+      closeModal('createOrgModal');
+    }
+    
+    function createUser(e) {
+      e.preventDefault();
+      alert('User added! (Integration pending)');
+      closeModal('createUserModal');
+    }
+    
+    // Check for existing impersonation
+    if (localStorage.getItem('mosm_impersonate')) {
+      document.getElementById('impersonateBanner').classList.add('show');
+      document.getElementById('impersonateUser').textContent = localStorage.getItem('mosm_impersonate');
+    }
+  </script>
+</body>
+</html>
