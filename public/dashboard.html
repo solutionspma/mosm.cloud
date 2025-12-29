@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - mOSm.Cloud</title>
+  <!-- Supabase JS for direct auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Shared Auth Module -->
+  <script src="/js/auth.js"></script>
   <style>
     * {
       margin: 0;
@@ -737,6 +741,7 @@
             const session = { access_token: tokenFromUrl };
             localStorage.setItem('mosm_session', JSON.stringify(session));
             localStorage.setItem('mosm_user', JSON.stringify(data.user));
+            localStorage.setItem('mosm_last_activity', Date.now().toString());
             
             // Clean URL to remove token
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -746,16 +751,31 @@
         }
       }
       
-      const sessionStr = localStorage.getItem('mosm_session');
-      const userStr = localStorage.getItem('mosm_user');
-      
-      if (!sessionStr || !userStr) {
-        window.location.href = '/login.html';
-        return false;
+      // Use shared auth module if available
+      if (window.MOSMAuth) {
+        const session = await window.MOSMAuth.getSession();
+        if (!session) {
+          window.location.href = '/login.html';
+          return false;
+        }
+        currentSession = session;
+        currentUser = await window.MOSMAuth.getUser();
+      } else {
+        // Fallback to direct localStorage check
+        const sessionStr = localStorage.getItem('mosm_session');
+        const userStr = localStorage.getItem('mosm_user');
+        
+        if (!sessionStr || !userStr) {
+          window.location.href = '/login.html';
+          return false;
+        }
+        
+        currentSession = JSON.parse(sessionStr);
+        currentUser = JSON.parse(userStr);
       }
       
-      currentSession = JSON.parse(sessionStr);
-      currentUser = JSON.parse(userStr);
+      // Update last activity timestamp
+      localStorage.setItem('mosm_last_activity', Date.now().toString());
       
       // Check if user has an organization
       try {
@@ -798,11 +818,16 @@
       return true;
     }
     
-    // Logout
+    // Logout - use shared auth module if available
     function logout() {
-      localStorage.removeItem('mosm_session');
-      localStorage.removeItem('mosm_user');
-      window.location.href = '/login.html';
+      if (window.MOSMAuth) {
+        window.MOSMAuth.signOut();
+      } else {
+        localStorage.removeItem('mosm_session');
+        localStorage.removeItem('mosm_user');
+        localStorage.removeItem('mosm_last_activity');
+        window.location.href = '/login.html';
+      }
     }
     
     // API request helper
@@ -816,10 +841,19 @@
         headers['Authorization'] = `Bearer ${currentSession.access_token}`;
       }
       
+      // Update activity on API requests
+      localStorage.setItem('mosm_last_activity', Date.now().toString());
+      
       const response = await fetch(`${API_BASE}${endpoint}`, {
         ...options,
         headers
       });
+      
+      // Handle session expiry
+      if (response.status === 401) {
+        logout();
+        return null;
+      }
       
       if (!response.ok) {
         const error = await response.json();

@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - mOSm.Cloud</title>
+  <!-- Supabase JS for direct auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Shared Auth Module -->
+  <script src="/js/auth.js"></script>
   <style>
     * {
       margin: 0;
@@ -365,7 +369,7 @@
       errorMessage.classList.remove('show');
     }
     
-    // Login form submit
+    // Login form submit - uses shared auth module
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('loginBtn');
@@ -373,35 +377,47 @@
       btn.textContent = 'Signing in...';
       
       try {
-        const response = await fetch(`${API_BASE}/auth/signin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: document.getElementById('loginEmail').value,
-            password: document.getElementById('loginPassword').value
-          })
-        });
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
         
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.error || 'Login failed');
+        // Use shared auth module if available
+        if (window.MOSMAuth) {
+          await window.MOSMAuth.signIn(email, password);
+        } else {
+          // Fallback to API
+          const response = await fetch(`${API_BASE}/auth/signin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Login failed');
+          }
+          
+          localStorage.setItem('mosm_session', JSON.stringify(data.session));
+          localStorage.setItem('mosm_user', JSON.stringify(data.user));
+          localStorage.setItem('mosm_last_activity', Date.now().toString());
         }
         
-        // Store session
-        localStorage.setItem('mosm_session', JSON.stringify(data.session));
-        localStorage.setItem('mosm_user', JSON.stringify(data.user));
-        
         // Check if user has an organization
+        const session = JSON.parse(localStorage.getItem('mosm_session'));
         const orgResponse = await fetch(`${API_BASE}/organizations`, {
           headers: {
-            'Authorization': `Bearer ${data.session.access_token}`
+            'Authorization': `Bearer ${session.access_token}`
           }
         });
         const orgData = await orgResponse.json();
         
-        // Redirect based on org status
-        if (orgData.requiresOnboarding) {
+        // Check for return URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('return');
+        
+        if (returnUrl) {
+          window.location.href = returnUrl;
+        } else if (orgData.requiresOnboarding) {
           window.location.href = '/onboarding.html';
         } else {
           window.location.href = '/dashboard.html';

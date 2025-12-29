@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menu Editor - mOSm.Cloud</title>
+  <!-- Supabase JS for direct auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Shared Auth Module -->
+  <script src="/js/auth.js"></script>
   <style>
     * {
       margin: 0;
@@ -1456,6 +1460,24 @@
           <div class="toggle-switch" id="menuItemShowImage" onclick="toggleMenuItemImage()"></div>
         </div>
         <div class="property-row">
+          <span class="property-label">Image Fit</span>
+          <select class="property-input" id="menuItemImageFit" onchange="updateMenuItemData()" style="width: 100px;">
+            <option value="cover">Cover</option>
+            <option value="contain">Contain</option>
+            <option value="fill">Fill</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div class="property-row toggle-row">
+          <span class="property-label">Lock Aspect</span>
+          <div class="toggle-switch active" id="menuItemLockAspect" onclick="toggleLockAspect()"></div>
+        </div>
+        <div class="property-row">
+          <span class="property-label">Opacity</span>
+          <input type="range" id="menuItemOpacity" min="0" max="100" value="100" onchange="updateMenuItemData()" style="flex: 1;">
+          <span id="menuItemOpacityValue" style="margin-left: 8px; font-size: 12px; color: var(--text-muted);">100%</span>
+        </div>
+        <div class="property-row">
           <span class="property-label">Font Size</span>
           <input type="number" class="property-input" id="menuItemFontSize" value="24" onchange="updateMenuItemData()" style="width: 80px;">
         </div>
@@ -2322,12 +2344,15 @@
     function renderMenuItemElement(element, index, style, selectedClass, resizeHandles) {
       const data = element.data || {};
       const elStyle = element.style || {};
+      const imageFit = elStyle.imageFit || 'cover';
+      const opacity = elStyle.opacity !== undefined ? elStyle.opacity / 100 : 1;
+      
       return `
         <div class="canvas-element menu-item-element ${selectedClass}" 
              data-index="${index}" 
-             style="${style}; background: ${elStyle.bgColor || 'rgba(0,0,0,0.6)'};"
+             style="${style}; background: ${elStyle.bgColor || 'rgba(0,0,0,0.6)'}; opacity: ${opacity};"
              onmousedown="startDrag(event, ${index})">
-          ${data.showImage && data.image ? `<img class="item-image" src="${data.image}" alt="">` : (data.showImage ? '<div class="item-image"></div>' : '')}
+          ${data.showImage && data.image ? `<img class="item-image" src="${data.image}" alt="" style="object-fit: ${imageFit};">` : (data.showImage ? '<div class="item-image"></div>' : '')}
           <div class="item-content">
             <div class="item-name" style="font-size: ${elStyle.fontSize || 24}px;">${data.name || 'Item Name'}</div>
             <div class="item-description">${data.description || 'Description'}</div>
@@ -2651,8 +2676,23 @@
           document.getElementById('menuItemPrice').value = data.price || '';
           document.getElementById('menuItemImage').value = data.image || '';
           document.getElementById('menuItemFontSize').value = style.fontSize || 24;
+          document.getElementById('menuItemImageFit').value = style.imageFit || 'cover';
+          document.getElementById('menuItemOpacity').value = style.opacity !== undefined ? style.opacity : 100;
+          document.getElementById('menuItemOpacityValue').textContent = (style.opacity !== undefined ? style.opacity : 100) + '%';
           const showImageToggle = document.getElementById('menuItemShowImage');
           showImageToggle.classList.toggle('active', data.showImage !== false);
+          const lockAspectToggle = document.getElementById('menuItemLockAspect');
+          lockAspectToggle.classList.toggle('active', style.lockAspect !== false);
+          
+          // Show image preview if image exists
+          const preview = document.getElementById('menuItemImagePreview');
+          const thumb = document.getElementById('menuItemImageThumb');
+          if (data.image && data.image.trim()) {
+            thumb.src = data.image;
+            preview.style.display = 'block';
+          } else {
+            preview.style.display = 'none';
+          }
           break;
           
         case 'menu_section':
@@ -2715,6 +2755,11 @@
       element.data.image = document.getElementById('menuItemImage').value;
       element.style.fontSize = parseInt(document.getElementById('menuItemFontSize').value) || 24;
       
+      // Image fit and opacity controls
+      element.style.imageFit = document.getElementById('menuItemImageFit').value;
+      element.style.opacity = parseInt(document.getElementById('menuItemOpacity').value) || 100;
+      document.getElementById('menuItemOpacityValue').textContent = element.style.opacity + '%';
+      
       // Update image preview
       const imageUrl = element.data.image;
       const preview = document.getElementById('menuItemImagePreview');
@@ -2728,6 +2773,19 @@
       
       saveToHistory();
       renderCanvas(layout);
+    }
+    
+    // Toggle lock aspect ratio for images
+    function toggleLockAspect() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const element = layout.elements[selectedElement];
+      if (!element.style) element.style = {};
+      
+      element.style.lockAspect = !element.style.lockAspect;
+      document.getElementById('menuItemLockAspect').classList.toggle('active', element.style.lockAspect);
     }
     
     // Browse stock food images
