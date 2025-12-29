@@ -309,6 +309,7 @@
       cursor: pointer;
       border: 2px solid transparent;
       transition: all 0.2s;
+      position: relative;
     }
     
     .screen-card:hover {
@@ -318,6 +319,71 @@
     .screen-card.active {
       border-color: var(--accent);
       background: rgba(0, 212, 255, 0.1);
+    }
+    
+    .screen-card.dragging {
+      opacity: 0.5;
+      border-color: var(--accent);
+    }
+    
+    .screen-card.drag-over {
+      border-top: 2px solid var(--accent);
+    }
+    
+    .screen-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .screen-drag-handle {
+      cursor: grab;
+      color: var(--text-muted);
+      padding: 2px;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    
+    .screen-drag-handle:hover {
+      opacity: 1;
+    }
+    
+    .screen-drag-handle:active {
+      cursor: grabbing;
+    }
+    
+    .screen-card-actions {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .screen-card:hover .screen-card-actions {
+      opacity: 1;
+    }
+    
+    .screen-action-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: none;
+      background: var(--bg-dark);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    
+    .screen-action-btn:hover {
+      background: var(--danger);
+      color: white;
     }
     
     .screen-preview {
@@ -401,6 +467,26 @@
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
+    
+    /* Resize handles */
+    .resize-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border: 2px solid #fff;
+      border-radius: 2px;
+      z-index: 100;
+    }
+    
+    .resize-handle.nw { top: -5px; left: -5px; cursor: nw-resize; }
+    .resize-handle.n { top: -5px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+    .resize-handle.ne { top: -5px; right: -5px; cursor: ne-resize; }
+    .resize-handle.e { top: 50%; right: -5px; transform: translateY(-50%); cursor: e-resize; }
+    .resize-handle.se { bottom: -5px; right: -5px; cursor: se-resize; }
+    .resize-handle.s { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+    .resize-handle.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+    .resize-handle.w { top: 50%; left: -5px; transform: translateY(-50%); cursor: w-resize; }
     
     .element-text {
       color: #fff;
@@ -2052,16 +2138,34 @@
         return;
       }
       
-      list.innerHTML = layouts.map(layout => {
+      list.innerHTML = layouts.map((layout, index) => {
         const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
         const isPortrait = res.h > res.w;
         
         return `
-          <div class="screen-card ${layout.id === activeLayoutId ? 'active' : ''}" onclick="selectLayout('${layout.id}')">
+          <div class="screen-card ${layout.id === activeLayoutId ? 'active' : ''}" 
+               data-layout-id="${layout.id}"
+               data-index="${index}"
+               draggable="true"
+               ondragstart="onScreenDragStart(event)"
+               ondragover="onScreenDragOver(event)"
+               ondrop="onScreenDrop(event)"
+               ondragend="onScreenDragEnd(event)"
+               onclick="selectLayout('${layout.id}')">
+            <div class="screen-card-actions">
+              <button class="screen-action-btn" onclick="event.stopPropagation(); deleteScreen('${layout.id}')" title="Delete Screen">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/>
+                </svg>
+              </button>
+            </div>
+            <div class="screen-card-header">
+              <span class="screen-drag-handle" title="Drag to reorder">⋮⋮</span>
+              <span class="screen-name">${layout.name || 'Untitled Screen'}</span>
+            </div>
             <div class="screen-preview ${isPortrait ? 'portrait' : ''}" style="background: ${layout.background_color || '#000'}">
               ${layout.background_image ? `<img src="${layout.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : `${res.w}×${res.h}`}
             </div>
-            <div class="screen-name">${layout.name || 'Untitled Screen'}</div>
             <div class="screen-resolution">${res.w} × ${res.h}</div>
           </div>
         `;
@@ -2139,6 +2243,7 @@
       `;
       
       const selectedClass = selectedElement === index ? 'selected' : '';
+      const resizeHandles = selectedElement === index ? getResizeHandles(index) : '';
       
       switch (element.type) {
         case 'text':
@@ -2148,6 +2253,7 @@
                  style="${style}; font-size: ${element.fontSize || 24}px; color: ${element.color || '#fff'};"
                  onmousedown="startDrag(event, ${index})">
               ${element.content || 'Text'}
+              ${resizeHandles}
             </div>
           `;
         case 'image':
@@ -2157,6 +2263,7 @@
                  style="${style}"
                  onmousedown="startDrag(event, ${index})">
               <img src="${element.src || 'https://via.placeholder.com/200'}" alt="">
+              ${resizeHandles}
             </div>
           `;
         case 'rectangle':
@@ -2165,6 +2272,7 @@
                  data-index="${index}" 
                  style="${style}; background: ${element.color || '#333'}; border-radius: ${element.borderRadius || 0}px;"
                  onmousedown="startDrag(event, ${index})">
+              ${resizeHandles}
             </div>
           `;
         case 'circle':
@@ -2173,30 +2281,45 @@
                  data-index="${index}" 
                  style="${style}; background: ${element.color || '#333'}; border-radius: 50%;"
                  onmousedown="startDrag(event, ${index})">
+              ${resizeHandles}
             </div>
           `;
         
         // Menu-aware components
         case 'menu_item':
-          return renderMenuItemElement(element, index, style, selectedClass);
+          return renderMenuItemElement(element, index, style, selectedClass, resizeHandles);
         case 'menu_section':
-          return renderMenuSectionElement(element, index, style, selectedClass);
+          return renderMenuSectionElement(element, index, style, selectedClass, resizeHandles);
         case 'price_list':
-          return renderPriceListElement(element, index, style, selectedClass);
+          return renderPriceListElement(element, index, style, selectedClass, resizeHandles);
         case 'combo':
-          return renderComboElement(element, index, style, selectedClass);
+          return renderComboElement(element, index, style, selectedClass, resizeHandles);
         case 'category_header':
-          return renderCategoryHeaderElement(element, index, style, selectedClass);
+          return renderCategoryHeaderElement(element, index, style, selectedClass, resizeHandles);
         case 'ticker':
-          return renderTickerElement(element, index, style, selectedClass);
+          return renderTickerElement(element, index, style, selectedClass, resizeHandles);
         
         default:
           return '';
       }
     }
+    
+    // Generate resize handles HTML
+    function getResizeHandles(index) {
+      return `
+        <div class="resize-handle nw" onmousedown="startResize(event, ${index}, 'nw')"></div>
+        <div class="resize-handle n" onmousedown="startResize(event, ${index}, 'n')"></div>
+        <div class="resize-handle ne" onmousedown="startResize(event, ${index}, 'ne')"></div>
+        <div class="resize-handle e" onmousedown="startResize(event, ${index}, 'e')"></div>
+        <div class="resize-handle se" onmousedown="startResize(event, ${index}, 'se')"></div>
+        <div class="resize-handle s" onmousedown="startResize(event, ${index}, 's')"></div>
+        <div class="resize-handle sw" onmousedown="startResize(event, ${index}, 'sw')"></div>
+        <div class="resize-handle w" onmousedown="startResize(event, ${index}, 'w')"></div>
+      `;
+    }
 
     // Menu Item Renderer
-    function renderMenuItemElement(element, index, style, selectedClass) {
+    function renderMenuItemElement(element, index, style, selectedClass, resizeHandles) {
       const data = element.data || {};
       const elStyle = element.style || {};
       return `
@@ -2210,12 +2333,13 @@
             <div class="item-description">${data.description || 'Description'}</div>
             <div class="item-price">${data.price || '$0.00'}</div>
           </div>
+          ${resizeHandles || ''}
         </div>
       `;
     }
 
     // Menu Section Renderer
-    function renderMenuSectionElement(element, index, style, selectedClass) {
+    function renderMenuSectionElement(element, index, style, selectedClass, resizeHandles) {
       const data = element.data || {};
       const elStyle = element.style || {};
       return `
@@ -2225,12 +2349,13 @@
              onmousedown="startDrag(event, ${index})">
           <div class="section-title" style="font-size: ${elStyle.fontSize || 36}px; color: ${elStyle.color || '#fff'};">${data.title || 'SECTION'}</div>
           ${data.showDivider !== false ? '<div class="section-divider"></div>' : ''}
+          ${resizeHandles || ''}
         </div>
       `;
     }
 
     // Price List Renderer
-    function renderPriceListElement(element, index, style, selectedClass) {
+    function renderPriceListElement(element, index, style, selectedClass, resizeHandles) {
       const data = element.data || {};
       const elStyle = element.style || {};
       const items = data.items || [];
@@ -2245,12 +2370,13 @@
               <span class="price-value">${item.price}</span>
             </div>
           `).join('')}
+          ${resizeHandles || ''}
         </div>
       `;
     }
 
     // Combo/Special Renderer
-    function renderComboElement(element, index, style, selectedClass) {
+    function renderComboElement(element, index, style, selectedClass, resizeHandles) {
       const data = element.data || {};
       const elStyle = element.style || {};
       return `
@@ -2262,12 +2388,13 @@
           <div class="combo-title">${data.title || 'Combo Deal'}</div>
           <div class="combo-items">${data.items || 'Items included'}</div>
           <div class="combo-price">${data.price || '$0.00'}</div>
+          ${resizeHandles || ''}
         </div>
       `;
     }
 
     // Category Header Renderer
-    function renderCategoryHeaderElement(element, index, style, selectedClass) {
+    function renderCategoryHeaderElement(element, index, style, selectedClass, resizeHandles) {
       const data = element.data || {};
       const elStyle = element.style || {};
       return `
@@ -2278,12 +2405,13 @@
           ${data.icon ? `<div class="category-icon">${data.icon}</div>` : ''}
           <div class="category-title" style="font-size: ${elStyle.fontSize || 42}px;">${data.title || 'CATEGORY'}</div>
           ${data.subtitle ? `<div class="category-subtitle">${data.subtitle}</div>` : ''}
+          ${resizeHandles || ''}
         </div>
       `;
     }
 
     // Ticker Renderer
-    function renderTickerElement(element, index, style, selectedClass) {
+    function renderTickerElement(element, index, style, selectedClass, resizeHandles) {
       const data = element.data || {};
       const elStyle = element.style || {};
       const messages = data.messages || ['Message'];
@@ -2296,6 +2424,7 @@
           <div class="ticker-content" style="color: ${elStyle.textColor || '#fff'}; animation-duration: ${speed}s;">
             ${messages.join(' • ')}
           </div>
+          ${resizeHandles || ''}
         </div>
       `;
     }
@@ -2850,6 +2979,9 @@
     
     // Drag handling
     function startDrag(event, index) {
+      // Don't start drag if clicking on resize handle
+      if (event.target.classList.contains('resize-handle')) return;
+      
       event.preventDefault();
       selectedElement = index;
       isDragging = true;
@@ -2908,6 +3040,130 @@
       isDragging = false;
       document.removeEventListener('mousemove', onDrag);
       document.removeEventListener('mouseup', stopDrag);
+    }
+    
+    // Resize handling
+    let isResizing = false;
+    let resizeDirection = null;
+    let resizeStart = { x: 0, y: 0, width: 0, height: 0, elemX: 0, elemY: 0 };
+    
+    function startResize(event, index, direction) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      isResizing = true;
+      resizeDirection = direction;
+      selectedElement = index;
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      const element = layout.elements[index];
+      
+      const canvasRect = document.getElementById('canvasContainer').getBoundingClientRect();
+      
+      resizeStart = {
+        x: (event.clientX - canvasRect.left) / zoom,
+        y: (event.clientY - canvasRect.top) / zoom,
+        width: element.width,
+        height: element.height,
+        elemX: element.x,
+        elemY: element.y
+      };
+      
+      selectElement(index);
+      
+      document.addEventListener('mousemove', onResize);
+      document.addEventListener('mouseup', stopResize);
+    }
+    
+    function onResize(event) {
+      if (!isResizing || selectedElement === null) return;
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      const canvasRect = document.getElementById('canvasContainer').getBoundingClientRect();
+      const mouseX = (event.clientX - canvasRect.left) / zoom;
+      const mouseY = (event.clientY - canvasRect.top) / zoom;
+      
+      const deltaX = mouseX - resizeStart.x;
+      const deltaY = mouseY - resizeStart.y;
+      
+      const element = layout.elements[selectedElement];
+      const minSize = 20;
+      
+      // Handle different resize directions
+      switch (resizeDirection) {
+        case 'e':
+          element.width = Math.max(minSize, resizeStart.width + deltaX);
+          break;
+        case 'w':
+          const newWidthW = resizeStart.width - deltaX;
+          if (newWidthW >= minSize) {
+            element.width = newWidthW;
+            element.x = resizeStart.elemX + deltaX;
+          }
+          break;
+        case 's':
+          element.height = Math.max(minSize, resizeStart.height + deltaY);
+          break;
+        case 'n':
+          const newHeightN = resizeStart.height - deltaY;
+          if (newHeightN >= minSize) {
+            element.height = newHeightN;
+            element.y = resizeStart.elemY + deltaY;
+          }
+          break;
+        case 'se':
+          element.width = Math.max(minSize, resizeStart.width + deltaX);
+          element.height = Math.max(minSize, resizeStart.height + deltaY);
+          break;
+        case 'sw':
+          const newWidthSW = resizeStart.width - deltaX;
+          if (newWidthSW >= minSize) {
+            element.width = newWidthSW;
+            element.x = resizeStart.elemX + deltaX;
+          }
+          element.height = Math.max(minSize, resizeStart.height + deltaY);
+          break;
+        case 'ne':
+          element.width = Math.max(minSize, resizeStart.width + deltaX);
+          const newHeightNE = resizeStart.height - deltaY;
+          if (newHeightNE >= minSize) {
+            element.height = newHeightNE;
+            element.y = resizeStart.elemY + deltaY;
+          }
+          break;
+        case 'nw':
+          const newWidthNW = resizeStart.width - deltaX;
+          const newHeightNW = resizeStart.height - deltaY;
+          if (newWidthNW >= minSize) {
+            element.width = newWidthNW;
+            element.x = resizeStart.elemX + deltaX;
+          }
+          if (newHeightNW >= minSize) {
+            element.height = newHeightNW;
+            element.y = resizeStart.elemY + deltaY;
+          }
+          break;
+      }
+      
+      renderCanvas(layout);
+      
+      // Update property inputs
+      document.getElementById('elemX').value = Math.round(element.x);
+      document.getElementById('elemY').value = Math.round(element.y);
+      document.getElementById('elemW').value = Math.round(element.width);
+      document.getElementById('elemH').value = Math.round(element.height);
+    }
+    
+    function stopResize() {
+      if (isResizing) {
+        saveToHistory();
+      }
+      isResizing = false;
+      resizeDirection = null;
+      document.removeEventListener('mousemove', onResize);
+      document.removeEventListener('mouseup', stopResize);
     }
     
     // Update functions
@@ -3001,6 +3257,79 @@
       layout.background_image = document.getElementById('bgImageInput').value;
       renderCanvas(layout);
       renderScreensList();
+    }
+    
+    // Screen drag and drop for reordering
+    let draggedScreenIndex = null;
+    
+    function onScreenDragStart(event) {
+      const card = event.target.closest('.screen-card');
+      draggedScreenIndex = parseInt(card.dataset.index);
+      card.classList.add('dragging');
+      event.dataTransfer.effectAllowed = 'move';
+    }
+    
+    function onScreenDragOver(event) {
+      event.preventDefault();
+      const card = event.target.closest('.screen-card');
+      if (card) {
+        document.querySelectorAll('.screen-card').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+      }
+    }
+    
+    function onScreenDrop(event) {
+      event.preventDefault();
+      const card = event.target.closest('.screen-card');
+      if (!card || draggedScreenIndex === null) return;
+      
+      const targetIndex = parseInt(card.dataset.index);
+      if (draggedScreenIndex === targetIndex) return;
+      
+      // Reorder layouts array
+      const [movedLayout] = layouts.splice(draggedScreenIndex, 1);
+      layouts.splice(targetIndex, 0, movedLayout);
+      
+      // Re-render
+      renderScreensList();
+      console.log('Screens reordered - remember to save');
+    }
+    
+    function onScreenDragEnd(event) {
+      document.querySelectorAll('.screen-card').forEach(c => {
+        c.classList.remove('dragging', 'drag-over');
+      });
+      draggedScreenIndex = null;
+    }
+    
+    // Delete screen
+    async function deleteScreen(layoutId) {
+      if (!confirm('Are you sure you want to delete this screen? This cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        await apiRequest(`/layouts/${layoutId}`, { method: 'DELETE' });
+        
+        // Remove from local array
+        layouts = layouts.filter(l => l.id !== layoutId);
+        
+        // If we deleted the active one, switch to another or show empty state
+        if (activeLayoutId === layoutId) {
+          if (layouts.length > 0) {
+            selectLayout(layouts[0].id);
+          } else {
+            activeLayoutId = null;
+            document.getElementById('noScreensMessage').style.display = 'flex';
+            document.getElementById('canvasWrapper').style.display = 'none';
+            document.getElementById('canvasInfo').style.display = 'none';
+          }
+        }
+        
+        renderScreensList();
+      } catch (error) {
+        alert('Error deleting screen: ' + error.message);
+      }
     }
     
     // Zoom controls
