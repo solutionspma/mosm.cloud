@@ -1143,6 +1143,95 @@
       transform: rotate(-90deg);
     }
     
+    /* Property Tabs */
+    .property-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    
+    .property-tab {
+      flex: 1;
+      padding: 10px 12px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-bottom: 2px solid transparent;
+      text-align: center;
+    }
+    
+    .property-tab:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+    
+    .property-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    
+    .property-tab-content {
+      display: none;
+    }
+    
+    .property-tab-content.active {
+      display: block;
+    }
+    
+    /* Group element styling */
+    .element-group {
+      border: 2px dashed rgba(0, 212, 255, 0.3);
+      background: rgba(0, 212, 255, 0.05);
+      border-radius: 8px;
+    }
+    
+    .element-group.selected {
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    }
+    
+    .group-label {
+      position: absolute;
+      top: -20px;
+      left: 8px;
+      font-size: 10px;
+      color: var(--accent);
+      background: var(--bg-panel);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    /* Nesting indicator */
+    .nesting-toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    
+    .nesting-btn {
+      flex: 1;
+      padding: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .nesting-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+    
     /* Modal */
     .modal-overlay {
       position: fixed;
@@ -1445,6 +1534,10 @@
             <span class="icon">📜</span>
             <span class="label">Ticker</span>
           </button>
+          <button class="menu-tool-btn" onclick="addElement('group')" title="Group Container">
+            <span class="icon">📦</span>
+            <span class="label">Group</span>
+          </button>
         </div>
         </div>
       </div>
@@ -1502,37 +1595,100 @@
       </div>
       
       <div class="property-section" id="elementProperties" style="display: none;">
-        <div class="property-section-title">Element Properties</div>
-        <div class="property-row">
-          <span class="property-label">Position</span>
-          <div class="property-input-group">
-            <input type="number" class="property-input property-input-small" id="elemX" placeholder="X" onchange="updateElementPosition()">
-            <input type="number" class="property-input property-input-small" id="elemY" placeholder="Y" onchange="updateElementPosition()">
+        <div class="property-section-title" id="elemPropTitle">Element Properties</div>
+        
+        <!-- Property Tabs -->
+        <div class="property-tabs">
+          <button class="property-tab active" onclick="switchPropertyTab('layout')">Layout</button>
+          <button class="property-tab" onclick="switchPropertyTab('style')">Style</button>
+          <button class="property-tab" onclick="switchPropertyTab('actions')">Actions</button>
+        </div>
+        
+        <!-- Layout Tab -->
+        <div class="property-tab-content active" id="propTabLayout">
+          <div class="property-row">
+            <span class="property-label">Position</span>
+            <div class="property-input-group">
+              <input type="number" class="property-input property-input-small" id="elemX" placeholder="X" onchange="updateElementPosition()">
+              <input type="number" class="property-input property-input-small" id="elemY" placeholder="Y" onchange="updateElementPosition()">
+            </div>
+          </div>
+          <div class="property-row">
+            <span class="property-label">Size</span>
+            <div class="property-input-group">
+              <input type="number" class="property-input property-input-small" id="elemW" placeholder="W" onchange="updateElementSize()">
+              <input type="number" class="property-input property-input-small" id="elemH" placeholder="H" onchange="updateElementSize()">
+            </div>
+          </div>
+          <div class="layout-toolbar" style="margin-top: 12px;">
+            <button class="layout-btn" onclick="alignElement('left')" title="Align Left">⬅</button>
+            <button class="layout-btn" onclick="alignElement('center')" title="Center Horizontal">↔</button>
+            <button class="layout-btn" onclick="alignElement('right')" title="Align Right">➡</button>
+            <button class="layout-btn" onclick="alignElement('top')" title="Align Top">⬆</button>
+            <button class="layout-btn" onclick="alignElement('middle')" title="Center Vertical">↕</button>
+            <button class="layout-btn" onclick="alignElement('bottom')" title="Align Bottom">⬇</button>
+          </div>
+          
+          <!-- Nesting Controls -->
+          <div class="nesting-toolbar" id="nestingControls">
+            <button class="nesting-btn" onclick="groupSelectedElements()" title="Group with other selected">📦 Group</button>
+            <button class="nesting-btn" onclick="ungroupElement()" title="Ungroup children">📤 Ungroup</button>
           </div>
         </div>
-        <div class="property-row">
-          <span class="property-label">Size</span>
-          <div class="property-input-group">
-            <input type="number" class="property-input property-input-small" id="elemW" placeholder="W" onchange="updateElementSize()">
-            <input type="number" class="property-input property-input-small" id="elemH" placeholder="H" onchange="updateElementSize()">
+        
+        <!-- Style Tab -->
+        <div class="property-tab-content" id="propTabStyle">
+          <div class="property-row" id="textContentRow" style="display: none;">
+            <span class="property-label">Text</span>
+            <input type="text" class="property-input" id="elemText" placeholder="Enter text" onchange="updateElementContent()">
+          </div>
+          <div class="property-row" id="fontSizeRow" style="display: none;">
+            <span class="property-label">Font Size</span>
+            <input type="number" class="property-input" id="elemFontSize" placeholder="24" onchange="updateElementStyle()" style="width: 80px;">
+          </div>
+          <div class="property-row" id="colorRow">
+            <span class="property-label">Color</span>
+            <input type="color" class="property-input" id="elemColor" value="#ffffff" onchange="updateElementStyle()" style="width: 60px; padding: 2px;">
+          </div>
+          <div class="property-row" id="borderRadiusRow" style="display: none;">
+            <span class="property-label">Corners</span>
+            <input type="number" class="property-input" id="elemBorderRadius" placeholder="0" min="0" onchange="updateElementStyle()" style="width: 80px;">
+          </div>
+          <div class="property-row" id="opacityRow">
+            <span class="property-label">Opacity</span>
+            <input type="range" id="elemOpacity" min="0" max="100" value="100" onchange="updateElementStyle()" style="flex: 1;">
+            <span id="elemOpacityValue" style="margin-left: 8px; font-size: 12px; color: var(--text-muted);">100%</span>
           </div>
         </div>
-        <div class="property-row" id="textContentRow" style="display: none;">
-          <span class="property-label">Text</span>
-          <input type="text" class="property-input" id="elemText" placeholder="Enter text" onchange="updateElementContent()">
-        </div>
-        <div class="property-row" id="fontSizeRow" style="display: none;">
-          <span class="property-label">Font Size</span>
-          <input type="number" class="property-input" id="elemFontSize" placeholder="24" onchange="updateElementStyle()" style="width: 80px;">
-        </div>
-        <div class="property-row" id="colorRow">
-          <span class="property-label">Color</span>
-          <input type="color" class="property-input" id="elemColor" value="#ffffff" onchange="updateElementStyle()" style="width: 60px; padding: 2px;">
-        </div>
-        <div class="property-row">
-          <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
-            Delete Element
-          </button>
+        
+        <!-- Actions Tab -->
+        <div class="property-tab-content" id="propTabActions">
+          <div class="property-row">
+            <button class="btn btn-secondary" onclick="duplicateSelectedElement()" style="width: 100%; justify-content: center;">
+              📋 Duplicate
+            </button>
+          </div>
+          <div class="property-row">
+            <button class="btn btn-secondary" onclick="bringToFront()" style="flex: 1; justify-content: center;">
+              ⬆ Front
+            </button>
+            <button class="btn btn-secondary" onclick="sendToBack()" style="flex: 1; justify-content: center; margin-left: 8px;">
+              ⬇ Back
+            </button>
+          </div>
+          <div class="property-row">
+            <button class="btn btn-secondary" onclick="lockElement()" style="flex: 1; justify-content: center;" id="lockElementBtn">
+              🔓 Lock
+            </button>
+            <button class="btn btn-secondary" onclick="hideElement()" style="flex: 1; justify-content: center; margin-left: 8px;" id="hideElementBtn">
+              👁 Hide
+            </button>
+          </div>
+          <div class="property-row" style="margin-top: 12px;">
+            <button class="btn btn-secondary" onclick="deleteSelectedElement()" style="width: 100%; justify-content: center; color: var(--danger);">
+              🗑 Delete Element
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2415,6 +2571,16 @@
               ${resizeHandles}
             </div>
           `;
+        case 'group':
+          return `
+            <div class="canvas-element element-group ${selectedClass}" 
+                 data-index="${index}" 
+                 style="${style}; background: ${element.color || 'rgba(0, 212, 255, 0.05)'}; border: 2px dashed ${element.borderColor || 'rgba(0, 212, 255, 0.3)'}; border-radius: 8px;"
+                 onmousedown="startDrag(event, ${index})">
+              <span class="group-label">📦 ${element.name || 'Group'}</span>
+              ${resizeHandles}
+            </div>
+          `;
         
         // Menu-aware components
         case 'menu_item':
@@ -2767,6 +2933,7 @@
         case 'image': return '🖼';
         case 'rectangle': return '▢';
         case 'circle': return '○';
+        case 'group': return '📦';
         case 'menu_item': return '🍔';
         case 'menu_section': return '📋';
         case 'price_list': return '💰';
@@ -2817,6 +2984,13 @@
           newElement.color = '#333333';
           newElement.width = 150;
           newElement.height = 150;
+          break;
+        case 'group':
+          newElement.width = 400;
+          newElement.height = 300;
+          newElement.color = 'rgba(0, 212, 255, 0.1)';
+          newElement.borderColor = 'rgba(0, 212, 255, 0.3)';
+          newElement.children = [];
           break;
       }
       
@@ -3566,6 +3740,164 @@
       
       renderCanvas(layout);
       renderLayers(layout);
+    }
+    
+    // Property Tab Switching
+    function switchPropertyTab(tabName) {
+      // Update tab buttons
+      document.querySelectorAll('.property-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelector(`.property-tab[onclick*="${tabName}"]`).classList.add('active');
+      
+      // Update tab content
+      document.querySelectorAll('.property-tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(`propTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
+    }
+    
+    // Duplicate selected element
+    function duplicateSelectedElement() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements[selectedElement]) return;
+      
+      const original = layout.elements[selectedElement];
+      const duplicate = JSON.parse(JSON.stringify(original));
+      duplicate.x += 20;
+      duplicate.y += 20;
+      duplicate.name = (duplicate.name || duplicate.type) + ' Copy';
+      
+      layout.elements.push(duplicate);
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+      selectElement(layout.elements.length - 1);
+    }
+    
+    // Z-order functions
+    function bringToFront() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements[selectedElement]) return;
+      
+      const [element] = layout.elements.splice(selectedElement, 1);
+      layout.elements.push(element);
+      selectedElement = layout.elements.length - 1;
+      
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+    }
+    
+    function sendToBack() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements[selectedElement]) return;
+      
+      const [element] = layout.elements.splice(selectedElement, 1);
+      layout.elements.unshift(element);
+      selectedElement = 0;
+      
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+    }
+    
+    // Lock/hide from property panel
+    function lockElement() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements[selectedElement]) return;
+      
+      layout.elements[selectedElement].locked = !layout.elements[selectedElement].locked;
+      const isLocked = layout.elements[selectedElement].locked;
+      document.getElementById('lockElementBtn').innerHTML = isLocked ? '🔒 Unlock' : '🔓 Lock';
+      
+      saveToHistory();
+      renderLayers(layout);
+      if (isLocked) {
+        selectedElement = null;
+        renderCanvas(layout);
+      }
+    }
+    
+    function hideElement() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements[selectedElement]) return;
+      
+      layout.elements[selectedElement].hidden = !layout.elements[selectedElement].hidden;
+      const isHidden = layout.elements[selectedElement].hidden;
+      document.getElementById('hideElementBtn').innerHTML = isHidden ? '👁‍🗨 Show' : '👁 Hide';
+      
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+    }
+    
+    // Element Grouping
+    function groupSelectedElements() {
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout) return;
+      
+      // For now, create a new group element at current selection position
+      if (selectedElement === null) {
+        showToast('Select an element first', 'warning');
+        return;
+      }
+      
+      const element = layout.elements[selectedElement];
+      const res = RESOLUTIONS[layout.resolution] || { w: 1920, h: 1080 };
+      
+      // Create group containing the selected element
+      const group = {
+        type: 'group',
+        name: 'Group',
+        x: element.x - 10,
+        y: element.y - 10,
+        width: element.width + 20,
+        height: element.height + 20,
+        children: [] // Store child element indices
+      };
+      
+      // Mark the element as child of this group
+      element.parentId = layout.elements.length; // Index of the new group
+      group.children.push(selectedElement);
+      
+      layout.elements.push(group);
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+      selectElement(layout.elements.length - 1);
+      showToast('Group created', 'success');
+    }
+    
+    function ungroupElement() {
+      if (selectedElement === null) return;
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements[selectedElement]) return;
+      
+      const element = layout.elements[selectedElement];
+      if (element.type !== 'group') {
+        showToast('Select a group to ungroup', 'warning');
+        return;
+      }
+      
+      // Remove parent references from children
+      if (element.children) {
+        element.children.forEach(childIdx => {
+          if (layout.elements[childIdx]) {
+            delete layout.elements[childIdx].parentId;
+          }
+        });
+      }
+      
+      // Remove the group element
+      layout.elements.splice(selectedElement, 1);
+      selectedElement = null;
+      
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+      showToast('Ungrouped', 'success');
     }
     
     // Screen property updates

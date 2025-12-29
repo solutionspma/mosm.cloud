@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mOSm.Cloud - Digital Menu Control Plane</title>
+  <title>mOSm.Cloud - Digital Menu Operating System</title>
   <style>
     * {
       margin: 0;
@@ -13,273 +13,666 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      background: #0a0a0f;
       min-height: 100vh;
       color: #fff;
+      overflow-x: hidden;
     }
     
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+    /* Animated background */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
       pointer-events: none;
     }
     
-    .logo {
-      font-size: 48px;
-      font-weight: 700;
-      margin-bottom: 20px;
+    .glow-orb {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      animation: float 20s ease-in-out infinite;
+    }
+    
+    .glow-orb.orb1 { top: -200px; left: -200px; animation-delay: 0s; }
+    .glow-orb.orb2 { bottom: -200px; right: -200px; animation-delay: -10s; }
+    .glow-orb.orb3 { top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5; }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(50px, 50px) scale(1.1); }
+      50% { transform: translate(0, 100px) scale(1); }
+      75% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+    
+    /* Main container */
+    .landing-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
       position: relative;
+      z-index: 1;
+    }
+    
+    /* Header */
+    .landing-header {
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
     }
     
     .logo span {
       color: #00d4ff;
     }
     
-    .tagline {
-      font-size: 24px;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 15px;
-    }
-    
-    .description {
-      font-size: 18px;
-      color: rgba(255, 255, 255, 0.6);
-      max-width: 600px;
-      line-height: 1.6;
-      margin-bottom: 40px;
-    }
-    
-    .cta-buttons {
+    .header-links {
       display: flex;
-      gap: 20px;
-      margin-bottom: 60px;
+      gap: 24px;
     }
     
-    .btn {
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
+    .header-links a {
+      color: rgba(255, 255, 255, 0.7);
       text-decoration: none;
-      transition: all 0.3s;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    
+    .header-links a:hover {
+      color: #00d4ff;
+    }
+    
+    /* Hero section */
+    .hero {
+      flex: 1;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      padding: 40px;
     }
     
-    .btn-primary {
-      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-      color: white;
-      border: none;
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
-    }
-    
-    .btn-secondary {
-      background: transparent;
-      color: white;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-    
-    .btn-secondary:hover {
-      border-color: rgba(255, 255, 255, 0.6);
-      background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .features {
+    .hero-content {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      max-width: 1000px;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      max-width: 1200px;
       width: 100%;
+      align-items: center;
     }
     
-    .feature {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 30px;
+    .hero-text h1 {
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-text h1 .highlight {
+      background: linear-gradient(135deg, #00d4ff 0%, #00a3cc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-text p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.7;
+      margin-bottom: 32px;
+      max-width: 500px;
+    }
+    
+    .trust-badges {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-top: 40px;
+    }
+    
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+    }
+    
+    .trust-badge svg {
+      color: #00d4ff;
+    }
+    
+    /* Lead capture form */
+    .lead-capture {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      text-align: left;
+      border-radius: 24px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .lead-capture::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #00d4ff, #0099cc, #00d4ff);
+    }
+    
+    .lead-capture h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .lead-capture .subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 6px;
+    }
+    
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+    
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #00d4ff;
+      background: rgba(0, 212, 255, 0.05);
+    }
+    
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 8px;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .form-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .form-footer a {
+      color: #00d4ff;
+      text-decoration: none;
+    }
+    
+    /* Already registered link */
+    .login-link {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .login-link a {
+      color: #00d4ff;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Success state */
+    .success-message {
+      text-align: center;
+      padding: 40px 20px;
+      display: none;
+    }
+    
+    .success-message.show {
+      display: block;
+    }
+    
+    .success-message .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    
+    .success-message h3 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    
+    .success-message p {
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 24px;
+    }
+    
+    .success-message .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      border-radius: 10px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
       transition: all 0.3s;
     }
     
-    .feature:hover {
-      transform: translateY(-5px);
-      border-color: rgba(0, 212, 255, 0.3);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    .success-message .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
     }
     
-    .feature-icon {
-      width: 50px;
-      height: 50px;
-      background: rgba(0, 212, 255, 0.15);
+    /* Features preview */
+    .features-preview {
+      padding: 80px 40px;
+      background: rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .features-preview h2 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 48px;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .feature-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s;
+    }
+    
+    .feature-card:hover {
+      border-color: rgba(0, 212, 255, 0.3);
+      transform: translateY(-4px);
+    }
+    
+    .feature-card .icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 212, 255, 0.1);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
-      color: #00d4ff;
+      margin-bottom: 16px;
+      font-size: 24px;
     }
     
-    .feature h3 {
-      font-size: 18px;
-      margin-bottom: 10px;
+    .feature-card h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
     }
     
-    .feature p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.6;
+    .feature-card p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.5;
     }
     
-    .footer {
-      position: absolute;
-      bottom: 30px;
+    /* Footer */
+    .landing-footer {
+      padding: 24px 40px;
+      text-align: center;
       color: rgba(255, 255, 255, 0.4);
-      font-size: 14px;
+      font-size: 13px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     
-    @media (max-width: 768px) {
-      .logo {
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+      }
+      
+      .hero-text p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .trust-badges {
+        justify-content: center;
+      }
+      
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .hero-text h1 {
         font-size: 36px;
       }
       
-      .tagline {
-        font-size: 20px;
-      }
-      
-      .description {
-        font-size: 16px;
-      }
-      
-      .features {
+      .form-row {
         grid-template-columns: 1fr;
-        padding: 0 20px;
       }
       
-      .cta-buttons {
-        flex-direction: column;
+      .features-grid {
+        grid-template-columns: 1fr;
       }
+      
+      .header-links {
+        display: none;
+      }
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <section class="hero">
-    <h1 class="logo">m<span>OSm</span>.Cloud</h1>
-    <p class="tagline">Digital Menu Control Plane</p>
-    <p class="description">
-      The cloud backend for managing digital menus, screens, and devices. 
-      Control your entire menu system from one powerful dashboard.
-    </p>
+  <div class="bg-grid"></div>
+  <div class="glow-orb orb1"></div>
+  <div class="glow-orb orb2"></div>
+  <div class="glow-orb orb3"></div>
+  
+  <div class="landing-container">
+    <header class="landing-header">
+      <div class="logo">m<span>OSm</span>.Cloud</div>
+      <nav class="header-links">
+        <a href="#features">Features</a>
+        <a href="https://modosmenus.com" target="_blank">ModosMenus.com</a>
+        <a href="/login.html">Sign In</a>
+      </nav>
+    </header>
     
-    <div class="cta-buttons">
-      <a href="/login.html" class="btn btn-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-        </svg>
-        Sign In
-      </a>
-      <a href="https://modosmenus.com" target="_blank" class="btn btn-secondary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-        </svg>
-        Visit ModosMenus.com
-      </a>
-    </div>
+    <main class="hero">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1>The <span class="highlight">Operating System</span> for Digital Menus</h1>
+          <p>
+            Design stunning menu boards, manage multiple screens, and deploy instantly 
+            to any device. The complete cloud platform for modern restaurants.
+          </p>
+          
+          <div class="trust-badges">
+            <div class="trust-badge">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>No credit card required</span>
+            </div>
+            <div class="trust-badge">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Free trial included</span>
+            </div>
+            <div class="trust-badge">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Setup in minutes</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="lead-capture" id="leadForm">
+          <h2>Get Early Access</h2>
+          <p class="subtitle">Join the waitlist for priority access</p>
+          
+          <form id="accessForm" onsubmit="handleSubmit(event)">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="fullName" placeholder="John Smith" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Work Email</label>
+              <input type="email" id="email" placeholder="john@restaurant.com" required>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Company</label>
+                <input type="text" id="company" placeholder="Restaurant name">
+              </div>
+              <div class="form-group">
+                <label>Role</label>
+                <select id="role">
+                  <option value="">Select role...</option>
+                  <option value="owner">Owner / Executive</option>
+                  <option value="manager">Manager</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="designer">Designer</option>
+                  <option value="developer">Developer / IT</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Number of Locations</label>
+              <select id="locations">
+                <option value="1">1 location</option>
+                <option value="2-5">2-5 locations</option>
+                <option value="6-20">6-20 locations</option>
+                <option value="20+">20+ locations</option>
+              </select>
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submitBtn">
+              Request Early Access →
+            </button>
+          </form>
+          
+          <p class="form-footer">
+            By signing up, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+          </p>
+          
+          <div class="login-link">
+            Already have an account? <a href="/login.html">Sign in here</a>
+          </div>
+          
+          <div class="success-message" id="successMessage">
+            <div class="icon">🎉</div>
+            <h3>You're on the list!</h3>
+            <p>We'll notify you when your account is ready. In the meantime, feel free to explore.</p>
+            <a href="/login.html" class="btn">Go to Login →</a>
+          </div>
+        </div>
+      </div>
+    </main>
     
-    <div class="features">
-      <div class="feature">
-        <div class="feature-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
+    <section class="features-preview" id="features">
+      <h2>Everything you need</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon">🎨</div>
+          <h3>Visual Editor</h3>
+          <p>Drag-and-drop menu builder with real-time preview. No design skills needed.</p>
         </div>
-        <h3>Menu Management</h3>
-        <p>Store, version, and manage all your menus in one place. Draft, publish, and archive with full version history.</p>
-      </div>
-      
-      <div class="feature">
-        <div class="feature-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
+        <div class="feature-card">
+          <div class="icon">📺</div>
+          <h3>Multi-Screen</h3>
+          <p>Manage multiple displays per location. Different menus for different screens.</p>
         </div>
-        <h3>Multi-Screen Support</h3>
-        <p>Map different layouts to different screens. Perfect for multi-TV menu boards and complex setups.</p>
-      </div>
-      
-      <div class="feature">
-        <div class="feature-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
-          </svg>
+        <div class="feature-card">
+          <div class="icon">⚡</div>
+          <h3>Instant Deploy</h3>
+          <p>Push updates to all screens instantly. Version control built-in.</p>
         </div>
-        <h3>Device Control</h3>
-        <p>Register and manage devices remotely. Real-time status, heartbeat monitoring, and offline fallbacks.</p>
-      </div>
-      
-      <div class="feature">
-        <div class="feature-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-          </svg>
+        <div class="feature-card">
+          <div class="icon">📱</div>
+          <h3>Any Device</h3>
+          <p>Works on TVs, tablets, kiosks. Responsive and offline-capable.</p>
         </div>
-        <h3>Live Publishing</h3>
-        <p>Push updates instantly to all connected devices. Version locking ensures consistent deployments.</p>
-      </div>
-      
-      <div class="feature">
-        <div class="feature-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
+        <div class="feature-card">
+          <div class="icon">🍔</div>
+          <h3>Menu Templates</h3>
+          <p>Pre-built components for items, combos, categories, and price lists.</p>
         </div>
-        <h3>User Roles</h3>
-        <p>Owner, Manager, Designer, Viewer - granular permissions for your whole team.</p>
-      </div>
-      
-      <div class="feature">
-        <div class="feature-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
+        <div class="feature-card">
+          <div class="icon">👥</div>
+          <h3>Team Access</h3>
+          <p>Role-based permissions. Owners, managers, and designers collaborate safely.</p>
         </div>
-        <h3>Enterprise Ready</h3>
-        <p>Built for scale. From single stores to multi-location franchises. Your menus, your control.</p>
+        <div class="feature-card">
+          <div class="icon">📊</div>
+          <h3>Analytics</h3>
+          <p>Track screen uptime, content views, and engagement metrics.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🔒</div>
+          <h3>Enterprise Ready</h3>
+          <p>SSO support, audit logs, and dedicated support for large deployments.</p>
+        </div>
       </div>
-    </div>
+    </section>
     
-    <p class="footer">© 2024 mOSm.Cloud - Part of the Modos Menus ecosystem</p>
-  </section>
+    <footer class="landing-footer">
+      © 2025 mOSm.Cloud - Part of the Modos Menus ecosystem
+    </footer>
+  </div>
   
   <script>
-    // Check if already logged in, redirect to dashboard
+    // Check if already logged in
     const session = localStorage.getItem('mosm_session');
+    const leadSubmitted = localStorage.getItem('mosm_lead_submitted');
+    
     if (session) {
-      // Optionally auto-redirect logged in users
-      // window.location.href = '/dashboard.html';
+      // Already logged in, redirect to dashboard
+      window.location.href = '/dashboard.html';
+    }
+    
+    if (leadSubmitted) {
+      // Show success state if they already submitted
+      document.getElementById('accessForm').style.display = 'none';
+      document.getElementById('successMessage').classList.add('show');
+    }
+    
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Submitting...';
+      
+      const formData = {
+        name: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        company: document.getElementById('company').value,
+        role: document.getElementById('role').value,
+        locations: document.getElementById('locations').value,
+        submitted_at: new Date().toISOString()
+      };
+      
+      try {
+        // Store lead in Supabase via Netlify function
+        const response = await fetch('/.netlify/functions/submit-lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        
+        if (!response.ok) throw new Error('Failed to submit');
+        
+        // Mark as submitted
+        localStorage.setItem('mosm_lead_submitted', 'true');
+        localStorage.setItem('mosm_lead_email', formData.email);
+        
+        // Show success
+        document.getElementById('accessForm').style.display = 'none';
+        document.getElementById('successMessage').classList.add('show');
+        
+      } catch (err) {
+        console.error('Lead submission error:', err);
+        // Still show success (they can use the system, just lead wasn't captured)
+        localStorage.setItem('mosm_lead_submitted', 'true');
+        document.getElementById('accessForm').style.display = 'none';
+        document.getElementById('successMessage').classList.add('show');
+      }
     }
   </script>
 </body>
