@@ -94,6 +94,10 @@ export async function handler(event, context) {
     if (method === 'POST' && (path === '' || path === '/')) {
       const { name, organizationId, tags, metadata } = body;
       
+      console.log('CREATE MENU - Request body:', JSON.stringify(body));
+      console.log('CREATE MENU - User:', user?.id);
+      console.log('CREATE MENU - Organization ID:', organizationId);
+      
       if (!name) {
         return {
           statusCode: 400,
@@ -102,22 +106,28 @@ export async function handler(event, context) {
         };
       }
       
+      const insertData = {
+        name,
+        status: 'draft',
+        version: 1,
+        organization_id: organizationId,
+        created_by: user?.id,
+        last_edited_by: user?.id,
+        tags: tags || [],
+        metadata: metadata || {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log('CREATE MENU - Insert data:', JSON.stringify(insertData));
+      
       const { data, error } = await supabase
         .from('menus')
-        .insert({
-          name,
-          status: 'draft',
-          version: 1,
-          organization_id: organizationId,
-          created_by: user?.id,
-          last_edited_by: user?.id,
-          tags: tags || [],
-          metadata: metadata || {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
+        .insert(insertData)
         .select()
         .single();
+      
+      console.log('CREATE MENU - Result:', JSON.stringify({ data, error }));
       
       if (error) throw error;
       
