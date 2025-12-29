@@ -7,7 +7,7 @@
   <!-- Supabase JS for direct auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Shared Auth Module -->
-  <script src="/js/auth.js"></script>
+  <script src="/js/auth.js?v=1766969346"></script>
   <style>
     * {
       margin: 0;
@@ -1000,13 +1000,15 @@
     .layer-item {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       padding: 8px 12px;
       background: var(--bg-card);
       border-radius: 6px;
       margin-bottom: 4px;
       cursor: pointer;
       font-size: 13px;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
     }
     
     .layer-item:hover {
@@ -1018,23 +1020,127 @@
       border: 1px solid var(--accent);
     }
     
+    .layer-item.hidden {
+      opacity: 0.4;
+    }
+    
+    .layer-item.locked {
+      background: rgba(255, 200, 0, 0.05);
+    }
+    
+    .layer-item.dragging {
+      opacity: 0.5;
+      background: var(--accent);
+    }
+    
+    .layer-item.drag-over {
+      border: 2px dashed var(--accent);
+    }
+    
+    .layer-drag-handle {
+      cursor: grab;
+      opacity: 0.3;
+      font-size: 10px;
+      user-select: none;
+    }
+    
+    .layer-drag-handle:hover {
+      opacity: 0.8;
+    }
+    
     .layer-icon {
       width: 16px;
       height: 16px;
       color: var(--text-muted);
+      font-size: 12px;
+      text-align: center;
     }
     
     .layer-name {
       flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .layer-name-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--accent);
+      color: var(--text-primary);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+      outline: none;
+    }
+    
+    .layer-actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    
+    .layer-item:hover .layer-actions {
+      opacity: 1;
+    }
+    
+    .layer-action-btn {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 11px;
+      padding: 0;
+    }
+    
+    .layer-action-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    
+    .layer-action-btn.active {
+      color: var(--accent);
+    }
+    
+    .layer-action-btn.locked-active {
+      color: #ffcc00;
     }
     
     .layer-visibility {
       opacity: 0.5;
       cursor: pointer;
+      font-size: 12px;
     }
     
     .layer-visibility:hover {
       opacity: 1;
+    }
+    
+    .layer-visibility.hidden {
+      opacity: 0.3;
+    }
+    
+    /* Layer groups / nesting */
+    .layer-item.nested {
+      margin-left: 20px;
+      border-left: 2px solid var(--bg-hover);
+    }
+    
+    .layer-group-toggle {
+      cursor: pointer;
+      font-size: 10px;
+      transition: transform 0.15s;
+    }
+    
+    .layer-group-toggle.collapsed {
+      transform: rotate(-90deg);
     }
     
     /* Modal */
@@ -2247,9 +2353,12 @@
       document.getElementById('resolutionInfo').textContent = `${res.w} × ${res.h}`;
       document.getElementById('safeZoneInfo').textContent = layout.safe_zone ? `${layout.safe_zone} (${safeZoneMargin}px)` : 'Standard';
       
-      // Render elements
+      // Render elements (skip hidden ones)
       const elements = layout.elements || [];
-      content.innerHTML = elements.map((el, idx) => renderElement(el, idx)).join('');
+      content.innerHTML = elements.map((el, idx) => {
+        if (el.hidden) return ''; // Don't render hidden elements
+        return renderElement(el, idx);
+      }).join('');
       
       // Fit to view
       zoomFit();
@@ -2481,14 +2590,175 @@
       list.innerHTML = [...elements].reverse().map((el, idx) => {
         const realIndex = elements.length - 1 - idx;
         const icon = getElementIcon(el.type);
+        const isHidden = el.hidden === true;
+        const isLocked = el.locked === true;
+        const nestedClass = el.parentId ? 'nested' : '';
+        
         return `
-          <div class="layer-item ${selectedElement === realIndex ? 'selected' : ''}" onclick="selectElement(${realIndex})">
+          <div class="layer-item ${selectedElement === realIndex ? 'selected' : ''} ${isHidden ? 'hidden' : ''} ${isLocked ? 'locked' : ''} ${nestedClass}" 
+               data-index="${realIndex}"
+               draggable="true"
+               ondragstart="onLayerDragStart(event, ${realIndex})"
+               ondragover="onLayerDragOver(event)"
+               ondrop="onLayerDrop(event, ${realIndex})"
+               ondragend="onLayerDragEnd(event)"
+               onclick="selectElement(${realIndex})">
+            <span class="layer-drag-handle" title="Drag to reorder">⋮⋮</span>
             <span class="layer-icon">${icon}</span>
-            <span class="layer-name">${el.name || el.type}</span>
-            <span class="layer-visibility">👁</span>
+            <span class="layer-name" ondblclick="startRenameLayer(event, ${realIndex})">${el.name || el.type}</span>
+            <div class="layer-actions">
+              <button class="layer-action-btn ${isLocked ? 'locked-active' : ''}" onclick="toggleLayerLock(event, ${realIndex})" title="${isLocked ? 'Unlock' : 'Lock'}">
+                ${isLocked ? '🔒' : '🔓'}
+              </button>
+              <button class="layer-action-btn" onclick="duplicateElement(event, ${realIndex})" title="Duplicate">📋</button>
+              <button class="layer-action-btn" onclick="deleteLayerElement(event, ${realIndex})" title="Delete">🗑</button>
+            </div>
+            <span class="layer-visibility ${isHidden ? 'hidden' : ''}" onclick="toggleLayerVisibility(event, ${realIndex})" title="${isHidden ? 'Show' : 'Hide'}">
+              ${isHidden ? '👁‍🗨' : '👁'}
+            </span>
           </div>
         `;
       }).join('');
+    }
+    
+    // Layer drag/drop for z-order
+    let draggingLayerIndex = null;
+    
+    function onLayerDragStart(e, index) {
+      draggingLayerIndex = index;
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    }
+    
+    function onLayerDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      e.currentTarget.classList.add('drag-over');
+    }
+    
+    function onLayerDrop(e, targetIndex) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      
+      if (draggingLayerIndex === null || draggingLayerIndex === targetIndex) return;
+      
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements) return;
+      
+      // Move element in array (reorder z-index)
+      const elements = layout.elements;
+      const [moved] = elements.splice(draggingLayerIndex, 1);
+      elements.splice(targetIndex, 0, moved);
+      
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+      
+      // Update selection
+      selectedElement = targetIndex;
+    }
+    
+    function onLayerDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.layer-item').forEach(item => item.classList.remove('drag-over'));
+      draggingLayerIndex = null;
+    }
+    
+    // Toggle layer visibility
+    function toggleLayerVisibility(e, index) {
+      e.stopPropagation();
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements || !layout.elements[index]) return;
+      
+      layout.elements[index].hidden = !layout.elements[index].hidden;
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+    }
+    
+    // Toggle layer lock
+    function toggleLayerLock(e, index) {
+      e.stopPropagation();
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements || !layout.elements[index]) return;
+      
+      layout.elements[index].locked = !layout.elements[index].locked;
+      saveToHistory();
+      renderLayers(layout);
+      
+      // Deselect if we locked the current selection
+      if (layout.elements[index].locked && selectedElement === index) {
+        selectedElement = null;
+        renderCanvas(layout);
+      }
+    }
+    
+    // Rename layer
+    function startRenameLayer(e, index) {
+      e.stopPropagation();
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements || !layout.elements[index]) return;
+      
+      const nameSpan = e.target;
+      const currentName = layout.elements[index].name || layout.elements[index].type;
+      
+      nameSpan.outerHTML = `<input type="text" class="layer-name-input" value="${currentName}" 
+        onblur="finishRenameLayer(event, ${index})" 
+        onkeydown="if(event.key==='Enter')finishRenameLayer(event,${index});if(event.key==='Escape')renderLayers(layouts.find(l=>l.id===activeLayoutId));"
+        onclick="event.stopPropagation()">`;
+      
+      const input = document.querySelector('.layer-name-input');
+      input.focus();
+      input.select();
+    }
+    
+    function finishRenameLayer(e, index) {
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements || !layout.elements[index]) return;
+      
+      const newName = e.target.value.trim();
+      if (newName) {
+        layout.elements[index].name = newName;
+        saveToHistory();
+      }
+      renderLayers(layout);
+    }
+    
+    // Duplicate element
+    function duplicateElement(e, index) {
+      e.stopPropagation();
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements || !layout.elements[index]) return;
+      
+      const original = layout.elements[index];
+      const duplicate = JSON.parse(JSON.stringify(original));
+      duplicate.x += 20;
+      duplicate.y += 20;
+      duplicate.name = (duplicate.name || duplicate.type) + ' Copy';
+      
+      layout.elements.push(duplicate);
+      saveToHistory();
+      renderCanvas(layout);
+      renderLayers(layout);
+      selectElement(layout.elements.length - 1);
+    }
+    
+    // Delete from layer panel
+    function deleteLayerElement(e, index) {
+      e.stopPropagation();
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      if (!layout || !layout.elements || !layout.elements[index]) return;
+      
+      if (confirm('Delete this element?')) {
+        layout.elements.splice(index, 1);
+        if (selectedElement === index) selectedElement = null;
+        else if (selectedElement > index) selectedElement--;
+        
+        saveToHistory();
+        renderCanvas(layout);
+        renderLayers(layout);
+        showPropertyPanel(null);
+      }
     }
     
     function getElementIcon(type) {
@@ -3041,11 +3311,18 @@
       if (event.target.classList.contains('resize-handle')) return;
       
       event.preventDefault();
-      selectedElement = index;
-      isDragging = true;
       
       const layout = layouts.find(l => l.id === activeLayoutId);
       const element = layout.elements[index];
+      
+      // Don't allow dragging locked elements
+      if (element.locked) {
+        showToast('Element is locked', 'warning');
+        return;
+      }
+      
+      selectedElement = index;
+      isDragging = true;
       
       // Get the canvas container position (accounts for wrapper transform)
       const canvasRect = document.getElementById('canvasContainer').getBoundingClientRect();
@@ -3109,12 +3386,18 @@
       event.preventDefault();
       event.stopPropagation();
       
+      const layout = layouts.find(l => l.id === activeLayoutId);
+      const element = layout.elements[index];
+      
+      // Don't allow resizing locked elements
+      if (element.locked) {
+        showToast('Element is locked', 'warning');
+        return;
+      }
+      
       isResizing = true;
       resizeDirection = direction;
       selectedElement = index;
-      
-      const layout = layouts.find(l => l.id === activeLayoutId);
-      const element = layout.elements[index];
       
       const canvasRect = document.getElementById('canvasContainer').getBoundingClientRect();
       
