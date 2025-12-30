@@ -29,18 +29,20 @@
 │  └────────────┘ └────────────┘ └────────────┘                 │
 └─────────────────────────────────────────────────────────────────┘
                               │
-                              │ SSO Token via URL
+                              │ Direct Supabase REST API
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                        modOSmenus                               │
 │                 (modosmenus.netlify.app)                        │
 │                                                                 │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
-│  │ login.html  │ │ kiosk.html  │ │ kiosk.js    │               │
-│  │ (Auth)      │ │ (Display)   │ │ (Renderer)  │               │
-│  └─────────────┘ └─────────────┘ └─────────────┘               │
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐   │
+│  │ kiosk-selector  │ │ kiosk.html      │ │ (root landing)  │   │
+│  │ (Menu Picker)   │ │ (Fullscreen)    │ │                 │   │
+│  └─────────────────┘ └─────────────────┘ └─────────────────┘   │
 │                                                                 │
-│  Deploy: npx netlify deploy --prod --dir=apps/shell/dist        │
+│  Deploy: git push (auto-deploy via GitHub)                      │
+│  Build: npm run build in apps/shell                             │
+│  Publish: modosmenus/apps/shell/dist                            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -68,356 +70,270 @@ mOSm.cloud/
 │       ├── submit-lead.js      # Lead capture endpoint
 │       └── [...other functions]
 ├── netlify.toml                # Netlify config (headers, redirects)
+├── INTEGRATION_GUIDE.md        # THIS FILE
 └── package.json
 ```
 
 ### modOSmenus Repository (Kiosk Shell)
 ```
-modosmenus/
-└── apps/
-    └── shell/
-        └── dist/               # DEPLOY THIS FOLDER ONLY
-            ├── index.html      # Redirect to kiosk
-            ├── apps/
-            │   ├── login.html  # Auth page
-            │   ├── kiosk.html  # Kiosk display
-            │   └── js/
-            │       ├── auth.js # Shared auth (copy from mOSm.cloud)
-            │       └── kiosk.js # Kiosk renderer
-            └── _headers        # Cache-busting headers
+modOSmenus/
+└── modosmenus/
+    └── apps/
+        └── shell/
+            ├── public/              # Source files
+            │   └── apps/
+            │       ├── kiosk-selector.html  # Menu selection page
+            │       └── kiosk.html           # Fullscreen kiosk player
+            └── dist/                # BUILD OUTPUT (auto-generated)
+                └── apps/
+                    ├── kiosk-selector.html
+                    └── kiosk.html
 ```
 
 ---
 
-## 🔐 Authentication System
+## 🖥️ Kiosk System
 
-### Storage Keys (localStorage)
+### Kiosk URLs
+| Page | URL | Description |
+|------|-----|-------------|
+| Kiosk Selector | https://modosmenus.netlify.app/apps/kiosk-selector.html | Shows all published menus |
+| Kiosk Display | https://modosmenus.netlify.app/apps/kiosk.html?menu={UUID} | Fullscreen menu display |
+| Home | https://modosmenus.netlify.app/ | Landing/home page |
+
+### Kiosk Features
+- **True fullscreen mode** - Fills entire screen, no borders
+- **Auto-hide controls** - Back/Fullscreen buttons appear only on mouse movement (3s timeout)
+- **Cursor hides** when inactive for clean display
+- **Auto-rotate screens** - 10 second intervals for multi-screen layouts
+- **Keyboard navigation** - Arrow keys, F for fullscreen, ESC to exit
+- **Responsive scaling** - Uses `Math.max(scaleX, scaleY)` to cover entire viewport
+
+### Kiosk Data Flow
+```
+kiosk-selector.html                    kiosk.html?menu={id}
+      │                                       │
+      │ Fetch published menus                 │ Fetch menu + layouts
+      ▼                                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ Supabase REST API (Direct fetch, NOT JS client)                 │
+│                                                                 │
+│ GET /rest/v1/menus?status=eq.published&select=id,name,status    │
+│ GET /rest/v1/menus?id=eq.{uuid}&select=*                        │
+│ GET /rest/v1/layouts?menu_id=eq.{uuid}&select=*&order=screen_index.asc │
+│                                                                 │
+│ Headers:                                                        │
+│   apikey: {SERVICE_ROLE_KEY}                                    │
+│   Authorization: Bearer {SERVICE_ROLE_KEY}                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Why Direct REST API Instead of Supabase JS Client?
+The Supabase JS client was returning 0 results from cross-origin requests even though:
+- The same query worked via curl
+- RLS policies were correct
+- Anon key had proper permissions
+
+**Solution:** Use direct `fetch()` to Supabase REST API with service role key.
+
+---
+
+## 🔐 Supabase Configuration
+
+### Credentials (BOTH PLATFORMS USE THESE)
 ```javascript
-mosm_session     // Supabase session object (JSON)
-mosm_user        // User data (JSON)
-mosm_last_activity // Timestamp of last activity
-mosm_organization // Organization ID
-mosm_lead_submitted // Whether lead form was submitted
+const SUPABASE_URL = 'https://agkrwcdvfraivfhttjrp.supabase.co';
+const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna3J3Y2R2ZnJhaXZmaHR0anJwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Njg1MTY5MiwiZXhwIjoyMDgyNDI3NjkyfQ.DuwTJdUHsOa2H3eGgz7fsPe4aejBtUVlV7CkUaL3Y0c';
 ```
-
-### Session Timeout: 30 minutes
-- Activity refreshes timeout
-- 5-minute warning toast before expiration
-- Auto-logout on expiration
-
-### SSO Flow
-```
-mOSm.Cloud Dashboard
-    │
-    │ User clicks "Open Kiosk"
-    │
-    │ ┌──────────────────────────────────────────────────┐
-    │ │ const token = await supabase.auth.getSession(); │
-    │ │ const url = `https://modosmenus.netlify.app/    │
-    │ │            apps/kiosk.html?token=${token}`;     │
-    │ │ window.open(url, '_blank');                      │
-    │ └──────────────────────────────────────────────────┘
-    │
-    ▼
-modOSmenus Kiosk
-    │
-    │ ┌──────────────────────────────────────────────────┐
-    │ │ const urlParams = new URLSearchParams(...);      │
-    │ │ const token = urlParams.get('token');           │
-    │ │ if (token) {                                     │
-    │ │   await supabase.auth.setSession(token);        │
-    │ │   localStorage.setItem('mosm_session', token);  │
-    │ │ }                                               │
-    │ └──────────────────────────────────────────────────┘
-```
-
----
-
-## 🚀 Deployment Commands
-
-### ⚠️ CRITICAL: mOSm.Cloud - USE CLI DEPLOY, NOT GIT PUSH
-```bash
-cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/mOSm.cloud
-
-# ALWAYS use Netlify CLI - GitHub auto-deploy is UNRELIABLE
-npx netlify deploy --prod --dir=public
-
-# This bypasses the GitHub integration and deploys directly
-# The GitHub auto-deploy often fails to invalidate CDN cache
-```
-
-**WHY NOT GIT PUSH?**
-- GitHub integration sometimes doesn't trigger Netlify rebuild
-- Netlify CDN caches aggressively and doesn't invalidate on git push
-- CLI deploy ALWAYS works and invalidates cache immediately
-
-### modOSmenus (Kiosk)
-```bash
-cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/modosmenus/modosmenus
-npx netlify deploy --prod --dir=apps/shell/dist
-# Manual deploy to modosmenus.netlify.app
-```
-
----
-
-## ⚠️ CACHE PROBLEMS & SOLUTIONS
-
-### Problem: Updates not showing after deploy
-
-### Solution 1: netlify.toml headers (mOSm.cloud)
-```toml
-# netlify.toml
-[[headers]]
-  for = "/*.html"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-
-[[headers]]
-  for = "/*.js"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-```
-
-### Solution 2: _headers file (modOSmenus)
-```
-# apps/shell/dist/_headers
-/*.html
-  Cache-Control: no-cache, no-store, must-revalidate
-/*.js
-  Cache-Control: no-cache, no-store, must-revalidate
-/apps/*.html
-  Cache-Control: no-cache, no-store, must-revalidate
-/apps/js/*.js
-  Cache-Control: no-cache, no-store, must-revalidate
-```
-
-### Solution 3: Version query strings
-```html
-<script src="/js/auth.js?v=1766969346"></script>
-```
-
-### Solution 4: Force redeploy
-```bash
-git commit --allow-empty -m "Force redeploy $(date +%s)"
-git push
-```
-
-### Solution 5: Purge Netlify CDN cache
-- Go to Netlify Dashboard → Site → Deploys → Production
-- Click "..." menu → "Clear cache and retry deploy"
-
----
-
-## 🔧 Supabase Configuration
 
 ### Environment Variables (Netlify)
+Both sites need these in Netlify → Site Settings → Environment Variables:
 ```
-SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+SUPABASE_URL=https://agkrwcdvfraivfhttjrp.supabase.co
 SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-### Database Tables Required
+### Database Tables
 ```sql
--- Leads table for landing page gate
-CREATE TABLE leads (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  name TEXT,
-  company TEXT,
-  role TEXT,
-  locations TEXT,
-  source TEXT DEFAULT 'landing_page',
-  submitted_at TIMESTAMPTZ DEFAULT NOW(),
-  metadata JSONB,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Organizations
-CREATE TABLE organizations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  owner_id UUID REFERENCES auth.users(id),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Menus
+-- Menus table
 CREATE TABLE menus (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID REFERENCES organizations(id),
   name TEXT NOT NULL,
-  layouts JSONB DEFAULT '[]',
-  status TEXT DEFAULT 'draft',
+  status TEXT DEFAULT 'draft',  -- 'draft' | 'published'
   version INTEGER DEFAULT 1,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Devices
-CREATE TABLE devices (
+-- Layouts table (separate from menus)
+CREATE TABLE layouts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  organization_id UUID REFERENCES organizations(id),
-  name TEXT NOT NULL,
-  device_code TEXT UNIQUE,
-  assigned_menu_id UUID REFERENCES menus(id),
-  assigned_layout_index INTEGER,
-  last_heartbeat TIMESTAMPTZ,
-  status TEXT DEFAULT 'offline',
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  menu_id UUID REFERENCES menus(id) ON DELETE CASCADE,
+  screen_index INTEGER DEFAULT 1,
+  name TEXT DEFAULT 'Main',
+  resolution TEXT DEFAULT '1080p',  -- '720p' | '1080p' | '4k'
+  aspect_ratio TEXT DEFAULT '16:9',
+  orientation TEXT DEFAULT 'landscape',  -- 'landscape' | 'portrait'
+  safe_zone TEXT DEFAULT 'tv_1080p',
+  elements JSONB DEFAULT '[]',
+  background JSONB DEFAULT '{"type": "color", "color": "#1a1a2e"}',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
----
-
-## 📱 Kiosk API Endpoints
-
-### Get Menu for Device
-```
-GET /api/kiosk/menu?device_code=XXXX-XXXX
-Response: { menu, layout }
-```
-
-### Device Heartbeat
-```
-POST /api/devices/heartbeat
-Body: { device_code, status }
-```
-
----
-
-## 🎨 Editor Features (Phase 2)
-
-### Element Types
-- `text` - Text block
-- `image` - Image element
-- `rectangle` - Box/rectangle shape
-- `circle` - Circle shape
-- `group` - Container for grouping elements
-- `menu_item` - Menu item with name, description, price, image
-- `menu_section` - Section header
-- `price_list` - Price list table
-- `combo` - Combo/special deal
-- `category_header` - Category header
-- `ticker` - Scrolling ticker
-
-### Element Properties
+### Layout Background Structure
 ```javascript
+background: {
+  type: 'color' | 'image' | 'gradient',
+  color: '#1a1a2e',        // Always present as fallback
+  value: 'https://...'     // Image URL or gradient CSS
+}
+```
+
+### Element Types (Kiosk Renderer Supports)
+| Type | Description | Data Properties |
+|------|-------------|-----------------|
+| `category_header` | Section header with icon | `icon`, `title`, `subtitle` |
+| `menu_section` | Section divider | `title`, `showDivider` |
+| `menu_item` | Food item | `name`, `description`, `price`, `image`, `showImage` |
+| `price_list` | Multiple price items | `items: [{name, price}]` |
+| `ticker` | Scrolling text | `messages: []`, `speed` |
+| `text` | Plain text | `text` |
+| `image` | Image element | `src` or `url` |
+| `shape` | Rectangle/circle | `fill`, `borderRadius` |
+
+---
+
+## 🚀 Deployment
+
+### modOSmenus (Git Push Auto-Deploy)
+```bash
+cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/modOSmenus
+git add -A && git commit -m "Your message" && git push
+# Netlify auto-deploys from GitHub
+# Build command: npm install && npm run build
+# Publish directory: modosmenus/apps/shell/dist
+```
+
+### mOSm.Cloud (Git Push or CLI)
+```bash
+cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/mOSm.cloud
+git add -A && git commit -m "Your message" && git push
+# OR direct CLI deploy:
+npx netlify deploy --prod --dir=public
+```
+
+---
+
+## 🎨 Editor → Kiosk Data Flow
+
+### Menu Creation Flow
+1. User creates menu in mOSm.Cloud dashboard
+2. Menu saved to `menus` table with `organization_id`
+3. User opens editor → creates layouts
+4. Layouts saved to `layouts` table with `menu_id`
+5. User publishes menu (`status: 'published'`)
+6. Kiosk selector shows published menus
+7. Kiosk player renders layouts for selected menu
+
+### Element Rendering in Kiosk
+```javascript
+// Kiosk reads layout.elements directly (NOT layout.content.elements)
+const elements = layout.elements || [];
+const background = layout.background || {};
+
+// Each element has:
 {
   type: 'menu_item',
-  x: 100,
-  y: 100,
-  width: 400,
-  height: 200,
-  name: 'Item Name',
-  hidden: false,      // Don't render in editor/kiosk
-  locked: false,      // Prevent editing
-  parentId: null,     // Group parent reference
-  data: {
-    name: 'Burger',
-    description: 'Delicious burger',
-    price: '$9.99',
+  x: 100,           // Position from left
+  y: 200,           // Position from top
+  width: 350,       // Element width
+  height: 100,      // Element height
+  hidden: false,    // Skip rendering if true
+  data: {           // Type-specific data
+    name: 'Tacos',
+    price: '$15.99',
+    description: 'Angus beef, lettuce, tomato',
     image: 'https://...',
     showImage: true
   },
-  style: {
-    fontSize: 24,
+  style: {          // Type-specific styling
+    fontSize: 20,
     color: '#ffffff',
-    bgColor: 'rgba(0,0,0,0.6)',
-    imageFit: 'cover',  // cover, contain, fill, none
-    opacity: 100
+    bgColor: 'rgba(0,0,0,0.5)',
+    imageFit: 'cover'
   }
 }
 ```
 
 ---
 
-## 🔄 Sync Checklist When Making Changes
+## 🐛 Troubleshooting
 
-### If you change auth.js:
-1. Update `/public/js/auth.js` in mOSm.cloud
-2. Copy to `/apps/shell/dist/apps/js/auth.js` in modOSmenus
-3. Deploy both platforms
+### "Kiosk shows 'No menus found'"
+1. Check menus have `status: 'published'` in database
+2. Check Supabase URL and service key are correct
+3. Open browser console → Network tab → check API responses
+4. Verify: `curl "https://agkrwcdvfraivfhttjrp.supabase.co/rest/v1/menus?status=eq.published" -H "apikey: {KEY}"`
 
-### If you change kiosk rendering:
-1. Update `/apps/shell/dist/apps/js/kiosk.js` in modOSmenus
-2. Deploy modOSmenus only
+### "Kiosk shows menu but content is blank"
+1. Check `layouts` table has records for that `menu_id`
+2. Verify `layout.elements` is an array (not nested in `content`)
+3. Check browser console for rendering errors
+4. Verify element positions are within viewport
 
-### If you change editor:
-1. Update `/public/editor.html` in mOSm.cloud
-2. Deploy mOSm.cloud only
-3. Test kiosk still renders correctly
+### "Controls not hiding"
+- Controls auto-hide after 3 seconds of inactivity
+- Move mouse to show, then stop moving
+- Check `HIDE_CONTROLS_DELAY = 3000` in kiosk.html
 
-### If you add new element types:
-1. Add to editor.html (addElement, renderElement, getElementIcon)
-2. Add to kiosk.js (renderElementContent)
-3. Deploy both platforms
+### "Gray bars on sides of fullscreen"
+- Fixed: Kiosk now uses `Math.max(scaleX, scaleY)` to cover viewport
+- Content scales up to fill, may crop edges slightly
 
----
-
-## 🐛 Common Issues
-
-### ⚠️ "Changes not showing after deploy" - THE BIG ONE
-**SOLUTION: USE CLI DEPLOY, NOT GIT PUSH**
-```bash
-# For mOSm.cloud
-cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/mOSm.cloud
-npx netlify deploy --prod --dir=public
-
-# For modOSmenus
-cd /Users/cffsmacmini/Documents/pitchmarketingagency.code-workspace/modosmenus/modosmenus
-npx netlify deploy --prod --dir=apps/shell/dist
-```
-**WHY?** GitHub auto-deploy integration is unreliable. The CDN doesn't always invalidate cache on git push. CLI deploy ALWAYS works.
-
-To verify your changes are live:
-```bash
-curl -s https://mosm-cloud.netlify.app | head -20
-```
-
-### "Kiosk shows blank/black screen"
-- Check browser console for errors
-- Verify API returns layout with elements (not empty array)
-- Check `elements.length > 0` condition
-- Verify hidden elements are being skipped
-
-### "Login not persisting"
-- Check localStorage has `mosm_session`
-- Verify Supabase session not expired
-- Check auth.js is loaded (no 404)
-
-### "Lead form not submitting"
-- Check Netlify function logs
-- Verify `leads` table exists in Supabase
-- Check SUPABASE_SERVICE_KEY is set in Netlify env
+### "Changes not showing after deploy"
+1. Wait 2-3 minutes for Netlify build
+2. Hard refresh: Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)
+3. Check Netlify deploy logs for build success
+4. Verify correct file was edited (public/ vs dist/)
 
 ---
 
-## 📋 Pre-Deploy Checklist
+## 🔗 URLs Reference
 
-- [ ] Make all code changes
-- [ ] Run: `npx netlify deploy --prod --dir=public`
-- [ ] Verify with: `curl -s https://mosm-cloud.netlify.app | head -20`
-- [ ] Test in incognito browser
-- [ ] Verify critical functionality:
-  - [ ] Landing page loads
-  - [ ] Login works
-  - [ ] Dashboard loads
-  - [ ] Editor saves/loads menus
-  - [ ] Kiosk renders menu
-
----
-
-## 🔗 URLs
-
-| Platform | URL |
+| Resource | URL |
 |----------|-----|
-| mOSm.Cloud (Prod) | https://mosm-cloud.netlify.app |
-| modOSmenus (Prod) | https://modosmenus.netlify.app |
-| mOSm.Cloud Netlify Dashboard | https://app.netlify.com/sites/mosm-cloud |
-| modOSmenus Netlify Dashboard | https://app.netlify.com/sites/modosmenus |
-| Supabase Dashboard | https://app.supabase.com/project/YOUR_PROJECT |
-| GitHub mOSm.cloud | https://github.com/solutionspma/mosm.cloud |
+| **mOSm.Cloud** | https://mosm-cloud.netlify.app |
+| **modOSmenus** | https://modosmenus.netlify.app |
+| **Kiosk Selector** | https://modosmenus.netlify.app/apps/kiosk-selector.html |
+| **Supabase Dashboard** | https://supabase.com/dashboard/project/agkrwcdvfraivfhttjrp |
+| **Netlify mOSm.Cloud** | https://app.netlify.com/sites/mosm-cloud |
+| **Netlify modOSmenus** | https://app.netlify.com/sites/modosmenus |
+| **GitHub mOSm.cloud** | https://github.com/solutionspma/mosm.cloud |
+| **GitHub modOSmenus** | https://github.com/solutionspma/modOSmenus |
 
 ---
 
-*Last updated: December 28, 2025*
+## ✅ Current Status (December 29, 2025)
+
+### Working ✅
+- [x] Kiosk selector shows all published menus
+- [x] Kiosk player renders menu layouts
+- [x] True fullscreen mode (fills entire screen)
+- [x] Auto-hide controls on inactivity
+- [x] All element types render (category_header, menu_item, price_list, ticker, etc.)
+- [x] Background images display correctly
+- [x] Multi-screen auto-rotation (10s intervals)
+- [x] Keyboard navigation (arrows, F, ESC)
+- [x] Back button goes to root (/)
+
+### Known Issues
+- Footer ticker removed from kiosk (was interfering with safe zones)
+- Global ticker/messaging system planned for master account control
+
+---
+
+*Last updated: December 29, 2025*
