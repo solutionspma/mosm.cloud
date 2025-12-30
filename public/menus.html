@@ -343,8 +343,8 @@
     
     async function loadMenus() {
       try {
-        const orgFilter = currentOrganization?.id ? `?organizationId=${currentOrganization.id}` : '';
-        const data = await apiRequest(`/menus${orgFilter}`);
+        // Load all menus without organization filter (menus have null organization_id)
+        const data = await apiRequest('/menus');
         menus = data.menus || [];
         renderMenus();
       } catch (error) {
