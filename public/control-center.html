@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Center - MOSM Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .status-online { color: #10b981; }
+    .status-degraded { color: #f59e0b; }
+    .status-offline { color: #ef4444; }
+    .status-unknown { color: #6b7280; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .status-dot.online { background: #10b981; }
+    .status-dot.degraded { background: #f59e0b; }
+    .status-dot.offline { background: #ef4444; }
+    .status-dot.unknown { background: #6b7280; }
+    .pulse { animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="dashboard.html" class="text-xl font-bold text-purple-400">
+          <i class="fas fa-cloud mr-2"></i>MOSM Cloud
+        </a>
+        <span class="text-gray-500">|</span>
+        <span class="text-gray-300">Control Center</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span id="lastUpdated" class="text-gray-500 text-sm"></span>
+        <button onclick="refreshAll()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">
+          <i class="fas fa-sync-alt mr-1"></i> Refresh
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="p-6">
+    <!-- Health Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Total Services</p>
+            <p id="totalServices" class="text-2xl font-bold">-</p>
+          </div>
+          <i class="fas fa-server text-3xl text-gray-600"></i>
+        </div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-4 border border-green-900">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Online</p>
+            <p id="onlineServices" class="text-2xl font-bold text-green-400">-</p>
+          </div>
+          <i class="fas fa-check-circle text-3xl text-green-600"></i>
+        </div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-4 border border-yellow-900">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Degraded</p>
+            <p id="degradedServices" class="text-2xl font-bold text-yellow-400">-</p>
+          </div>
+          <i class="fas fa-exclamation-triangle text-3xl text-yellow-600"></i>
+        </div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-4 border border-red-900">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Offline</p>
+            <p id="offlineServices" class="text-2xl font-bold text-red-400">-</p>
+          </div>
+          <i class="fas fa-times-circle text-3xl text-red-600"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Service Registry -->
+      <div class="lg:col-span-2 bg-gray-800 rounded-lg border border-gray-700">
+        <div class="p-4 border-b border-gray-700 flex items-center justify-between">
+          <h2 class="text-lg font-semibold">
+            <i class="fas fa-heartbeat mr-2 text-purple-400"></i>Service Registry
+          </h2>
+          <span class="text-xs text-gray-500">Real-time service health</span>
+        </div>
+        <div class="p-4">
+          <div id="serviceList" class="space-y-3">
+            <div class="text-center text-gray-500 py-8">
+              <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+              <p>Loading services...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locations Overview -->
+      <div class="bg-gray-800 rounded-lg border border-gray-700">
+        <div class="p-4 border-b border-gray-700">
+          <h2 class="text-lg font-semibold">
+            <i class="fas fa-map-marker-alt mr-2 text-purple-400"></i>Locations
+          </h2>
+        </div>
+        <div class="p-4">
+          <div id="locationList" class="space-y-2">
+            <div class="text-center text-gray-500 py-8">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Log & Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <!-- Recent Events -->
+      <div class="bg-gray-800 rounded-lg border border-gray-700">
+        <div class="p-4 border-b border-gray-700 flex items-center justify-between">
+          <h2 class="text-lg font-semibold">
+            <i class="fas fa-stream mr-2 text-purple-400"></i>Recent Events
+          </h2>
+          <a href="#" class="text-sm text-purple-400 hover:text-purple-300">View All</a>
+        </div>
+        <div class="p-4 max-h-80 overflow-y-auto">
+          <div id="eventList" class="space-y-2">
+            <div class="text-center text-gray-500 py-8">
+              <i class="fas fa-inbox text-2xl mb-2"></i>
+              <p>No recent events</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Summary -->
+      <div class="bg-gray-800 rounded-lg border border-gray-700">
+        <div class="p-4 border-b border-gray-700">
+          <h2 class="text-lg font-semibold">
+            <i class="fas fa-chart-bar mr-2 text-purple-400"></i>Event Summary (24h)
+          </h2>
+        </div>
+        <div class="p-4">
+          <div id="eventSummary" class="space-y-4">
+            <div class="text-center text-gray-500 py-8">
+              <i class="fas fa-chart-pie text-2xl mb-2"></i>
+              <p>Loading summary...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rollouts Section -->
+    <div class="mt-6 bg-gray-800 rounded-lg border border-gray-700">
+      <div class="p-4 border-b border-gray-700 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">
+          <i class="fas fa-rocket mr-2 text-purple-400"></i>Recent Rollouts
+        </h2>
+        <button onclick="showCreateRollout()" class="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm">
+          <i class="fas fa-plus mr-1"></i> New Rollout
+        </button>
+      </div>
+      <div class="p-4">
+        <div id="rolloutList" class="space-y-2">
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-rocket text-2xl mb-2"></i>
+            <p>No rollouts yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Script -->
+  <script src="js/auth.js"></script>
+  
+  <script>
+    let authToken = null;
+    
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check auth
+      const session = JSON.parse(localStorage.getItem('mosm_session') || 'null');
+      if (!session?.access_token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      authToken = session.access_token;
+      
+      // Load all data
+      await refreshAll();
+      
+      // Auto-refresh every 30 seconds
+      setInterval(refreshAll, 30000);
+    });
+    
+    async function refreshAll() {
+      document.getElementById('lastUpdated').textContent = 
+        `Last updated: ${new Date().toLocaleTimeString()}`;
+      
+      await Promise.all([
+        loadServiceHealth(),
+        loadEvents(),
+        loadEventSummary()
+      ]);
+    }
+    
+    async function loadServiceHealth() {
+      try {
+        const response = await fetch('/api/mosm/health', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed to load');
+        
+        const { health } = await response.json();
+        
+        // Update stats
+        document.getElementById('totalServices').textContent = health.total;
+        document.getElementById('onlineServices').textContent = health.online;
+        document.getElementById('degradedServices').textContent = health.degraded;
+        document.getElementById('offlineServices').textContent = health.offline;
+        
+        // Render service list
+        renderServiceList(health.byLocation);
+        renderLocationList(health.byLocation);
+        
+      } catch (error) {
+        console.error('Failed to load health:', error);
+        document.getElementById('serviceList').innerHTML = `
+          <div class="text-center text-red-400 py-8">
+            <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+            <p>Failed to load services</p>
+          </div>
+        `;
+      }
+    }
+    
+    function renderServiceList(byLocation) {
+      const container = document.getElementById('serviceList');
+      
+      if (!byLocation || Object.keys(byLocation).length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-server text-2xl mb-2"></i>
+            <p>No services registered yet</p>
+            <p class="text-xs mt-2">Services will appear here when they send heartbeats</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      for (const [locationId, location] of Object.entries(byLocation)) {
+        html += `
+          <div class="bg-gray-700/50 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium">${location.name}</span>
+              <span class="text-xs text-gray-400">${location.services.length} services</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        `;
+        
+        for (const service of location.services) {
+          const statusClass = `status-${service.status}`;
+          const timeAgo = getTimeAgo(service.lastHeartbeat);
+          
+          html += `
+            <div class="bg-gray-800 rounded p-2 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="status-dot ${service.status}"></span>
+                <span class="text-sm">${formatServiceName(service.service)}</span>
+              </div>
+              <span class="text-xs text-gray-500">${timeAgo}</span>
+            </div>
+          `;
+        }
+        
+        html += '</div></div>';
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    function renderLocationList(byLocation) {
+      const container = document.getElementById('locationList');
+      
+      if (!byLocation || Object.keys(byLocation).length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-4">
+            <p class="text-sm">No locations active</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      for (const [locationId, location] of Object.entries(byLocation)) {
+        const allOnline = location.services.every(s => s.status === 'online');
+        const anyOffline = location.services.some(s => s.status === 'offline');
+        const status = anyOffline ? 'offline' : (allOnline ? 'online' : 'degraded');
+        
+        html += `
+          <div class="flex items-center justify-between p-2 bg-gray-700/50 rounded">
+            <div class="flex items-center space-x-2">
+              <span class="status-dot ${status}"></span>
+              <span class="text-sm">${location.name}</span>
+            </div>
+            <span class="text-xs text-gray-500">${location.services.length}</span>
+          </div>
+        `;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    async function loadEvents() {
+      try {
+        const response = await fetch('/api/mosm/events?limit=10', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed to load');
+        
+        const { events } = await response.json();
+        renderEventList(events);
+        
+      } catch (error) {
+        console.error('Failed to load events:', error);
+      }
+    }
+    
+    function renderEventList(events) {
+      const container = document.getElementById('eventList');
+      
+      if (!events || events.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-inbox text-2xl mb-2"></i>
+            <p>No recent events</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      for (const event of events) {
+        const timeAgo = getTimeAgo(event.timestamp);
+        const icon = getEventIcon(event.event_type);
+        
+        html += `
+          <div class="flex items-start space-x-3 p-2 bg-gray-700/30 rounded text-sm">
+            <i class="${icon} text-gray-500 mt-1"></i>
+            <div class="flex-1 min-w-0">
+              <p class="text-gray-300 truncate">${event.event_type}</p>
+              <p class="text-xs text-gray-500">${event.source_service} • ${timeAgo}</p>
+            </div>
+          </div>
+        `;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    async function loadEventSummary() {
+      try {
+        const response = await fetch('/api/mosm/events/summary?hours=24', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed to load');
+        
+        const summary = await response.json();
+        renderEventSummary(summary);
+        
+      } catch (error) {
+        console.error('Failed to load summary:', error);
+      }
+    }
+    
+    function renderEventSummary(summary) {
+      const container = document.getElementById('eventSummary');
+      
+      let html = `
+        <div class="text-center mb-4">
+          <p class="text-3xl font-bold text-purple-400">${summary.total}</p>
+          <p class="text-gray-500 text-sm">events in ${summary.period}</p>
+        </div>
+      `;
+      
+      if (summary.byService && Object.keys(summary.byService).length > 0) {
+        html += '<div class="space-y-2">';
+        for (const [service, count] of Object.entries(summary.byService)) {
+          const pct = summary.total > 0 ? (count / summary.total * 100).toFixed(0) : 0;
+          html += `
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>${formatServiceName(service)}</span>
+                <span class="text-gray-400">${count}</span>
+              </div>
+              <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-purple-500 rounded-full" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }
+        html += '</div>';
+      } else {
+        html += '<p class="text-center text-gray-500 text-sm">No events by service</p>';
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    // Helpers
+    function formatServiceName(service) {
+      const names = {
+        'modos-menus': 'MOD OS Menus',
+        'pos-lite': 'POS-Lite',
+        'kds': 'KDS'
+      };
+      return names[service] || service;
+    }
+    
+    function getTimeAgo(timestamp) {
+      if (!timestamp) return 'never';
+      const seconds = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
+      if (seconds < 60) return 'just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
+    }
+    
+    function getEventIcon(eventType) {
+      if (eventType.includes('order')) return 'fas fa-receipt';
+      if (eventType.includes('menu')) return 'fas fa-utensils';
+      if (eventType.includes('availability')) return 'fas fa-toggle-on';
+      if (eventType.includes('login')) return 'fas fa-sign-in-alt';
+      return 'fas fa-circle';
+    }
+    
+    function showCreateRollout() {
+      alert('Rollout creation coming soon!');
+    }
+  </script>
+</body>
+</html>

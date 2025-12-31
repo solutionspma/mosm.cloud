@@ -11,6 +11,57 @@
   publish = "public"
   autoLaunch = false
 
+# ============================================================
+# MOSM Control Plane API Routes
+# ============================================================
+
+# Heartbeat/Registry API
+[[redirects]]
+  from = "/api/mosm/heartbeat"
+  to = "/.netlify/functions/mosm-heartbeat/heartbeat"
+  status = 200
+
+[[redirects]]
+  from = "/api/mosm/services"
+  to = "/.netlify/functions/mosm-heartbeat/services"
+  status = 200
+
+[[redirects]]
+  from = "/api/mosm/services/*"
+  to = "/.netlify/functions/mosm-heartbeat/services/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/mosm/health"
+  to = "/.netlify/functions/mosm-heartbeat/health"
+  status = 200
+
+# Config API (read-only for MOD OS)
+[[redirects]]
+  from = "/api/mosm/config/*"
+  to = "/.netlify/functions/mosm-config/:splat"
+  status = 200
+
+# Events API (audit/mirroring)
+[[redirects]]
+  from = "/api/mosm/events/*"
+  to = "/.netlify/functions/mosm-events/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/mosm/events"
+  to = "/.netlify/functions/mosm-events"
+  status = 200
+
+[[redirects]]
+  from = "/api/mosm/audit"
+  to = "/.netlify/functions/mosm-events/audit"
+  status = 200
+
+# ============================================================
+# Standard API Routes
+# ============================================================
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
@@ -21,7 +72,7 @@
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Service-Key"
 
 # Cache busting - force no cache on HTML and JS files
 [[headers]]
