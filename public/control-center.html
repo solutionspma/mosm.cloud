@@ -6,6 +6,7 @@
   <title>Control Center - MOSM Cloud</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     .status-online { color: #10b981; }
     .status-degraded { color: #f59e0b; }
@@ -28,24 +29,44 @@
   <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4">
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-4">
-        <a href="dashboard.html" class="text-xl font-bold text-purple-400">
-          <i class="fas fa-cloud mr-2"></i>MOSM Cloud
+        <a href="dashboard.html" class="text-xl font-bold text-purple-400 hover:text-purple-300">
+          <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
         </a>
         <span class="text-gray-500">|</span>
-        <span class="text-gray-300">Control Center</span>
+        <span class="text-white font-semibold"><i class="fas fa-satellite-dish mr-2 text-cyan-400"></i>Control Center</span>
+        <span class="bg-cyan-600 text-xs px-2 py-1 rounded">Organization View</span>
       </div>
       <div class="flex items-center space-x-4">
+        <span class="text-gray-400 text-sm" id="orgName">Loading...</span>
         <span id="lastUpdated" class="text-gray-500 text-sm"></span>
-        <button onclick="refreshAll()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">
+        <button onclick="refreshAll()" class="bg-cyan-600 hover:bg-cyan-700 px-3 py-1 rounded text-sm">
           <i class="fas fa-sync-alt mr-1"></i> Refresh
         </button>
       </div>
     </div>
   </nav>
 
+  <!-- Info Banner -->
+  <div class="bg-gray-800/50 border-b border-gray-700 px-6 py-3">
+    <p class="text-sm text-gray-400">
+      <i class="fas fa-info-circle mr-2 text-cyan-400"></i>
+      <strong>Control Center</strong> shows service health for your organization's locations. 
+      Services (MOD OS Menus, POS-Lite, KDS) will appear here when they send heartbeats.
+    </p>
+  </div>
+
   <div class="p-6">
-    <!-- Health Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <!-- Organization Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Locations</p>
+            <p id="totalLocations" class="text-2xl font-bold text-white">-</p>
+          </div>
+          <i class="fas fa-map-marker-alt text-3xl text-gray-600"></i>
+        </div>
+      </div>
       <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
         <div class="flex items-center justify-between">
           <div>
@@ -84,12 +105,52 @@
       </div>
     </div>
 
+    <!-- Quick Stats Row -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-gradient-to-r from-purple-900/50 to-purple-800/30 rounded-lg p-4 border border-purple-700/50">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-purple-300 text-sm">Menus</p>
+            <p id="totalMenus" class="text-2xl font-bold text-white">-</p>
+          </div>
+          <i class="fas fa-utensils text-3xl text-purple-400"></i>
+        </div>
+      </div>
+      <div class="bg-gradient-to-r from-blue-900/50 to-blue-800/30 rounded-lg p-4 border border-blue-700/50">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-blue-300 text-sm">Screens</p>
+            <p id="totalScreens" class="text-2xl font-bold text-white">-</p>
+          </div>
+          <i class="fas fa-tv text-3xl text-blue-400"></i>
+        </div>
+      </div>
+      <div class="bg-gradient-to-r from-green-900/50 to-green-800/30 rounded-lg p-4 border border-green-700/50">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-green-300 text-sm">Devices</p>
+            <p id="totalDevices" class="text-2xl font-bold text-white">-</p>
+          </div>
+          <i class="fas fa-desktop text-3xl text-green-400"></i>
+        </div>
+      </div>
+      <div class="bg-gradient-to-r from-orange-900/50 to-orange-800/30 rounded-lg p-4 border border-orange-700/50">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-orange-300 text-sm">Users</p>
+            <p id="totalUsers" class="text-2xl font-bold text-white">-</p>
+          </div>
+          <i class="fas fa-users text-3xl text-orange-400"></i>
+        </div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Service Registry -->
       <div class="lg:col-span-2 bg-gray-800 rounded-lg border border-gray-700">
         <div class="p-4 border-b border-gray-700 flex items-center justify-between">
           <h2 class="text-lg font-semibold">
-            <i class="fas fa-heartbeat mr-2 text-purple-400"></i>Service Registry
+            <i class="fas fa-heartbeat mr-2 text-cyan-400"></i>Service Registry
           </h2>
           <span class="text-xs text-gray-500">Real-time service health</span>
         </div>
@@ -107,7 +168,7 @@
       <div class="bg-gray-800 rounded-lg border border-gray-700">
         <div class="p-4 border-b border-gray-700">
           <h2 class="text-lg font-semibold">
-            <i class="fas fa-map-marker-alt mr-2 text-purple-400"></i>Locations
+            <i class="fas fa-map-marker-alt mr-2 text-cyan-400"></i>Locations
           </h2>
         </div>
         <div class="p-4">
@@ -126,9 +187,9 @@
       <div class="bg-gray-800 rounded-lg border border-gray-700">
         <div class="p-4 border-b border-gray-700 flex items-center justify-between">
           <h2 class="text-lg font-semibold">
-            <i class="fas fa-stream mr-2 text-purple-400"></i>Recent Events
+            <i class="fas fa-stream mr-2 text-cyan-400"></i>Recent Events
           </h2>
-          <a href="#" class="text-sm text-purple-400 hover:text-purple-300">View All</a>
+          <a href="#" class="text-sm text-cyan-400 hover:text-cyan-300">View All</a>
         </div>
         <div class="p-4 max-h-80 overflow-y-auto">
           <div id="eventList" class="space-y-2">
@@ -144,7 +205,7 @@
       <div class="bg-gray-800 rounded-lg border border-gray-700">
         <div class="p-4 border-b border-gray-700">
           <h2 class="text-lg font-semibold">
-            <i class="fas fa-chart-bar mr-2 text-purple-400"></i>Event Summary (24h)
+            <i class="fas fa-chart-bar mr-2 text-cyan-400"></i>Event Summary (24h)
           </h2>
         </div>
         <div class="p-4">
@@ -162,9 +223,9 @@
     <div class="mt-6 bg-gray-800 rounded-lg border border-gray-700">
       <div class="p-4 border-b border-gray-700 flex items-center justify-between">
         <h2 class="text-lg font-semibold">
-          <i class="fas fa-rocket mr-2 text-purple-400"></i>Recent Rollouts
+          <i class="fas fa-rocket mr-2 text-cyan-400"></i>Recent Rollouts
         </h2>
-        <button onclick="showCreateRollout()" class="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm">
+        <button onclick="showCreateRollout()" class="bg-cyan-600 hover:bg-cyan-700 px-3 py-1 rounded text-sm">
           <i class="fas fa-plus mr-1"></i> New Rollout
         </button>
       </div>
@@ -183,10 +244,19 @@
   <script src="js/auth.js"></script>
   
   <script>
+    // Supabase config
+    const SUPABASE_URL = 'https://agkrwcdvfraivfhttjrp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna3J3Y2R2ZnJhaXZmaHR0anJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0MzM5MDAsImV4cCI6MjA2MzAwOTkwMH0.5dALpTvOvyC8Ab1F0d0bFLEjPFa5Q0KslxzB9YnCfMk';
+    
     let authToken = null;
+    let supabase = null;
+    let currentOrg = null;
     
     // Initialize on load
     document.addEventListener('DOMContentLoaded', async () => {
+      // Initialize Supabase
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
       // Check auth
       const session = JSON.parse(localStorage.getItem('mosm_session') || 'null');
       if (!session?.access_token) {
@@ -195,6 +265,9 @@
       }
       authToken = session.access_token;
       
+      // Get current user's organization
+      await loadOrganizationInfo();
+      
       // Load all data
       await refreshAll();
       
@@ -202,15 +275,73 @@
       setInterval(refreshAll, 30000);
     });
     
+    async function loadOrganizationInfo() {
+      try {
+        // Get user profile with organization
+        const { data: profile } = await supabase
+          .from('users')
+          .select('organization_id, organizations(name)')
+          .eq('id', JSON.parse(localStorage.getItem('mosm_session')).user.id)
+          .single();
+        
+        if (profile?.organizations) {
+          currentOrg = profile.organizations;
+          document.getElementById('orgName').textContent = profile.organizations.name;
+        } else {
+          document.getElementById('orgName').textContent = 'No Organization';
+        }
+      } catch (error) {
+        console.error('Failed to load org info:', error);
+        document.getElementById('orgName').textContent = 'Unknown';
+      }
+    }
+    
     async function refreshAll() {
       document.getElementById('lastUpdated').textContent = 
         `Last updated: ${new Date().toLocaleTimeString()}`;
       
       await Promise.all([
         loadServiceHealth(),
+        loadOrganizationStats(),
         loadEvents(),
         loadEventSummary()
       ]);
+    }
+    
+    async function loadOrganizationStats() {
+      try {
+        const session = JSON.parse(localStorage.getItem('mosm_session'));
+        const userId = session?.user?.id;
+        
+        if (!userId) return;
+        
+        // Get user's organization
+        const { data: profile } = await supabase
+          .from('users')
+          .select('organization_id')
+          .eq('id', userId)
+          .single();
+        
+        if (!profile?.organization_id) return;
+        
+        // Fetch counts in parallel
+        const [locations, menus, screens, devices, users] = await Promise.all([
+          supabase.from('locations').select('id', { count: 'exact', head: true }).eq('organization_id', profile.organization_id),
+          supabase.from('menus').select('id', { count: 'exact', head: true }).eq('organization_id', profile.organization_id),
+          supabase.from('screens').select('id', { count: 'exact', head: true }).eq('organization_id', profile.organization_id),
+          supabase.from('devices').select('id', { count: 'exact', head: true }).eq('organization_id', profile.organization_id),
+          supabase.from('users').select('id', { count: 'exact', head: true }).eq('organization_id', profile.organization_id)
+        ]);
+        
+        document.getElementById('totalLocations').textContent = locations.count || 0;
+        document.getElementById('totalMenus').textContent = menus.count || 0;
+        document.getElementById('totalScreens').textContent = screens.count || 0;
+        document.getElementById('totalDevices').textContent = devices.count || 0;
+        document.getElementById('totalUsers').textContent = users.count || 0;
+        
+      } catch (error) {
+        console.error('Failed to load org stats:', error);
+      }
     }
     
     async function loadServiceHealth() {
@@ -236,11 +367,16 @@
       } catch (error) {
         console.error('Failed to load health:', error);
         document.getElementById('serviceList').innerHTML = `
-          <div class="text-center text-red-400 py-8">
-            <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
-            <p>Failed to load services</p>
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-server text-2xl mb-2"></i>
+            <p>No services registered yet</p>
+            <p class="text-xs mt-2 text-gray-600">Services will appear here when MOD OS, POS-Lite, or KDS send heartbeats from your locations.</p>
           </div>
         `;
+        document.getElementById('totalServices').textContent = '0';
+        document.getElementById('onlineServices').textContent = '0';
+        document.getElementById('degradedServices').textContent = '0';
+        document.getElementById('offlineServices').textContent = '0';
       }
     }
     
@@ -252,7 +388,7 @@
           <div class="text-center text-gray-500 py-8">
             <i class="fas fa-server text-2xl mb-2"></i>
             <p>No services registered yet</p>
-            <p class="text-xs mt-2">Services will appear here when they send heartbeats</p>
+            <p class="text-xs mt-2 text-gray-600">Services will appear here when MOD OS, POS-Lite, or KDS send heartbeats from your locations.</p>
           </div>
         `;
         return;
@@ -296,7 +432,7 @@
       if (!byLocation || Object.keys(byLocation).length === 0) {
         container.innerHTML = `
           <div class="text-center text-gray-500 py-4">
-            <p class="text-sm">No locations active</p>
+            <p class="text-sm">No active services at any location</p>
           </div>
         `;
         return;
@@ -335,6 +471,13 @@
         
       } catch (error) {
         console.error('Failed to load events:', error);
+        document.getElementById('eventList').innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-inbox text-2xl mb-2"></i>
+            <p>No recent events</p>
+            <p class="text-xs mt-2 text-gray-600">Events from your locations will appear here.</p>
+          </div>
+        `;
       }
     }
     
@@ -346,6 +489,7 @@
           <div class="text-center text-gray-500 py-8">
             <i class="fas fa-inbox text-2xl mb-2"></i>
             <p>No recent events</p>
+            <p class="text-xs mt-2 text-gray-600">Events from your locations will appear here.</p>
           </div>
         `;
         return;
@@ -383,6 +527,13 @@
         
       } catch (error) {
         console.error('Failed to load summary:', error);
+        document.getElementById('eventSummary').innerHTML = `
+          <div class="text-center mb-4">
+            <p class="text-3xl font-bold text-cyan-400">0</p>
+            <p class="text-gray-500 text-sm">events in last 24h</p>
+          </div>
+          <p class="text-center text-gray-500 text-sm">No event data yet</p>
+        `;
       }
     }
     
@@ -391,8 +542,8 @@
       
       let html = `
         <div class="text-center mb-4">
-          <p class="text-3xl font-bold text-purple-400">${summary.total}</p>
-          <p class="text-gray-500 text-sm">events in ${summary.period}</p>
+          <p class="text-3xl font-bold text-cyan-400">${summary.total || 0}</p>
+          <p class="text-gray-500 text-sm">events in ${summary.period || 'last 24h'}</p>
         </div>
       `;
       
@@ -407,7 +558,7 @@
                 <span class="text-gray-400">${count}</span>
               </div>
               <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                <div class="h-full bg-purple-500 rounded-full" style="width: ${pct}%"></div>
+                <div class="h-full bg-cyan-500 rounded-full" style="width: ${pct}%"></div>
               </div>
             </div>
           `;

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin - MOSM Cloud Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .status-dot.online { background: #10b981; box-shadow: 0 0 8px #10b981; }
+    .status-dot.degraded { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+    .status-dot.offline { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+    .status-dot.unknown { background: #6b7280; }
+    .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+    .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+    .glow-yellow { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+    .gradient-bg { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+    .card-hover:hover { transform: translateY(-2px); transition: all 0.2s; }
+  </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-black/30 border-b border-white/10 px-6 py-4 backdrop-blur-sm">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-crown text-yellow-400 text-2xl"></i>
+          <span class="text-xl font-bold text-white">MOSM Cloud</span>
+          <span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs px-2 py-1 rounded font-bold">SUPER ADMIN</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span id="lastUpdated" class="text-gray-400 text-sm"></span>
+        <button onclick="refreshAll()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm border border-white/20">
+          <i class="fas fa-sync-alt mr-2"></i>Refresh
+        </button>
+        <a href="dashboard.html" class="text-gray-400 hover:text-white text-sm">
+          <i class="fas fa-sign-out-alt mr-1"></i>Exit Super Admin
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Access Denied Banner (hidden by default) -->
+  <div id="accessDenied" class="hidden bg-red-900/50 border-b border-red-500 px-6 py-4">
+    <div class="flex items-center">
+      <i class="fas fa-exclamation-triangle text-red-400 text-xl mr-3"></i>
+      <div>
+        <p class="font-bold text-red-200">Access Denied</p>
+        <p class="text-red-300 text-sm">You are not authorized to access the Super Admin panel. Contact the platform administrator.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="p-6">
+    <!-- Platform Health Overview -->
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold mb-4 text-gray-300">
+        <i class="fas fa-heartbeat mr-2 text-red-400"></i>Platform Health
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div class="bg-white/5 rounded-xl p-4 border border-white/10 card-hover">
+          <p class="text-gray-400 text-xs uppercase tracking-wide">Organizations</p>
+          <p id="metricOrgs" class="text-3xl font-bold text-white">-</p>
+        </div>
+        <div class="bg-white/5 rounded-xl p-4 border border-white/10 card-hover">
+          <p class="text-gray-400 text-xs uppercase tracking-wide">Locations</p>
+          <p id="metricLocations" class="text-3xl font-bold text-white">-</p>
+        </div>
+        <div class="bg-white/5 rounded-xl p-4 border border-white/10 card-hover">
+          <p class="text-gray-400 text-xs uppercase tracking-wide">Users</p>
+          <p id="metricUsers" class="text-3xl font-bold text-white">-</p>
+        </div>
+        <div class="bg-white/5 rounded-xl p-4 border border-white/10 card-hover">
+          <p class="text-gray-400 text-xs uppercase tracking-wide">Menus</p>
+          <p id="metricMenus" class="text-3xl font-bold text-white">-</p>
+        </div>
+        <div class="bg-green-900/30 rounded-xl p-4 border border-green-500/30 card-hover glow-green">
+          <p class="text-green-300 text-xs uppercase tracking-wide">Services Online</p>
+          <p id="metricOnline" class="text-3xl font-bold text-green-400">-</p>
+        </div>
+        <div class="bg-yellow-900/30 rounded-xl p-4 border border-yellow-500/30 card-hover glow-yellow">
+          <p class="text-yellow-300 text-xs uppercase tracking-wide">Degraded</p>
+          <p id="metricDegraded" class="text-3xl font-bold text-yellow-400">-</p>
+        </div>
+        <div class="bg-red-900/30 rounded-xl p-4 border border-red-500/30 card-hover glow-red">
+          <p class="text-red-300 text-xs uppercase tracking-wide">Offline</p>
+          <p id="metricOffline" class="text-3xl font-bold text-red-400">-</p>
+        </div>
+        <div class="bg-purple-900/30 rounded-xl p-4 border border-purple-500/30 card-hover">
+          <p class="text-purple-300 text-xs uppercase tracking-wide">Events (24h)</p>
+          <p id="metricEvents" class="text-3xl font-bold text-purple-400">-</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Organizations List -->
+      <div class="lg:col-span-2 bg-white/5 rounded-xl border border-white/10">
+        <div class="p-4 border-b border-white/10 flex items-center justify-between">
+          <h2 class="text-lg font-semibold">
+            <i class="fas fa-building mr-2 text-blue-400"></i>All Organizations
+          </h2>
+          <span id="orgCount" class="text-gray-400 text-sm">Loading...</span>
+        </div>
+        <div class="p-4 max-h-96 overflow-y-auto">
+          <div id="orgList" class="space-y-3">
+            <div class="text-center text-gray-500 py-8">
+              <i class="fas fa-spinner fa-spin text-2xl"></i>
+              <p class="mt-2">Loading organizations...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Alerts -->
+      <div class="bg-white/5 rounded-xl border border-white/10">
+        <div class="p-4 border-b border-white/10 flex items-center justify-between">
+          <h2 class="text-lg font-semibold">
+            <i class="fas fa-bell mr-2 text-red-400"></i>Platform Alerts
+          </h2>
+          <span id="alertCount" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">0</span>
+        </div>
+        <div class="p-4 max-h-96 overflow-y-auto">
+          <div id="alertList" class="space-y-2">
+            <div class="text-center text-gray-500 py-8">
+              <i class="fas fa-check-circle text-2xl text-green-500"></i>
+              <p class="mt-2">No active alerts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Health by Organization -->
+    <div class="mt-6 bg-white/5 rounded-xl border border-white/10">
+      <div class="p-4 border-b border-white/10">
+        <h2 class="text-lg font-semibold">
+          <i class="fas fa-server mr-2 text-cyan-400"></i>Service Health by Organization
+        </h2>
+      </div>
+      <div class="p-4">
+        <div id="serviceHealth" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="text-center text-gray-500 py-8 col-span-full">
+            <i class="fas fa-spinner fa-spin text-2xl"></i>
+            <p class="mt-2">Loading service health...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Events (Platform-wide) -->
+    <div class="mt-6 bg-white/5 rounded-xl border border-white/10">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">
+          <i class="fas fa-stream mr-2 text-purple-400"></i>Recent Events (All Organizations)
+        </h2>
+        <select id="eventOrgFilter" onchange="loadEvents()" class="bg-white/10 border border-white/20 rounded px-3 py-1 text-sm">
+          <option value="">All Organizations</option>
+        </select>
+      </div>
+      <div class="p-4 max-h-80 overflow-y-auto">
+        <div id="eventList" class="space-y-2">
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-inbox text-2xl"></i>
+            <p class="mt-2">No recent events</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://agkrwcdvfraivfhttjrp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna3J3Y2R2ZnJhaXZmaHR0anJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0MzM5MDAsImV4cCI6MjA2MzAwOTkwMH0.5dALpTvOvyC8Ab1F0d0bFLEjPFa5Q0KslxzB9YnCfMk';
+    
+    let authToken = null;
+    let supabase = null;
+    let organizations = [];
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
+      const session = JSON.parse(localStorage.getItem('mosm_session') || 'null');
+      if (!session?.access_token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      authToken = session.access_token;
+      
+      // Verify super admin access
+      const hasAccess = await verifySuperAdmin();
+      if (!hasAccess) {
+        document.getElementById('accessDenied').classList.remove('hidden');
+        document.getElementById('mainContent').classList.add('opacity-50', 'pointer-events-none');
+        return;
+      }
+      
+      await refreshAll();
+      setInterval(refreshAll, 30000);
+    });
+    
+    async function verifySuperAdmin() {
+      try {
+        const response = await fetch('/api/super-admin/metrics', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        return response.ok;
+      } catch {
+        return false;
+      }
+    }
+    
+    async function refreshAll() {
+      document.getElementById('lastUpdated').textContent = 
+        `Updated: ${new Date().toLocaleTimeString()}`;
+      
+      await Promise.all([
+        loadMetrics(),
+        loadOrganizations(),
+        loadServiceHealth(),
+        loadAlerts(),
+        loadEvents()
+      ]);
+    }
+    
+    async function loadMetrics() {
+      try {
+        const response = await fetch('/api/super-admin/metrics', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed');
+        
+        const { metrics } = await response.json();
+        
+        document.getElementById('metricOrgs').textContent = metrics.organizations;
+        document.getElementById('metricLocations').textContent = metrics.locations;
+        document.getElementById('metricUsers').textContent = metrics.users;
+        document.getElementById('metricMenus').textContent = metrics.menus;
+        document.getElementById('metricOnline').textContent = metrics.services.online;
+        document.getElementById('metricDegraded').textContent = metrics.services.degraded;
+        document.getElementById('metricOffline').textContent = metrics.services.offline;
+        document.getElementById('metricEvents').textContent = metrics.events24h;
+        
+      } catch (error) {
+        console.error('Failed to load metrics:', error);
+      }
+    }
+    
+    async function loadOrganizations() {
+      try {
+        const response = await fetch('/api/super-admin/organizations', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed');
+        
+        const data = await response.json();
+        organizations = data.organizations || [];
+        
+        document.getElementById('orgCount').textContent = `${organizations.length} organizations`;
+        
+        // Populate org filter
+        const filter = document.getElementById('eventOrgFilter');
+        filter.innerHTML = '<option value="">All Organizations</option>';
+        organizations.forEach(org => {
+          filter.innerHTML += `<option value="${org.id}">${org.name}</option>`;
+        });
+        
+        renderOrganizations(organizations);
+        
+      } catch (error) {
+        console.error('Failed to load organizations:', error);
+      }
+    }
+    
+    function renderOrganizations(orgs) {
+      const container = document.getElementById('orgList');
+      
+      if (orgs.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-building text-2xl"></i>
+            <p class="mt-2">No organizations yet</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      for (const org of orgs) {
+        const health = org.serviceHealth || { total: 0, online: 0, degraded: 0, offline: 0 };
+        const healthClass = health.offline > 0 ? 'border-red-500/50' : (health.degraded > 0 ? 'border-yellow-500/50' : 'border-green-500/50');
+        const healthBg = health.offline > 0 ? 'bg-red-900/20' : (health.degraded > 0 ? 'bg-yellow-900/20' : 'bg-green-900/20');
+        
+        html += `
+          <div class="bg-white/5 rounded-lg p-4 border ${healthClass} ${healthBg} hover:bg-white/10 transition-all cursor-pointer" onclick="viewOrg('${org.id}')">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                  ${org.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p class="font-semibold text-white">${org.name}</p>
+                  <p class="text-xs text-gray-400">${org.plan || 'Free'} • Created ${new Date(org.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="flex items-center space-x-2 text-sm">
+                  <span class="text-green-400"><i class="fas fa-circle text-xs"></i> ${health.online}</span>
+                  <span class="text-yellow-400"><i class="fas fa-circle text-xs"></i> ${health.degraded}</span>
+                  <span class="text-red-400"><i class="fas fa-circle text-xs"></i> ${health.offline}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center space-x-4 text-sm text-gray-400 mt-3">
+              <span><i class="fas fa-map-marker-alt mr-1"></i>${org.locationCount || 0} locations</span>
+              <span><i class="fas fa-users mr-1"></i>${org.userCount || 0} users</span>
+              <span><i class="fas fa-server mr-1"></i>${health.total} services</span>
+            </div>
+          </div>
+        `;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    async function loadServiceHealth() {
+      try {
+        const response = await fetch('/api/super-admin/health', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed');
+        
+        const { byOrganization } = await response.json();
+        renderServiceHealth(byOrganization);
+        
+      } catch (error) {
+        console.error('Failed to load service health:', error);
+      }
+    }
+    
+    function renderServiceHealth(byOrg) {
+      const container = document.getElementById('serviceHealth');
+      
+      if (!byOrg || Object.keys(byOrg).length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-8 col-span-full">
+            <i class="fas fa-server text-2xl"></i>
+            <p class="mt-2">No services registered yet</p>
+            <p class="text-xs mt-1">Services will appear when MOD OS, POS-Lite, or KDS send heartbeats</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      for (const [orgId, org] of Object.entries(byOrg)) {
+        const healthPct = org.total > 0 ? ((org.online / org.total) * 100).toFixed(0) : 0;
+        const healthColor = healthPct >= 90 ? 'green' : (healthPct >= 50 ? 'yellow' : 'red');
+        
+        html += `
+          <div class="bg-black/30 rounded-lg p-4 border border-white/10">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-semibold">${org.name}</span>
+              <span class="text-${healthColor}-400 font-bold">${healthPct}%</span>
+            </div>
+            <div class="h-2 bg-white/10 rounded-full overflow-hidden mb-3">
+              <div class="h-full bg-${healthColor}-500 rounded-full" style="width: ${healthPct}%"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <div>
+                <p class="text-green-400 font-bold">${org.online}</p>
+                <p class="text-gray-500">Online</p>
+              </div>
+              <div>
+                <p class="text-yellow-400 font-bold">${org.degraded}</p>
+                <p class="text-gray-500">Degraded</p>
+              </div>
+              <div>
+                <p class="text-red-400 font-bold">${org.offline}</p>
+                <p class="text-gray-500">Offline</p>
+              </div>
+            </div>
+            ${org.services?.length > 0 ? `
+              <div class="mt-3 pt-3 border-t border-white/10 space-y-1">
+                ${org.services.slice(0, 3).map(s => `
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-gray-400">${s.location} / ${formatService(s.service)}</span>
+                    <span class="status-dot ${s.status}"></span>
+                  </div>
+                `).join('')}
+                ${org.services.length > 3 ? `<p class="text-gray-500 text-xs">+${org.services.length - 3} more</p>` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    async function loadAlerts() {
+      try {
+        const response = await fetch('/api/super-admin/alerts', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed');
+        
+        const { alerts, unacknowledged } = await response.json();
+        
+        document.getElementById('alertCount').textContent = unacknowledged;
+        document.getElementById('alertCount').className = unacknowledged > 0 
+          ? 'bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse'
+          : 'bg-gray-600 text-white text-xs px-2 py-1 rounded-full';
+        
+        renderAlerts(alerts);
+        
+      } catch (error) {
+        console.error('Failed to load alerts:', error);
+        renderAlerts([]);
+      }
+    }
+    
+    function renderAlerts(alerts) {
+      const container = document.getElementById('alertList');
+      
+      if (alerts.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-check-circle text-2xl text-green-500"></i>
+            <p class="mt-2">No active alerts</p>
+            <p class="text-xs">All systems operating normally</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      for (const alert of alerts) {
+        const severityColors = {
+          critical: 'border-red-500 bg-red-900/30',
+          warning: 'border-yellow-500 bg-yellow-900/30',
+          info: 'border-blue-500 bg-blue-900/30'
+        };
+        const severityIcons = {
+          critical: 'fas fa-exclamation-circle text-red-400',
+          warning: 'fas fa-exclamation-triangle text-yellow-400',
+          info: 'fas fa-info-circle text-blue-400'
+        };
+        
+        html += `
+          <div class="p-3 rounded-lg border ${severityColors[alert.severity]} ${alert.acknowledged ? 'opacity-50' : ''}">
+            <div class="flex items-start space-x-3">
+              <i class="${severityIcons[alert.severity]} mt-1"></i>
+              <div class="flex-1">
+                <p class="font-medium text-sm">${alert.title}</p>
+                <p class="text-xs text-gray-400 mt-1">${alert.message || ''}</p>
+                <p class="text-xs text-gray-500 mt-1">
+                  ${alert.organizations?.name || 'Platform'} • ${getTimeAgo(alert.created_at)}
+                </p>
+              </div>
+              ${!alert.acknowledged ? `
+                <button onclick="acknowledgeAlert('${alert.id}')" class="text-xs text-gray-400 hover:text-white">
+                  <i class="fas fa-check"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    async function acknowledgeAlert(alertId) {
+      try {
+        await fetch(`/api/super-admin/alerts/${alertId}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        await loadAlerts();
+      } catch (error) {
+        console.error('Failed to acknowledge:', error);
+      }
+    }
+    
+    async function loadEvents() {
+      try {
+        const orgFilter = document.getElementById('eventOrgFilter').value;
+        const url = orgFilter 
+          ? `/api/super-admin/events?organization_id=${orgFilter}&limit=20`
+          : '/api/super-admin/events?limit=20';
+        
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed');
+        
+        const { events } = await response.json();
+        renderEvents(events);
+        
+      } catch (error) {
+        console.error('Failed to load events:', error);
+        renderEvents([]);
+      }
+    }
+    
+    function renderEvents(events) {
+      const container = document.getElementById('eventList');
+      
+      if (events.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-inbox text-2xl"></i>
+            <p class="mt-2">No recent events</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      for (const event of events) {
+        html += `
+          <div class="flex items-start space-x-3 p-2 bg-white/5 rounded text-sm hover:bg-white/10">
+            <i class="${getEventIcon(event.event_type)} text-gray-500 mt-1"></i>
+            <div class="flex-1 min-w-0">
+              <p class="text-gray-300 truncate">${event.event_type}</p>
+              <p class="text-xs text-gray-500">
+                ${event.organizations?.name || 'Unknown'} • ${event.source_service} • ${getTimeAgo(event.timestamp)}
+              </p>
+            </div>
+          </div>
+        `;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    function viewOrg(orgId) {
+      // Could open a modal or navigate to org detail
+      alert(`Organization detail view coming soon!\nOrg ID: ${orgId}`);
+    }
+    
+    function formatService(service) {
+      const names = { 'modos-menus': 'MOD OS', 'pos-lite': 'POS-Lite', 'kds': 'KDS' };
+      return names[service] || service;
+    }
+    
+    function getTimeAgo(timestamp) {
+      if (!timestamp) return 'never';
+      const seconds = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
+      if (seconds < 60) return 'just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
+    }
+    
+    function getEventIcon(eventType) {
+      if (eventType?.includes('order')) return 'fas fa-receipt';
+      if (eventType?.includes('menu')) return 'fas fa-utensils';
+      if (eventType?.includes('service')) return 'fas fa-server';
+      if (eventType?.includes('login')) return 'fas fa-sign-in-alt';
+      return 'fas fa-circle';
+    }
+  </script>
+</body>
+</html>

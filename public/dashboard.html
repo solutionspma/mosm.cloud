@@ -579,6 +579,23 @@
           </svg>
           Settings
         </a>
+        <a href="/control-center.html" class="nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
+          Control Center
+        </a>
+      </div>
+
+      <!-- Super Admin Section (hidden by default) -->
+      <div id="superAdminNav" class="nav-section" style="display: none;">
+        <div class="nav-section-title" style="color: #f59e0b;">⚡ Platform Admin</div>
+        <a href="/super-admin.html" class="nav-item" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.1)); border: 1px solid rgba(245, 158, 11, 0.3);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #f59e0b;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+          <span style="color: #f59e0b; font-weight: 600;">Super Admin</span>
+        </a>
       </div>
     </nav>
     
@@ -993,12 +1010,28 @@
       window.location.href = `/admin.html#menus/${menuId}`;
     }
     
+    // Check if user is a super admin
+    async function checkSuperAdmin() {
+      try {
+        const response = await fetch('/api/super-admin/metrics', {
+          headers: { 'Authorization': `Bearer ${currentSession.access_token}` }
+        });
+        if (response.ok) {
+          // User is a super admin, show the nav section
+          document.getElementById('superAdminNav').style.display = 'block';
+        }
+      } catch {
+        // Not a super admin, that's fine
+      }
+    }
+    
     // Initialize - wait for auth check before loading dashboard
     async function init() {
       const isAuthorized = await checkAuth();
       // Only load dashboard if we didn't redirect
       if (isAuthorized) {
         loadDashboard();
+        checkSuperAdmin(); // Check for super admin access
         // Auto-refresh every 30 seconds
         setInterval(loadDashboard, 30000);
       }

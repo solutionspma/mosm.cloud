@@ -12,6 +12,30 @@
   autoLaunch = false
 
 # ============================================================
+# BILLING API ROUTES (Phase C)
+# ============================================================
+
+[[redirects]]
+  from = "/api/billing/webhook"
+  to = "/.netlify/functions/billing/webhook"
+  status = 200
+
+[[redirects]]
+  from = "/api/billing/checkout"
+  to = "/.netlify/functions/billing/checkout"
+  status = 200
+
+[[redirects]]
+  from = "/api/billing/portal"
+  to = "/.netlify/functions/billing/portal"
+  status = 200
+
+[[redirects]]
+  from = "/api/billing/status"
+  to = "/.netlify/functions/billing/status"
+  status = 200
+
+# ============================================================
 # MOSM Control Plane API Routes
 # ============================================================
 
@@ -20,6 +44,7 @@
   from = "/api/mosm/heartbeat"
   to = "/.netlify/functions/mosm-heartbeat/heartbeat"
   status = 200
+
 
 [[redirects]]
   from = "/api/mosm/services"
@@ -56,6 +81,20 @@
 [[redirects]]
   from = "/api/mosm/audit"
   to = "/.netlify/functions/mosm-events/audit"
+  status = 200
+
+# ============================================================
+# Super Admin API Routes
+# ============================================================
+
+[[redirects]]
+  from = "/api/super-admin/*"
+  to = "/.netlify/functions/super-admin/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/super-admin"
+  to = "/.netlify/functions/super-admin"
   status = 200
 
 # ============================================================
