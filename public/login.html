@@ -411,12 +411,14 @@
         });
         const orgData = await orgResponse.json();
         
-        // Check for return URL
+        // Check for return URL (support both 'return' and 'return_to')
         const urlParams = new URLSearchParams(window.location.search);
-        const returnUrl = urlParams.get('return');
+        const returnUrl = urlParams.get('return_to') || urlParams.get('return');
         
         if (returnUrl) {
-          window.location.href = returnUrl;
+          // If returning to modOSmenus or external app, append session token
+          const separator = returnUrl.includes('?') ? '&' : '?';
+          window.location.href = `${returnUrl}${separator}token=${session.access_token}`;
         } else if (orgData.requiresOnboarding) {
           window.location.href = '/onboarding.html';
         } else {
@@ -504,8 +506,43 @@
     
     // Check if already logged in
     const session = localStorage.getItem('mosm_session');
-    if (session) {
+    if (session && !window.location.hash.includes('access_token')) {
       window.location.href = '/dashboard.html';
+    }
+    
+    // =====================================================
+    // APP-CONTROLLED AUTH ROUTING (AUTHORITATIVE)
+    // Supabase handles identity only — app owns navigation
+    // =====================================================
+    
+    // Handle email confirmation / magic link redirects (hash fragment)
+    if (window.location.hash.includes('access_token')) {
+      showSuccess('Email confirmed! Signing you in...');
+      // Initialize auth and let it pick up the token
+      if (window.MOSMAuth && window.MOSMAuth.initAuth) {
+        window.MOSMAuth.initAuth().then((session) => {
+          if (session) {
+            setTimeout(() => {
+              window.location.href = '/dashboard.html';
+            }, 500);
+          }
+        });
+      } else if (window.supabase) {
+        // Direct Supabase fallback
+        const supabaseClient = window.supabase.createClient(
+          'https://ggucwvqjikhjnfnbvwez.supabase.co',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdndWN3dnFqaWtoam5mbmJ2d2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxMTk0NTUsImV4cCI6MjA0OTY5NTQ1NX0.8e0beHfEkKRsYIJxVfLcDOCKBb5FTj8lhSgcKXxQHZ4'
+        );
+        supabaseClient.auth.getSession().then(({ data }) => {
+          if (data.session) {
+            localStorage.setItem('mosm_session', JSON.stringify(data.session));
+            localStorage.setItem('mosm_user', JSON.stringify(data.session.user));
+            setTimeout(() => {
+              window.location.href = '/dashboard.html';
+            }, 500);
+          }
+        });
+      }
     }
   </script>
 </body>
