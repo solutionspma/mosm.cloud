@@ -45,7 +45,8 @@ export const handler = async (event, context) => {
       .upsert({
         email: data.email.toLowerCase().trim(),
         name: data.name || null,
-        company: data.company || null,
+        business_name: data.business_name || null,
+        organization_type: data.organization_type || null,
         role: data.role || null,
         locations: data.locations || null,
         source: 'landing_page',

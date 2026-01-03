@@ -405,6 +405,60 @@
       border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     
+    /* Showcase Section */
+    .showcase {
+      padding: 80px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .showcase h2 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 0%, #00d4ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .showcase > p {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 50px;
+      font-size: 16px;
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .showcase-item {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .showcase-item:hover {
+      transform: translateY(-5px);
+      border-color: rgba(0, 212, 255, 0.3);
+    }
+    .showcase-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .showcase-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
     /* Responsive */
     @media (max-width: 1024px) {
       .hero-content {
@@ -425,6 +479,10 @@
       .features-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+      
+      .showcase-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
     
     @media (max-width: 640px) {
@@ -432,12 +490,20 @@
         font-size: 36px;
       }
       
-      .form-row {
+      .features-grid {
         grid-template-columns: 1fr;
       }
       
-      .features-grid {
+      .showcase {
+        padding: 60px 20px;
+      }
+      
+      .showcase-grid {
         grid-template-columns: 1fr;
+      }
+      
+      .header-links {
+        display: none;
       }
       
       .header-links {
@@ -513,13 +579,19 @@
         </div>
         
         <div class="lead-capture" id="leadForm">
-          <h2>Get Early Access</h2>
-          <p class="subtitle">Join the waitlist for priority access</p>
+          <h2>Create Your Account</h2>
+          <p class="subtitle">Start managing your digital menus today</p>
           
           <form id="accessForm" onsubmit="handleSubmit(event)">
             <div class="form-group">
-              <label>Full Name</label>
+              <label>Your Full Name</label>
               <input type="text" id="fullName" placeholder="John Smith" required>
+              <small style="color: rgba(255,255,255,0.6); font-size: 12px; display: block; margin-top: 4px;">This is the primary account owner</small>
+            </div>
+            
+            <div class="form-group">
+              <label>Business / Organization Name</label>
+              <input type="text" id="businessName" placeholder="Example: Joe's Grill, New Hope Church" required>
             </div>
             
             <div class="form-group">
@@ -529,12 +601,21 @@
             
             <div class="form-row">
               <div class="form-group">
-                <label>Company</label>
-                <input type="text" id="company" placeholder="Restaurant name">
+                <label>Organization Type</label>
+                <select id="orgType" required>
+                  <option value="">Select type...</option>
+                  <option value="restaurant">Restaurant / Food Service</option>
+                  <option value="church">Church / Ministry</option>
+                  <option value="school">School / Campus</option>
+                  <option value="venue">Venue / Event Space</option>
+                  <option value="hospitality">Hospitality</option>
+                  <option value="retail">Retail</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div class="form-group">
                 <label>Role</label>
-                <select id="role">
+                <select id="role" required>
                   <option value="">Select role...</option>
                   <option value="owner">Owner / Executive</option>
                   <option value="manager">Manager</option>
@@ -548,7 +629,7 @@
             
             <div class="form-group">
               <label>Number of Locations</label>
-              <select id="locations">
+              <select id="locations" required>
                 <option value="1">1 location</option>
                 <option value="2-5">2-5 locations</option>
                 <option value="6-20">6-20 locations</option>
@@ -557,7 +638,7 @@
             </div>
             
             <button type="submit" class="submit-btn" id="submitBtn">
-              Request Early Access →
+              Create Your Account →
             </button>
           </form>
           
@@ -571,13 +652,44 @@
           
           <div class="success-message" id="successMessage">
             <div class="icon">🎉</div>
-            <h3>You're on the list!</h3>
-            <p>We'll notify you when your account is ready. In the meantime, feel free to explore.</p>
+            <h3>Account Created!</h3>
+            <p>Check your email to verify your account and get started.</p>
             <a href="/login.html" class="btn">Go to Login →</a>
           </div>
         </div>
       </div>
     </main>
+    
+    <section class="showcase" id="showcase">
+      <h2>Digital Menus in Action</h2>
+      <p>See how businesses are using our platform across different industries</p>
+      <div class="showcase-grid">
+        <div class="showcase-item">
+          <img src="https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Restaurant Digital Menu Board">
+          <div class="showcase-label">Restaurant Menu Board</div>
+        </div>
+        <div class="showcase-item">
+          <img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&w=800" alt="Café Counter Display">
+          <div class="showcase-label">Café Counter Display</div>
+        </div>
+        <div class="showcase-item">
+          <img src="https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fast Casual Setup">
+          <div class="showcase-label">Fast Casual Setup</div>
+        </div>
+        <div class="showcase-item">
+          <img src="https://images.pexels.com/photos/1058277/pexels-photo-1058277.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Church Event Display">
+          <div class="showcase-label">Church Event Display</div>
+        </div>
+        <div class="showcase-item">
+          <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Modern Venue Screen">
+          <div class="showcase-label">Event Venue Screen</div>
+        </div>
+        <div class="showcase-item">
+          <img src="https://images.pexels.com/photos/1307698/pexels-photo-1307698.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wall-Mounted Display">
+          <div class="showcase-label">Wall-Mounted Display</div>
+        </div>
+      </div>
+    </section>
     
     <section class="features-preview" id="features">
       <h2>Everything you need</h2>
@@ -655,8 +767,9 @@
       
       const formData = {
         name: document.getElementById('fullName').value,
+        business_name: document.getElementById('businessName').value,
         email: document.getElementById('email').value,
-        company: document.getElementById('company').value,
+        organization_type: document.getElementById('orgType').value,
         role: document.getElementById('role').value,
         locations: document.getElementById('locations').value,
         submitted_at: new Date().toISOString()
