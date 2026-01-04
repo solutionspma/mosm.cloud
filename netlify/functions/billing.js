@@ -273,8 +273,8 @@ export async function handler(event, context) {
       const sessionParams = {
         mode: 'subscription',
         line_items: lineItems,
-        success_url: `${process.env.MOSM_BASE_URL || 'http://localhost:8888'}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.MOSM_BASE_URL || 'http://localhost:8888'}/billing/cancel`,
+        success_url: `${process.env.MOSM_BASE_URL || 'http://localhost:8888'}/payment-success.html?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.MOSM_BASE_URL || 'http://localhost:8888'}/checkout.html`,
         metadata: {
           organization_id: organizationId,
           plan: plan,

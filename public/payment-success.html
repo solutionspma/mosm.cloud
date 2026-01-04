@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful - mOSm.Cloud</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .success-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 50px;
+      width: 100%;
+      max-width: 600px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+    
+    .logo {
+      margin-bottom: 30px;
+    }
+    
+    .logo img {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+    }
+    
+    .logo h1 {
+      color: #fff;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .logo span {
+      color: #00d4ff;
+    }
+    
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 212, 68, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    
+    .success-icon::before {
+      content: "✓";
+      font-size: 48px;
+      color: #00d444;
+      font-weight: 700;
+    }
+    
+    h2 {
+      color: #fff;
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    
+    .subtitle {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+    
+    .info-box {
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    
+    .info-box h3 {
+      color: #00d4ff;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .info-box ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .info-box li {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 8px 0;
+      padding-left: 28px;
+      position: relative;
+    }
+    
+    .info-box li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: #00d4ff;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #00d4ff 0%, #00a3cc 100%);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .loading {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-top: 16px;
+    }
+    
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #00d4ff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="success-container">
+    <div class="logo">
+      <img src="/images/modOSlogo.png" alt="mOSm.Cloud">
+      <h1>m<span>OSm</span>.Cloud</h1>
+    </div>
+    
+    <div class="success-icon"></div>
+    
+    <h2>Payment Successful!</h2>
+    <p class="subtitle">
+      Your account is now active. We're preparing your dashboard...
+    </p>
+    
+    <div class="info-box">
+      <h3>What's Next?</h3>
+      <ul>
+        <li>Access your dashboard and control center</li>
+        <li>Configure your locations and screens</li>
+        <li>Start creating and managing menus</li>
+        <li>Our team will reach out to assist with setup</li>
+      </ul>
+    </div>
+    
+    <button id="continueBtn" class="btn" onclick="goToDashboard()">
+      Continue to Dashboard →
+    </button>
+    
+    <div class="loading" id="loadingMessage" style="display: none;">
+      <span class="spinner"></span>
+      Activating your account...
+    </div>
+  </div>
+  
+  <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://agkrwcdvfraivfhttjrp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna3J3Y2R2ZnJhaXZmaHR0anJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1NzE5MDIsImV4cCI6MjA1MDE0NzkwMn0.wf0j6FKCNmTKBxKtCZ8uVXdyIXdCJLnKt32AZJ3w3LA';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    async function checkPaymentStatus() {
+      // Get session_id from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      
+      if (!sessionId) {
+        // No session ID, just go to dashboard
+        setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 2000);
+        return;
+      }
+      
+      // Wait a moment for webhook to process
+      document.getElementById('loadingMessage').style.display = 'block';
+      
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Verify org is activated
+      try {
+        const { data: { session: authSession } } = await supabase.auth.getSession();
+        
+        if (authSession) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('organization_id')
+            .eq('id', authSession.user.id)
+            .single();
+          
+          if (profile?.organization_id) {
+            const { data: org } = await supabase
+              .from('organizations')
+              .select('billing_status')
+              .eq('id', profile.organization_id)
+              .single();
+            
+            if (org?.billing_status === 'paid') {
+              document.getElementById('loadingMessage').textContent = '✓ Account activated!';
+              document.getElementById('continueBtn').disabled = false;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking status:', error);
+      }
+      
+      document.getElementById('loadingMessage').style.display = 'none';
+    }
+    
+    function goToDashboard() {
+      window.location.href = '/dashboard.html';
+    }
+    
+    // Auto-redirect after 5 seconds
+    setTimeout(() => {
+      goToDashboard();
+    }, 5000);
+    
+    // Check payment status on load
+    checkPaymentStatus();
+  </script>
+</body>
+</html>

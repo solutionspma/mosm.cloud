@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch Package - mOSm.Cloud</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .checkout-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .logo img {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+    }
+    
+    .logo h1 {
+      color: #fff;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .logo span {
+      color: #00d4ff;
+    }
+    
+    .logo p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 16px;
+    }
+    
+    .welcome-section {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 20px;
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 12px;
+    }
+    
+    .welcome-section h2 {
+      color: #fff;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .welcome-section p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+    }
+    
+    .package-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    
+    .package-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .package-header h3 {
+      color: #00d4ff;
+      font-size: 18px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    
+    .price {
+      font-size: 48px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    
+    .price-subtext {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+    
+    .features {
+      list-style: none;
+      margin: 24px 0;
+    }
+    
+    .features li {
+      padding: 12px 0;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .features li:last-child {
+      border-bottom: none;
+    }
+    
+    .features li::before {
+      content: "✓";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 212, 255, 0.2);
+      border-radius: 50%;
+      color: #00d4ff;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .ongoing-pricing {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 24px;
+      text-align: center;
+    }
+    
+    .ongoing-pricing p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    .ongoing-pricing .plans {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 12px;
+    }
+    
+    .ongoing-pricing .plan {
+      color: #fff;
+      font-size: 14px;
+    }
+    
+    .ongoing-pricing .plan span {
+      color: #00d4ff;
+      font-weight: 600;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #00d4ff 0%, #00a3cc 100%);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .error-message {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid #ff4444;
+      color: #ff4444;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 14px;
+    }
+    
+    .loading-message {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-top: 16px;
+      display: none;
+    }
+    
+    .secure-badge {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .secure-badge::before {
+      content: "🔒";
+    }
+  </style>
+</head>
+<body>
+  <div class="checkout-container">
+    <div class="logo">
+      <img src="/images/modOSlogo.png" alt="mOSm.Cloud">
+      <h1>m<span>OSm</span>.Cloud</h1>
+      <p>Complete Your Setup</p>
+    </div>
+    
+    <div class="welcome-section">
+      <h2>Welcome, <span id="userName">there</span>!</h2>
+      <p>Let's get your digital menu system activated</p>
+    </div>
+    
+    <div id="errorMessage" class="error-message"></div>
+    
+    <div class="package-card">
+      <div class="package-header">
+        <h3>Launch Package</h3>
+        <div class="price">$279</div>
+        <div class="price-subtext">per location</div>
+      </div>
+      
+      <ul class="features">
+        <li>Professional setup & onboarding</li>
+        <li>First month included</li>
+        <li>White-glove deployment</li>
+        <li>Live support team</li>
+        <li>Enterprise-grade reliability</li>
+        <li>Unlimited menu updates</li>
+      </ul>
+      
+      <div class="ongoing-pricing">
+        <p>After launch, choose your plan:</p>
+        <div class="plans">
+          <div class="plan">Starter: <span>$29/location/mo</span></div>
+          <div class="plan">Pro: <span>$99/location/mo</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <button id="checkoutBtn" class="btn">Proceed to Payment →</button>
+    <div id="loadingMessage" class="loading-message">Preparing checkout...</div>
+    
+    <div class="secure-badge">
+      Secure payment processing powered by Stripe
+    </div>
+  </div>
+  
+  <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://agkrwcdvfraivfhttjrp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna3J3Y2R2ZnJhaXZmaHR0anJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1NzE5MDIsImV4cCI6MjA1MDE0NzkwMn0.wf0j6FKCNmTKBxKtCZ8uVXdyIXdCJLnKt32AZJ3w3LA';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const userNameSpan = document.getElementById('userName');
+    
+    let organizationId = null;
+    let userEmail = null;
+    let locationCount = 1;
+    
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      loadingMessage.style.display = 'none';
+      checkoutBtn.disabled = false;
+    }
+    
+    // Check auth and get user details
+    async function initialize() {
+      try {
+        // Get current session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          window.location.href = '/login.html';
+          return;
+        }
+        
+        const userId = session.user.id;
+        userEmail = session.user.email;
+        
+        // Display user name
+        if (session.user.user_metadata?.name || session.user.user_metadata?.full_name) {
+          userNameSpan.textContent = session.user.user_metadata.name || session.user.user_metadata.full_name;
+        }
+        
+        // Get organization
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('organization_id')
+          .eq('id', userId)
+          .single();
+        
+        if (profileError || !profile?.organization_id) {
+          showError('Organization not found. Please contact support.');
+          return;
+        }
+        
+        organizationId = profile.organization_id;
+        
+        // Check if already paid
+        const { data: org, error: orgError } = await supabase
+          .from('organizations')
+          .select('billing_status, active_locations')
+          .eq('id', organizationId)
+          .single();
+        
+        if (orgError) {
+          console.error('Error fetching org:', orgError);
+        } else if (org?.billing_status === 'paid') {
+          // Already paid, redirect to dashboard
+          window.location.href = '/dashboard.html';
+          return;
+        }
+        
+        // Get location count from metadata
+        const { data: metadata } = await supabase
+          .from('user_metadata')
+          .select('value')
+          .eq('user_id', userId)
+          .eq('key', 'locations')
+          .single();
+        
+        if (metadata?.value) {
+          // Parse location count from value like "2-5" or "1"
+          const locValue = metadata.value;
+          if (locValue === '1') {
+            locationCount = 1;
+          } else if (locValue.includes('-')) {
+            // Use midpoint for ranges
+            const [min, max] = locValue.replace('+', '').split('-').map(Number);
+            locationCount = Math.ceil((min + max) / 2);
+          } else {
+            locationCount = parseInt(locValue) || 1;
+          }
+        }
+        
+        // Update price display
+        const priceElement = document.querySelector('.price');
+        const totalPrice = locationCount * 279;
+        priceElement.textContent = `$${totalPrice}`;
+        
+        if (locationCount > 1) {
+          const priceSubtext = document.querySelector('.price-subtext');
+          priceSubtext.textContent = `for ${locationCount} locations`;
+        }
+        
+      } catch (error) {
+        console.error('Initialization error:', error);
+        showError('Failed to load checkout. Please try again.');
+      }
+    }
+    
+    // Handle checkout button click
+    checkoutBtn.addEventListener('click', async () => {
+      if (!organizationId) {
+        showError('Organization ID not found. Please refresh the page.');
+        return;
+      }
+      
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = 'Preparing checkout...';
+      errorMessage.style.display = 'none';
+      loadingMessage.style.display = 'block';
+      
+      try {
+        // Create checkout session
+        const response = await fetch('/api/billing/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            organizationId: organizationId,
+            plan: 'starter', // Default to starter
+            locationCount: locationCount,
+            newLocations: locationCount // All locations are new
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create checkout session');
+        }
+        
+        if (!data.url) {
+          throw new Error('No checkout URL received');
+        }
+        
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+        
+      } catch (error) {
+        console.error('Checkout error:', error);
+        showError(error.message || 'Failed to start checkout. Please try again.');
+        checkoutBtn.textContent = 'Proceed to Payment →';
+        checkoutBtn.disabled = false;
+        loadingMessage.style.display = 'none';
+      }
+    });
+    
+    // Initialize on page load
+    initialize();
+  </script>
+</body>
+</html>

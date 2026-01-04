@@ -328,9 +328,9 @@
         showSuccess('Account created! Check your email to verify your account.');
         signupForm.reset();
         
-        // Redirect to login after 3 seconds
+        // Redirect to checkout after 3 seconds
         setTimeout(() => {
-          window.location.href = '/login.html?verified=1';
+          window.location.href = '/checkout.html';
         }, 3000);
         
       } catch (error) {
