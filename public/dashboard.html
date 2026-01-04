@@ -794,6 +794,52 @@
       // Update last activity timestamp
       localStorage.setItem('mosm_last_activity', Date.now().toString());
       
+      // ============================================
+      // PAYMENT GATE: Check billing status
+      // ============================================
+      const SUPABASE_URL = 'https://agkrwcdvfraivfhttjrp.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna3J3Y2R2ZnJhaXZmaHR0anJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1NzE5MDIsImV4cCI6MjA1MDE0NzkwMn0.wf0j6FKCNmTKBxKtCZ8uVXdyIXdCJLnKt32AZJ3w3LA';
+      
+      try {
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Get user's organization
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('organization_id')
+          .eq('id', currentUser.id)
+          .single();
+        
+        if (!profile?.organization_id) {
+          console.log('No organization found, redirecting to checkout...');
+          window.location.href = '/checkout.html';
+          return false;
+        }
+        
+        // Check billing status
+        const { data: org } = await supabase
+          .from('organizations')
+          .select('billing_status, name')
+          .eq('id', profile.organization_id)
+          .single();
+        
+        console.log('Billing check:', org);
+        
+        if (!org || (org.billing_status !== 'paid' && org.billing_status !== 'trialing')) {
+          console.log('Payment required, redirecting to checkout...');
+          window.location.href = '/checkout.html';
+          return false;
+        }
+        
+        // Billing OK - store org info
+        currentOrganization = org;
+      } catch (error) {
+        console.error('Error checking billing status:', error);
+        // On error, allow access but log the issue
+        // (Could be network issue, don't want to lock out paid users)
+      }
+      // ============================================
+      
       // Check if user has an organization
       try {
         const response = await fetch('/api/organizations', {
@@ -811,13 +857,15 @@
           return false;
         }
         
-        currentOrganization = orgData.organization;
+        currentOrganization = orgData.organization || currentOrganization;
         localStorage.setItem('mosm_organization', JSON.stringify(currentOrganization));
       } catch (error) {
         console.error('Error checking organization:', error);
-        // If org check fails, redirect to onboarding to be safe
-        window.location.href = '/onboarding.html';
-        return false;
+        // If org check fails but billing was OK, continue
+        if (!currentOrganization) {
+          window.location.href = '/onboarding.html';
+          return false;
+        }
       }
       
       // Update user info in sidebar
