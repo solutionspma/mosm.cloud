@@ -543,7 +543,8 @@
       <nav class="header-links">
         <a href="#features">Features</a>
         <a href="https://modosmenus.com" target="_blank">ModosMenus.com</a>
-        <a href="/login.html">Sign In</a>
+        <a href="/login.html" style="color: rgba(255,255,255,0.7);">Sign In</a>
+        <a href="/signup.html" style="background: linear-gradient(135deg, #00d4ff 0%, #00a3cc 100%); padding: 10px 20px; border-radius: 8px; font-weight: 600;">Sign Up</a>
       </nav>
     </header>
     
@@ -579,74 +580,45 @@
         </div>
         
         <div class="lead-capture" id="leadForm">
-          <h2>Create Your Account</h2>
-          <p class="subtitle">Start managing your digital menus today</p>
+          <h2>Get Started Today</h2>
+          <p class="subtitle">Professional digital menu management for your business</p>
           
-          <form id="accessForm" onsubmit="handleSubmit(event)">
-            <div class="form-group">
-              <label>Your Full Name</label>
-              <input type="text" id="fullName" placeholder="John Smith" required>
-              <small style="color: rgba(255,255,255,0.6); font-size: 12px; display: block; margin-top: 4px;">This is the primary account owner</small>
-            </div>
-            
-            <div class="form-group">
-              <label>Business / Organization Name</label>
-              <input type="text" id="businessName" placeholder="Example: Joe's Grill, New Hope Church" required>
-            </div>
-            
-            <div class="form-group">
-              <label>Work Email</label>
-              <input type="email" id="email" placeholder="john@restaurant.com" required>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label>Organization Type</label>
-                <select id="orgType" required>
-                  <option value="">Select type...</option>
-                  <option value="restaurant">Restaurant / Food Service</option>
-                  <option value="church">Church / Ministry</option>
-                  <option value="school">School / Campus</option>
-                  <option value="venue">Venue / Event Space</option>
-                  <option value="hospitality">Hospitality</option>
-                  <option value="retail">Retail</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Role</label>
-                <select id="role" required>
-                  <option value="">Select role...</option>
-                  <option value="owner">Owner / Executive</option>
-                  <option value="manager">Manager</option>
-                  <option value="marketing">Marketing</option>
-                  <option value="designer">Designer</option>
-                  <option value="developer">Developer / IT</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label>Number of Locations</label>
-              <select id="locations" required>
-                <option value="1">1 location</option>
-                <option value="2-5">2-5 locations</option>
-                <option value="6-20">6-20 locations</option>
-                <option value="20+">20+ locations</option>
-              </select>
-            </div>
-            
-            <button type="submit" class="submit-btn" id="submitBtn">
+          <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 16px;">
+            <a href="/signup.html" class="submit-btn" style="display: block; text-align: center; text-decoration: none; padding: 18px;">
               Create Your Account →
-            </button>
-          </form>
+            </a>
+            <p style="color: rgba(255,255,255,0.6); text-align: center; font-size: 14px;">
+              Already have an account? <a href="/login.html" style="color: #00d4ff; text-decoration: none; font-weight: 600;">Sign in here</a>
+            </p>
+          </div>
+          
+          <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <h3 style="color: #fff; font-size: 18px; margin-bottom: 16px; text-align: center;">What's Included</h3>
+            <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0;">
+              <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
+                <span style="position: absolute; left: 0; color: #00d4ff;">✓</span>
+                Professional onboarding & setup
+              </li>
+              <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
+                <span style="position: absolute; left: 0; color: #00d4ff;">✓</span>
+                Live support team
+              </li>
+              <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
+                <span style="position: absolute; left: 0; color: #00d4ff;">✓</span>
+                Full menu management platform
+              </li>
+              <li style="margin-bottom: 12px; padding-left: 30px; position: relative;">
+                <span style="position: absolute; left: 0; color: #00d4ff;">✓</span>
+                Unlimited menu updates
+              </li>
+            </ul>
+          </div>
           
           <p class="form-footer">
             By signing up, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
           </p>
           
-          <div class="login-link">
+          <div class="login-link" style="display: none;">
             Already have an account? <a href="/login.html">Sign in here</a>
           </div>
           
