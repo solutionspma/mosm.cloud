@@ -256,8 +256,14 @@
     <div class="package-card">
       <div class="package-header">
         <h3>Launch Package</h3>
-        <div class="price">$279</div>
-        <div class="price-subtext">per location</div>
+        <div style="margin-bottom: 16px;">
+          <div class="price">$29</div>
+          <div class="price-subtext">per location/month</div>
+        </div>
+        <div style="font-size: 14px; color: rgba(255,255,255,0.6); padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 16px;">
+          + $250 one-time setup fee per location<br>
+          <span style="font-size: 12px; color: rgba(255,255,255,0.5);">(Includes professional installation & first month)</span>
+        </div>
       </div>
       
       <ul class="features">
@@ -287,10 +293,10 @@
   </div>
   
   <script>
-    // Initialize Supabase
+    // Supabase client (SDK loaded in <head>)
     const SUPABASE_URL = 'https://agkrwcdvfraivfhttjrp.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna3J3Y2R2ZnJhaXZmaHR0anJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1NzE5MDIsImV4cCI6MjA1MDE0NzkwMn0.wf0j6FKCNmTKBxKtCZ8uVXdyIXdCJLnKt32AZJ3w3LA';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     const checkoutBtn = document.getElementById('checkoutBtn');
     const errorMessage = document.getElementById('errorMessage');
@@ -312,7 +318,7 @@
     async function initialize() {
       try {
         // Get current session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await sbClient.auth.getSession();
         
         if (sessionError || !session) {
           window.location.href = '/login.html';
@@ -328,7 +334,7 @@
         }
         
         // Get organization
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile, error: profileError } = await sbClient
           .from('profiles')
           .select('organization_id')
           .eq('id', userId)
@@ -342,7 +348,7 @@
         organizationId = profile.organization_id;
         
         // Check if already paid
-        const { data: org, error: orgError } = await supabase
+        const { data: org, error: orgError } = await sbClient
           .from('organizations')
           .select('billing_status, active_locations')
           .eq('id', organizationId)
@@ -357,7 +363,7 @@
         }
         
         // Get location count from metadata
-        const { data: metadata } = await supabase
+        const { data: metadata } = await sbClient
           .from('user_metadata')
           .select('value')
           .eq('user_id', userId)
@@ -378,14 +384,17 @@
           }
         }
         
-        // Update price display
-        const priceElement = document.querySelector('.price');
-        const totalPrice = locationCount * 279;
-        priceElement.textContent = `$${totalPrice}`;
-        
+        // Update price display for multiple locations
         if (locationCount > 1) {
-          const priceSubtext = document.querySelector('.price-subtext');
-          priceSubtext.textContent = `for ${locationCount} locations`;
+          const priceElement = document.querySelector('.price');
+          const monthlyTotal = locationCount * 29;
+          priceElement.textContent = `$${monthlyTotal}`;
+          
+          const setupFeeText = document.querySelector('.package-header > div:nth-child(3)');
+          if (setupFeeText) {
+            const setupTotal = locationCount * 250;
+            setupFeeText.innerHTML = `+ $${setupTotal} one-time setup fee<br><span style="font-size: 12px; color: rgba(255,255,255,0.5);">(${locationCount} locations × $250 setup + first month included)</span>`;
+          }
         }
         
       } catch (error) {
