@@ -241,7 +241,6 @@
 <body>
   <div class="checkout-container">
     <div class="logo">
-      <img src="/images/modOSlogo.png" alt="mOSm.Cloud">
       <h1>m<span>OSm</span>.Cloud</h1>
       <p>Complete Your Setup</p>
     </div>
@@ -321,7 +320,8 @@
         const { data: { session }, error: sessionError } = await sbClient.auth.getSession();
         
         if (sessionError || !session) {
-          window.location.href = '/login.html';
+          // Redirect to signup (not login) - they need to create account first
+          window.location.href = '/signup.html';
           return;
         }
         
